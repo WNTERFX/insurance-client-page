@@ -15,7 +15,6 @@ body {
 .nav-bar {
    position: fixed;
    background-color: #8A7F7F;
-   color: white;
    height: 100%;
    width: 200px;  
 }
@@ -37,6 +36,7 @@ body {
 
 .nav-bar .nav-bar-buttoninput {
    padding: 20px;
+   background-color: None;
    
 }
 
