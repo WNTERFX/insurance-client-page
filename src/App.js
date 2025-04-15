@@ -1,7 +1,11 @@
 import NavBar from './NavBar';
+import TopBar from './TopBar';
 
 function App() {
-  return  <NavBar />
+  return  (
+    <><TopBar /><NavBar /></>
+
+  );
    
 }
 
