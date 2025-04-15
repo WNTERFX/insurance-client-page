@@ -1,6 +1,5 @@
 
 import {Menu, x} from 'lucide-react';
-import { useState } from "react";
 export default function NavBar() {
 
  
@@ -17,7 +16,7 @@ export default function NavBar() {
       <a href="#" className="side-bar-item">Clients</a>
       <a href="#" className="side-bar-item">Due</a>
       <a href="#" className="side-bar-item">Policy</a>
-      <a href="#" className="side-bar-item">App 5</a> 
+      <a href="#" className="side-bar-item">Data</a> 
     </div>
   </div>
   );
