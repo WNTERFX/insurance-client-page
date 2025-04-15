@@ -2,7 +2,7 @@
 import {Menu, x} from 'lucide-react';
 export default function NavBar() {
 
- 
+ //hehehe angelo
   return (
   <div className="nav-bar">
     <div className="logo-bar">
