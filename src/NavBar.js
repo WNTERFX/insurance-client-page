@@ -7,7 +7,7 @@ export default function NavBar() {
   <div className="nav-bar">
     <div className="logo-bar">
     <button className="nav-bar-button" >
-      <Menu className="nav-bar-icon" size={25} color="black" />
+      <Menu className="nav-bar-icon" size={30} color="black" />
     </button>
     <h1 className="logo">Silverstar Insurance</h1>
     </div>
@@ -16,7 +16,7 @@ export default function NavBar() {
       <a href="#" className="side-bar-item">Clients</a>
       <a href="#" className="side-bar-item">Due</a>
       <a href="#" className="side-bar-item">Policy</a>
-      <a href="#" className="side-bar-item">Data</a> 
+      <a href="#" className="side-bar-item">Monthly Data</a> 
     </div>
   </div>
   );
