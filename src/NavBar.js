@@ -17,7 +17,11 @@ export default function NavBar() {
       <a href="#" className="side-bar-item">Due</a>
       <a href="#" className="side-bar-item">Policy</a>
       <a href="#" className="side-bar-item">Monthly Data</a> 
+      <a href="#" className="side-bar-item">Login</a>
+       
     </div>
   </div>
   );
 }
+
+
