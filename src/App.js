@@ -1,7 +1,9 @@
+import LoginForm from './LoginForm';
 import NavBar from './NavBar';
 
 function App() {
-  return  <NavBar />
+  return <LoginForm/> 
+  
    
 }
 
