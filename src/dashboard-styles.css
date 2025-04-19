@@ -1,0 +1,63 @@
+* {
+    box-sizing: border-box;
+}
+
+.dashboard-container > div.dashboard-header {
+    
+    color: #222;
+    padding: 10px 5px 0px;  
+    font-size: 35px;
+   
+    align-items: center;
+    
+}
+.dashboard-content {
+    display: grid;
+    grid-template-areas: 
+        "activeclients duesClients clients"
+        "undelieveredPolicy deliveredPolicy clients"
+        "recentPolicies recentPolicies clientChart";
+
+    gap: 10px;     
+    padding: 10px;
+}
+
+.dashboard-content > div {
+    background-color: blue;
+    padding: 10px;
+   
+}
+
+.dashboard-content > div.active-clients {
+    background-color: darkgray;
+    grid-area: activeclients;
+}
+
+.dashboard-content > div.due-clients {
+    background-color: darkgray;
+    grid-area: duesClients;
+}
+
+.dashboard-content > div.clients-list {
+    background-color: darkgray;
+    grid-area: clients;
+}
+
+.dashboard-content > div.undelivered-policy {
+    background-color: darkgray;
+    grid-area: undelieveredPolicy;
+}
+
+.dashboard-content > div.delivered-policy {
+    background-color: darkgray;
+    grid-area: deliveredPolicy;
+}
+.dashboard-content > div.recent-policy {
+    background-color: darkgray;
+    grid-area: recentPolicies;
+}
+
+.dashboard-content > div.monthly-data {
+    background-color: darkgray;
+    grid-area: clientChart;
+}
