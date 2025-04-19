@@ -1,9 +1,15 @@
 import LoginForm from './LoginForm';
-import NavBar from './NavBar';
-import TopBar from './TopBar';
+import MainArea from './MainArea';
+import {Routes, Route } from "react-router-dom";
 
 function App() {
-  return <LoginForm/> 
+  return (
+    <Routes>
+      <Route path="/appinsurance" element={<LoginForm /> }/>
+      <Route path="/appinsurance/MainArea" element={<MainArea /> }/>
+      <Route path="*" element={<div>Page not found</div>} />
+    </Routes>
+  );
   
    
 }
