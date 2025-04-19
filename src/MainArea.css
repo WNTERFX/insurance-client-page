@@ -1,13 +1,21 @@
 .main-area {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* Full height of the viewport */
+  height: 100vh;
 }
 
 .main-area .content-area {
+  
+    flex: 5;
+    margin-left: 200px; 
+    background-color: #f3f3f3; 
+}
+
+@media screen and (max-width: 1920px){
+  
+  .main-area .content-area {
    
-    flex: 2;
-    margin-left: 200px; /* Adjust this value to match the width of the nav bar */
-    background-color: #f3f3f3; /* Light gray background for the content area */
-    
+    margin-left: 180px !important; 
+  }
+  
 }
