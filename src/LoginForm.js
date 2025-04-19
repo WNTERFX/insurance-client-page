@@ -1,8 +1,18 @@
 import "./login.css"
 import "./images/Logo.png"
-export default function LoginForm(){
-    return(
+import { useNavigate } from "react-router-dom";
 
+export default function LoginForm(){
+
+    let navigate = useNavigate();
+    const route = () =>
+      {
+        let path = "/appinsurance/MainArea";
+        navigate(path);
+      }
+
+    return(
+    <div class="login-container">
     <div class="container">
         <div class="login-card">
           <div class="logo-panel">
@@ -16,11 +26,11 @@ export default function LoginForm(){
               <label>Password</label>
               <input type="password" placeholder="Enter your password" required />
               <div class="password-button"></div>
-              <button type="submit">Log In</button>
+              <button type="submit" onClick={() => route("appinsurance/MainArea")}>Log In</button>
             </form>
           </div>
         </div>
     </div>
-        ///test 
+    </div>
     );
 }

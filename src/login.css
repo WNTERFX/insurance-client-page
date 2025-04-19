@@ -1,16 +1,13 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', sans-serif;
-  }
+
   
-  body, html {
-    height: 100%;
-    background-color: #f3f3f3;
+  .login-container {
     display: flex;
     justify-content: center;
     align-items: center;
+    min-height: 100vh;
+    height: 100%;
+    background-color: #f3f3f3;
+    
   }
   
   .container {
