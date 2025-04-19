@@ -7,7 +7,6 @@
     color: #222;
     padding: 10px 5px 0px;  
     font-size: 35px;
-   
     align-items: center;
     
 }
@@ -20,27 +19,33 @@
 
     gap: 10px;     
     padding: 0px 10px 10px;
+   
+    
 }
 
 .dashboard-content > div {
-    background-color: blue;
+    
     padding: 10px;
-   
+    
 }
 
 .dashboard-content > div.active-clients {
     background-color: darkgray;
     grid-area: activeclients;
+    
+
 }
 
 .dashboard-content > div.due-clients {
     background-color: darkgray;
     grid-area: duesClients;
+   
 }
 
 .dashboard-content > div.clients-list {
     background-color: darkgray;
     grid-area: clients;
+    height: 100%;
 }
 
 .dashboard-content > div.undelivered-policy {
@@ -60,4 +65,13 @@
 .dashboard-content > div.monthly-data {
     background-color: darkgray;
     grid-area: clientChart;
+}
+
+@media screen and (min-height: 768px) {
+  
+    .dashboard-content > div {
+        
+        height: 300px;
+    }
+
 }
