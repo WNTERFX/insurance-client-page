@@ -8,12 +8,10 @@ body, html {
    background-color: #8A7F7F;
    height: 100%;
    width: 200px; 
- 
-
 }
+
 .nav-bar .logo-bar
 {
-  
    height: 100px;
    width: 100%;
    display: flex;
@@ -27,28 +25,46 @@ body, html {
    font-size: 20px;
 }
 
-.nav-bar .nav-bar-buttoninput {
-   padding: 20px;
-   background-color: None;
-   
+.nav-bar .nav-bar-button{
+   padding: 1px 0 1px 0;
 }
 
 .side-bar .side-bar-item {
    padding: 30px 0 30px 0;
    color: black;
-   font-size:  30px;
+   font-size: 30px;
    text-decoration: none;
    display: block;
    background-color: #D9D9D9;
-   text-align: center;
+   text-align:left;
    margin-top: 20px;
    font-family: 'Inter', sans-serif;
 }
-
 
 .side-bar .side-bar-item:hover {
    background-color: #ffffff;
 }
 .side-bar .side-bar-item.active {
    background-color: #ffffff;
+}
+
+@media screen and (max-width: 1920px) {
+   .nav-bar {
+      width: 180px; 
+   }
+   
+   .nav-bar .logo {
+      padding: 10px;
+      
+   }
+   
+   .nav-bar .nav-bar-button {
+      margin-left: -5px;
+      
+   }
+
+   .side-bar .side-bar-item {
+      font-size: 20px;
+      padding: 15px 0 15px 0;
+   }
 }
