@@ -15,7 +15,25 @@
   
   .main-area .content-area {
    
-    margin-left: 180px !important; 
+    margin-left: 180px; 
+  }
+  
+}
+
+@media screen and (min-width: 1080px) {
+  
+  .main-area .content-area {
+   
+    margin-left: 200px ; 
+  }
+  
+}
+
+@media screen and (max-height: 900px)  {
+  
+  .main-area .content-area {
+   
+    margin-left: 180px; 
   }
   
 }
