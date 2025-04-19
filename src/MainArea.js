@@ -12,7 +12,7 @@ export default function MainArea()
             <div className="nav-area">
                 <NavBar />
             </div>
-            <div className="content-area">
+            <div className="content-area"> 
                 <Dashboard />
             </div>
         </div>
