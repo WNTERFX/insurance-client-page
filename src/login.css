@@ -1,16 +1,13 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', sans-serif;
-  }
+
   
-  body, html {
-    height: 100%;
-    background-color: #f3f3f3;
+  .login-container {
     display: flex;
     justify-content: center;
     align-items: center;
+    min-height: 100vh;
+    height: 100%;
+    background-color: #f3f3f3;
+    
   }
   
   .container {
@@ -19,7 +16,7 @@
     background-color: white;
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
   }
   
   .login-card {
@@ -28,7 +25,7 @@
     height: 400px;
   }
   
-  .left-panel {
+  .logo-panel {
     background-color: white;
     display: flex;
     flex-direction: column;
@@ -38,11 +35,12 @@
     text-align: center;
   }
   
-  .left-panel img {
+  .logo-panel img {
     max-width: 100%;
     max-height: 180px;
     object-fit: contain;
     margin-bottom: 10px;
+    filter: drop-shadow(10px 10px 20px rgba(0, 0, 0, 0.1));
   }
   
   .right-panel {
@@ -74,6 +72,7 @@
   }
   
   button {
+    
     padding: 10px;
     background-color: #ddd;
     border: none;
@@ -81,6 +80,7 @@
     cursor: pointer;
     transition: background 0.3s ease;
   }
+  
   
   button:hover {
     background-color: #bbb;
