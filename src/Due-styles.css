@@ -1,0 +1,38 @@
+* {
+    box-sizing: border-box;
+}
+
+.Due-container > div.Due-header {
+    
+    color: #222;
+    padding: 10px 5px 0px;  
+    font-size: 25px;
+    
+}
+
+.Due-content{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    width: 1350px;
+    height: 200px;
+    margin: auto;
+}
+.Due-total{
+    background: white;
+    padding: 20px;
+    background-color: lightgray;
+    font-size: 20px;
+}
+
+.Due-total > p {
+    text-align: center;
+    font-size: 20px;
+}
+
+
+
+
+
+
+

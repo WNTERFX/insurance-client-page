@@ -1,0 +1,38 @@
+* {
+    box-sizing: border-box;
+}
+
+.Policy-container > div.Policy-header {
+    
+    color: #222;
+    padding: 10px 5px 0px;  
+    font-size: 25px;
+}
+
+.Policy-content{
+    background-color: lightgray;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.button-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 200px);
+    gap: 20px;
+}
+
+.policy-btn {
+    padding: 30px 0;
+    font-size: 18px;
+    background-color: white;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.policy-btn:hover {
+    background-color: #eee;
+}
+  

@@ -30,40 +30,40 @@
 }
 
 .dashboard-content > div.active-clients {
-    background-color: darkgray;
+    background-color: lightgray;
     grid-area: activeclients;
     
 
 }
 
 .dashboard-content > div.due-clients {
-    background-color: darkgray;
+    background-color: lightgray;
     grid-area: duesClients;
    
 }
 
 .dashboard-content > div.clients-list {
-    background-color: darkgray;
+    background-color: lightgray;
     grid-area: clients;
     height: 100%;
 }
 
 .dashboard-content > div.undelivered-policy {
-    background-color: darkgray;
+    background-color: lightgray;
     grid-area: undelieveredPolicy;
 }
 
 .dashboard-content > div.delivered-policy {
-    background-color: darkgray;
+    background-color: lightgray;
     grid-area: deliveredPolicy;
 }
 .dashboard-content > div.recent-policy {
-    background-color: darkgray;
+    background-color: lightgray;
     grid-area: recentPolicies;
 }
 
 .dashboard-content > div.monthly-data {
-    background-color: darkgray;
+    background-color: lightgray;
     grid-area: clientChart;
 }
 
