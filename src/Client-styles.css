@@ -1,0 +1,38 @@
+* {
+    box-sizing: border-box;
+}
+
+.Client-container > div.Client-header {
+    
+    color: #222;
+    padding: 10px 5px 0px;  
+    font-size: 25px;
+    
+}
+
+.Client-content{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    width: 1350px;
+    height: 200px;
+    margin: auto;
+}
+.Agents{
+    background: white;
+    padding: 20px;
+    background-color: lightgray;
+    font-size: 20px;
+}
+
+.Agents > p {
+    text-align: center;
+    font-size: 20px;
+}
+
+
+
+
+
+
+

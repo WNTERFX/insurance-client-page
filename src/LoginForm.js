@@ -1,5 +1,5 @@
 import "./login.css"
-import "./images/Logo.png"
+import "./images/logo.png"
 import { useNavigate } from "react-router-dom";
 
 export default function LoginForm(){
@@ -16,7 +16,7 @@ export default function LoginForm(){
     <div class="container">
         <div class="login-card">
           <div class="logo-panel">
-            <img src={require('./images/Logo.png')} alt="silverstar_insurance_inc_Logo" />
+            <img src={require('./images/logo.png')} alt="silverstar_insurance_inc_Logo" />
           </div>
           <div class="right-panel">
             <h2>Log In to your account</h2>
