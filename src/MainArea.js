@@ -19,7 +19,7 @@ export default function MainArea()
                 <NavBar />
             </div>
             <div className="content-area"> 
-                <Client />
+                <Dashboard />
             </div>
         </div>
     );
