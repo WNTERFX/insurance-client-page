@@ -11,7 +11,7 @@
     background-color: #f3f3f3; 
 }
 
-@media screen and (max-width: 1920px){
+@media screen and (min-width: 1080px) and (max-width: 2000px) {
   
   .main-area .content-area {
    
@@ -20,20 +20,13 @@
   
 }
 
-@media screen and (min-width: 1080px) {
-  
-  .main-area .content-area {
-   
-    margin-left: 200px ; 
-  }
-  
-}
+@media screen and (min-height: 300px) and (max-height: 900px) {
 
-@media screen and (max-height: 900px)  {
-  
   .main-area .content-area {
-   
+ 
     margin-left: 180px; 
   }
   
 }
+
+

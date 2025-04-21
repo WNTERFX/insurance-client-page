@@ -1,4 +1,4 @@
-import "./login.css"
+import "./styles/login-styles.css"
 import "./images/logo.png"
 import { useNavigate } from "react-router-dom";
 

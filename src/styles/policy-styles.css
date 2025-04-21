@@ -2,11 +2,23 @@
     box-sizing: border-box;
 }
 
+.Policy-container {
+    padding: 0px 10px 10px;
+
+
+}
+.Policy-container > div.policy-data-field {
+    background-color: lightgray;
+    margin-bottom: 10px;
+   
+}
+
+
 .Policy-container > div.Policy-header {
     
     color: #222;
-    padding: 10px 5px 0px;  
     font-size: 25px;
+  
 }
 
 .Policy-content{
@@ -15,6 +27,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    
 }
 
 .button-grid {
