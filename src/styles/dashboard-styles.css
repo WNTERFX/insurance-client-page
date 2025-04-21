@@ -6,7 +6,7 @@
     
     color: #222;
     padding: 10px 5px 0px;  
-    font-size: 35px;
+    font-size: 25px;
     align-items: center;
     
 }
@@ -67,11 +67,11 @@
     grid-area: clientChart;
 }
 
-@media screen and (min-height: 768px) {
+@media screen and (max-height: 600px) {
   
     .dashboard-content > div {
         
-        height: 300px;
+        height: 250px;
     }
 
 }

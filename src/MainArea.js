@@ -1,14 +1,14 @@
 import React from "react";
-import "./MainArea.css";
+import "./styles/main_area-styles.css";
 import NavBar from "./NavBar";
 import Policy from "./Policy";
-import "./Policy-styles.css"
+import "./styles/policy-styles.css"
 import Dashboard from "./Dashboard";
-import "./dashboard-styles.css"
+import "./styles/dashboard-styles.css"
 import Client from "./Client";
-import "./Client-styles.css"
+import "./styles/client-styles.css"
 import Due from "./Due";
-import "./Due-styles.css"
+import "./styles/due-styles.css"
 
 export default function MainArea() 
 {
@@ -19,7 +19,7 @@ export default function MainArea()
                 <NavBar />
             </div>
             <div className="content-area"> 
-                <Client/>
+                <Client />
             </div>
         </div>
     );

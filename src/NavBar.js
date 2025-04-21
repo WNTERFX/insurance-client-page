@@ -1,4 +1,4 @@
-import "./nav-styles.css"
+import "./styles/nav-styles.css"
 import {Menu, x} from 'lucide-react';
 export default function NavBar() {
 

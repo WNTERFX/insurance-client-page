@@ -2,7 +2,7 @@
     box-sizing: border-box;
 }
 
-.Due-container > div.Due-header {
+.Client-container > div.Client-header {
     
     color: #222;
     padding: 10px 5px 0px;  
@@ -10,22 +10,22 @@
     
 }
 
-.Due-content{
+.Client-content{
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 5px;
     width: 1350px;
     height: 200px;
-    margin: auto;
+    padding: 0px 10px 10px;
 }
-.Due-total{
+.Agents{
     background: white;
     padding: 20px;
     background-color: lightgray;
     font-size: 20px;
 }
 
-.Due-total > p {
+.Agents > p {
     text-align: center;
     font-size: 20px;
 }
