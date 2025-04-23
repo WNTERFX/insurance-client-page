@@ -9,19 +9,19 @@ import Client from "./Client";
 import "./styles/client-styles.css"
 import Due from "./Due";
 import "./styles/due-styles.css"
+import { Outlet } from 'react-router-dom';
 
 export default function MainArea() 
 {
 
     return (
         <div className="main-area">
-            <div className="nav-area">
-                <NavBar />
+            <div className="nav-area"> 
+                <NavBar /> 
             </div>
             <div className="content-area"> 
-                <Dashboard />
+                <Outlet/>
             </div>
         </div>
     );
 }
-

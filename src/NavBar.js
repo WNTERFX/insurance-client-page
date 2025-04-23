@@ -1,5 +1,7 @@
 import "./styles/nav-styles.css"
-import {Menu, x} from 'lucide-react';
+import {Menu} from 'lucide-react';
+import { Link } from 'react-router-dom';
+
 export default function NavBar() {
 
 
@@ -12,16 +14,15 @@ export default function NavBar() {
     <h1 className="logo">Silverstar Insurance</h1>
     </div>
     <div className="side-bar">
-      <a href="#" className="side-bar-item">Home</a>
-      <a href="#" className="side-bar-item">Clients</a>
-      <a href="#" className="side-bar-item">Due</a>
-      <a href="#" className="side-bar-item">Policy</a>
-      <a href="#" className="side-bar-item">Monthly Data</a> 
-      <a href="#" className="side-bar-item">Login</a>
+      
+      <Link to="/appinsurance/MainArea/Dashboard" className="side-bar-item">Home</Link>
+      <Link to="/appinsurance/MainArea/Client" className="side-bar-item">Clients</Link>
+      <Link to="/appinsurance/MainArea/Due" className="side-bar-item">Due</Link>
+      <Link to="/appinsurance/MainArea/Policy" className="side-bar-item">Policy</Link>
+      <Link to="#" className="side-bar-item">Monthly Data</Link> 
+      <Link to="#" className="side-bar-item">Login</Link>
        
     </div>
   </div>
   );
 }
-
-
