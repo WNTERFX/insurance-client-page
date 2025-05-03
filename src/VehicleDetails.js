@@ -1,8 +1,8 @@
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import './styles/VehicleDetails.css';
 
 export default function VehicleDetails() {
-    const navigates = useNavigate();
+    const navigate = useNavigate();
  
     return (
       <div className="VehicleDetails-container">
@@ -64,8 +64,12 @@ export default function VehicleDetails() {
         </div>
   
         <div className="button-containers">
-        <button className="Submit-btn" onClick={() => navigates("/appinsurance/MainArea/Policy/NewClient/VehicleDetails/ListClient")}>Submit </button>
+        <button className="Submit-btn"  onClick={() => navigate("/appinsurance/MainArea/Policy")}>Submit </button>
         </div>
       </div>
     );
   }
+
+
+
+

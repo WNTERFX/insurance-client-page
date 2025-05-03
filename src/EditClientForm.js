@@ -53,7 +53,7 @@ export default function EditClientForm() {
         </div>
   
         <div className="button-container">
-          <button className="confirm-btn" onClick={() => navigate("/appinsurance/MainArea/Policy/NewClient/VehicleDetails/ListClient/EditClientForm/EditVehicleDetailsForm")}>Confirm</button>
+          <button className="confirm-btn" onClick={() => navigate("/appinsurance/MainArea/Policy/ListClient/EditClientForm/EditVehicleDetailsForm")}>Confirm</button>
         </div>
       </div>
     );

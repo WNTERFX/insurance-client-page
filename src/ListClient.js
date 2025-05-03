@@ -9,15 +9,43 @@ export default function ListClient() {
   
         <div className="client-list-box">
           <div className="edit-button-wrapper">
-            <button className="edit-button" onClick={() => navigates("/appinsurance/MainArea/Policy/NewClient/VehicleDetails/ListClient/EditClientForm")}>Edit</button>
+            <button className="edit-button" onClick={() => navigates("/appinsurance/MainArea/Policy/ListClient/EditClientForm")}>Edit</button>
           </div>
   
-          <ul className="client-list">
-            <li>Client Name</li>
-            <li>Client Name</li>
-            <li>Client Name</li>
-          </ul>
-        </div>
+          <div className="client-list" >
+            <table className="client-table"> 
+              <tr> 
+                <th>Policy Number</th>
+                <th>Policy Holder</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+               
+              </tr> 
+              <tr>
+                 
+                <td>12345</td>
+                <td>John Doe</td>
+                <td>2023-01-01</td>
+                <td>2023-12-31</td>
+                <input type="checkbox" />
+              </tr>
+              <tr>
+                <td>67890</td>
+                <td>Jane Smith</td>
+                <td>2023-02-01</td>
+                <td>2023-11-30</td>
+                <input type="checkbox" />
+              </tr>
+              <tr>
+                <td>11223</td>
+                <td>Bob Johnson</td>
+                <td>2023-03-01</td>
+                <td>2023-10-31</td>
+                <input type="checkbox" />
+              </tr>
+            </table>
+          </div>
+      </div>
       </div>
     );
 }

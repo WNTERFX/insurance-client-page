@@ -1,6 +1,9 @@
 import './styles/EditVehicleDetailsForm.css';
+import { useNavigate } from "react-router-dom";
 
 export default function EditVehicleDetailsForm() {
+
+  const navigate = useNavigate();
  
     return (
       <div className="EditVehicleDetailsForm-container">
@@ -62,7 +65,7 @@ export default function EditVehicleDetailsForm() {
         </div>
   
         <div className="button-containers">
-        <button className="Submit-btn" >Submit </button>
+        <button className="Submit-btn" onClick={() => navigate("/appinsurance/MainArea/Policy")} >Submit </button>
         </div>
       </div>
     );

@@ -39,7 +39,7 @@ export default function Policy() {
                
                 <div className="button-grid">
                     <button className="policy-btn" onClick={() => navigate("/appinsurance/MainArea/Policy/NewClient")}>Create new</button>
-                    <button className="policy-btn">Edit</button>
+                    <button className="policy-btn" onClick={() => navigate("/appinsurance/MainArea/Policy/ListClient")}>Edit</button>
                 </div>                  
             </div>
         </div>
