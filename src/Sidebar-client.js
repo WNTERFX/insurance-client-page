@@ -15,10 +15,6 @@ export default function Sidebar() {
         <span>Insurance Details</span>
       </Link>
 
-      <Link to="/appinsurance/login/MainArea/DueDates"className="menu-item">
-        <FaCalendarAlt className="menu-icon" />
-        <span>Due Dates</span>
-      </Link>
        <Link to="/appinsurance/login/MainArea/Balances"className="menu-item">
         <FaMoneyBill className="menu-icon" />
         <span>Balances</span>
@@ -27,10 +23,7 @@ export default function Sidebar() {
         <FaHistory className="menu-icon" />
         <span>History</span>
       </Link>
-     <Link to="/appinsurance/login/MainArea/PendingPayments"className="menu-item">
-        <FaWallet className="menu-icon" />
-        <span>Pending Payments</span>
-      </Link>
+    
       <Link to="/appinsurance/login/MainArea/Claims"className="menu-item">
         <FaClipboardCheck className="menu-icon" />
         <span>Claims</span>

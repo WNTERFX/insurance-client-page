@@ -1,5 +1,109 @@
-.Home-container {
-
-    font-family: sans-serif;
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
-  
+
+/* Top Row */
+.top-row {
+  display: flex;
+  gap: 20px;
+}
+
+.middle-row {
+  display: flex;
+  gap: 20px;
+}
+
+/* Cards */
+.card {
+  background: #e3e3e3;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 4px 4px 6px rgba(0,0,0,0.3);
+  flex: 1;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-header a {
+  font-size: 0.9em;
+  text-decoration: none;
+  color: #007bff;
+}
+
+.section-title {
+  font-weight: bold;
+}
+
+.payment-header {
+  display: flex;
+  justify-content: space-between;
+  color: red;
+  font-weight: bold;
+}
+
+.payment-info {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.amount-due {
+  text-align: left;
+  margin-top: 10px;
+}
+
+.amount-due h2 {
+  margin: 5px 0;
+}
+
+.pay-btn {
+  background: #007bff;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.last-payment {
+  margin-top: 15px;
+}
+
+.last-payment-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 250px;
+}
+
+.calendar-card .calendar-box {
+  background: black;
+  height: 150px;
+  border-radius: 8px;
+}
+
+.due-date-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.contact-card p {
+  margin: 5px 0;
+}
