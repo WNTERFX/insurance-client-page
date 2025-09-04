@@ -1,20 +1,33 @@
-import React from "react";  
+import React, { useState } from "react";
 import "./styles/top-bar-styles.css";
-export default function TopBar() {
-    return (
-        <div className="top-bar-container">
 
-            <div className="logo-container">
-                <img src={require("./images/logo.png")} alt="Logo" className="logo" />
-            </div>
-            
-            <div className="nav-links">
-                <a href="#" className="nav-link">Insurance</a>
-                <a href="#" className="nav-link">Customer Service</a>
-                <a href="#" className="nav-link">Contact Us</a>
-                <a href="#" className="nav-link">About Us</a>
-                <a href="/appinsurance/login" className="login-button">Login</a>
-            </div>
-        </div>
-    );
+export default function TopBar() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  return (
+    <header className="top-bar-container">
+      {/* Logo */}
+      <div className="logo-container">
+        <img src={require("./images/SilverstarLOGO.png")} alt="Logo" className="logo" />
+      </div>
+
+      {/* Hamburger for mobile */}
+      <button
+        className="hamburger"
+        onClick={() => setMenuOpen(!menuOpen)}
+        aria-label="Toggle menu"
+      >
+        ☰
+      </button>
+
+      {/* Nav Links */}
+      <nav className={`nav-links ${menuOpen ? "active" : ""}`}>
+        <a href="#insurance" className="nav-link" onClick={() => setMenuOpen(false)}>Insurance</a>
+        <a href="#customer-service" className="nav-link" onClick={() => setMenuOpen(false)}>Customer Service</a>
+        <a href="#contact" className="nav-link" onClick={() => setMenuOpen(false)}>Contact Us</a>
+        <a href="#about" className="nav-link" onClick={() => setMenuOpen(false)}>About Us</a>
+         <a href="/appinsurance/login" className="login-button">Login</a>
+      </nav>
+    </header>
+  );
 }
