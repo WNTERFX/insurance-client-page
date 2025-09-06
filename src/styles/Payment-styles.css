@@ -1,0 +1,83 @@
+.payment-container {
+  display: flex;
+  flex-direction: column; 
+  align-items: center;    
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  font-family: sans-serif;
+  padding: 40px; 
+}
+
+.payment-container h2 {
+  align-self: flex-start; 
+  margin-bottom: 20px;    
+}
+
+.payment-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 700px;
+  width: 100%;
+}
+
+.payment-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.labels p,
+.values p {
+  margin: 8px 0;
+}
+
+.gcash-card {
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  text-align: center;
+  padding: 20px;
+  margin: 20px auto;
+  width: 250px;
+}
+
+.gcash-card img {
+  max-width: 60px;
+  margin-bottom: 10px;
+}
+
+.pay-title {
+  font-weight: bold;
+  margin: 0;
+}
+
+.pay-sub {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 5px 0 0;
+}
+
+.qr-section {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.qr-title {
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.qr-sub {
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+}
+
+.qr-image {
+  max-width: 120px;
+  margin: 10px 0;
+}
+
+.qr-number {
+  font-size: 0.85rem;
+  color: #444;
+}
