@@ -6,14 +6,39 @@ export async function loginClient({ email, password }) {
       email,
       password,
     });
-
+    
     if (error) {
       console.error("Login error:", error.message);
       return { success: false, error: error.message };
     }
 
 
+    const { data: employeeData, error: employeeError } = await db
+      .from('employee_Accounts')
+      .select('*')
+      .eq('id', data.user.id)
+      .single();
+
+    if (employeeError && employeeError.code !== 'PGRST116') {
+      
+      console.error("Employee check error:", employeeError.message);
+     
+      await db.auth.signOut();
+      return { success: false, error: "Unable to verify user permissions" };
+    }
+
+    if (employeeData) {
+      
+      await db.auth.signOut();
+      return { 
+        success: false, 
+        error: "Admin accounts cannot access client portal" 
+      };
+    }
+
+    
     return { success: true, user: data.user, session: data.session };
+    
   } catch (err) {
     console.error("Unexpected error:", err);
     return { success: false, error: err.message };

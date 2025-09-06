@@ -61,6 +61,8 @@ export default function LoginForm() {
               <button type="submit" disabled={loading}>
                 {loading ? "Logging in..." : "Log In"}
               </button>
+
+              <p>Reset Password</p>
             </form>
           </div>
         </div>
