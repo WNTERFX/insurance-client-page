@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getCurrentClient, fetchPoliciesWithComputation } from "./Actions/PolicyActions";
+import './styles/InsuranceDetails.css'
 
 export default function InsuranceDetails() {
   const [details, setDetails] = useState([]);
@@ -13,259 +14,144 @@ export default function InsuranceDetails() {
         setLoading(true);
         setError(null);
 
-        // Get current user
         const user = await getCurrentClient();
         setCurrentUser(user);
 
-        // Get policies with computation
         const policies = await fetchPoliciesWithComputation();
         setDetails(policies || []);
-
       } catch (err) {
-        console.error("Error loading insurance data:", err);
         setError(err.message || "Failed to load insurance details");
       } finally {
         setLoading(false);
       }
     };
-
     loadInsuranceData();
   }, []);
 
-  const formatCurrency = (amount) => {
-    return `₱${(amount || 0).toLocaleString()}`;
-  };
+  const formatCurrency = (amount) => `₱${(amount || 0).toLocaleString()}`;
+  const formatPercentage = (rate) => `${((rate || 0) * 100).toFixed(0)}%`;
+  const formatDate = (date) => (date ? new Date(date).toLocaleDateString() : "N/A");
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString();
-  };
-
-  if (loading) {
-    return (
-      <div className="InsuranceDetails-container" style={{ padding: "2rem", textAlign: "center" }}>
-        <div style={{ fontSize: "1.2rem", color: "#6b7280" }}>
-          Loading insurance details...
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="InsuranceDetails-container" style={{ padding: "2rem" }}>
-        <div style={{ 
-          backgroundColor: "#fef2f2", 
-          border: "1px solid #fecaca", 
-          borderRadius: "8px", 
-          padding: "1rem",
-          color: "#dc2626"
-        }}>
-          <strong>Error:</strong> {error}
-        </div>
-      </div>
-    );
-  }
-
-  if (details.length === 0) {
-    return (
-      <div className="InsuranceDetails-container" style={{ padding: "2rem", textAlign: "center" }}>
-        <div style={{ 
-          backgroundColor: "#f0f9ff", 
-          border: "2px dashed #0ea5e9", 
-          borderRadius: "8px", 
-          padding: "3rem",
-          color: "#0c4a6e"
-        }}>
-          <h3 style={{ margin: "0 0 1rem 0" }}>No Insurance Policies Found</h3>
-          <p style={{ margin: 0, fontSize: "1.1rem" }}>
-            You don't have any insurance policies yet.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <div className="InsuranceDetails-container"><div className="loading-message">Loading insurance details...</div></div>;
+  if (error) return <div className="InsuranceDetails-container"><div className="error-box"><strong>Error:</strong> {error}</div></div>;
+  if (!details.length) return <div className="InsuranceDetails-container"><div className="empty-state"><h3>No Insurance Policies Found</h3><p>You don't have any insurance policies yet.</p></div></div>;
 
   return (
-    <div className="InsuranceDetails-container" style={{ padding: "2rem" }}>
+    <div className="InsuranceDetails-container">
       {/* Header */}
-      <div style={{ marginBottom: "2rem" }}>
-        <h1 style={{ margin: "0 0 0.5rem 0", color: "#1f2937", fontSize: "2rem" }}>
-          Insurance Details
-        </h1>
-        {currentUser && (
-          <p style={{ margin: 0, color: "#6b7280", fontSize: "1.1rem" }}>
-            Welcome back, {currentUser.email}
-          </p>
-        )}
+      <div className="insurance-header" style={{ marginBottom: "2rem" }}>
+        <h1>Insurance Details</h1>
+        {currentUser && <p>Welcome back, {currentUser.email}</p>}
       </div>
+
 
       {/* Policies Grid */}
       <div style={{ display: "grid", gap: "1.5rem" }}>
         {details.map((policy) => (
-          <div
-            key={policy.id}
-            style={{
-              backgroundColor: "#ffffff",
-              border: "1px solid #e5e7eb",
-              borderRadius: "12px",
-              padding: "2rem",
-              boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
-            }}
-          >
+          <div key={policy.id} className="policy-card">
             {/* Policy Header */}
-            <div style={{ 
-              display: "flex", 
-              justifyContent: "space-between", 
-              alignItems: "center",
-              marginBottom: "1.5rem",
-              paddingBottom: "1rem",
-              borderBottom: "2px solid #e5e7eb"
-            }}>
+            <div className="policy-header">
               <div>
-                <h2 style={{ margin: "0 0 0.5rem 0", color: "#1f2937", fontSize: "1.5rem" }}>
-                  {policy.policy_type || 'Insurance Policy'}
-                </h2>
-                <p style={{ margin: 0, color: "#6b7280" }}>
-                  Policy ID: {policy.id}
-                </p>
+                <h2>{policy.policy_type || 'Insurance Policy'}</h2>
+                <p>Policy ID: {policy.id}</p>
               </div>
-              <div>
-                <span
-                  style={{
-                    padding: "0.5rem 1rem",
-                    borderRadius: "20px",
-                    fontSize: "0.875rem",
-                    fontWeight: "600",
-                    color: policy.policy_is_active ? "#065f46" : "#991b1b",
-                    backgroundColor: policy.policy_is_active ? "#d1fae5" : "#fee2e2",
-                  }}
-                >
-                  {policy.policy_is_active ? "Active" : "Inactive"}
-                </span>
+              <div className={`policy-status ${policy.policy_is_active ? 'active' : 'inactive'}`}>
+                {policy.policy_is_active ? "Active" : "Inactive"}
               </div>
             </div>
 
-            {/* Policy Details */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
-              {/* Left Column - Policy Info */}
-              <div>
-                <h3 style={{ margin: "0 0 1rem 0", color: "#374151", fontSize: "1.2rem" }}>
-                  Policy Information
-                </h3>
-                <div style={{ display: "grid", gap: "0.75rem" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <strong>Inception Date:</strong>
-                    <span>{formatDate(policy.policy_inception)}</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <strong>Expiry Date:</strong>
-                    <span>{formatDate(policy.policy_expirty)}</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <strong>Created:</strong>
-                    <span>{formatDate(policy.created_at)}</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <strong>Client ID:</strong>
-                    <span>{policy.client_id}</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <strong>Partner ID:</strong>
-                    <span>{policy.partner_id || 'N/A'}</span>
-                  </div>
-                </div>
+            {/* Policy Info */}
+            <div className="policy-info">
+              <h3>Policy Information</h3>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1rem" }}>
+                <div><strong>Inception Date:</strong> {formatDate(policy.policy_inception)}</div>
+                <div><strong>Expiry Date:</strong> {formatDate(policy.policy_expiry)}</div>
+                <div><strong>Created:</strong> {formatDate(policy.created_at)}</div>
+                <div><strong>Partner ID:</strong> {policy.partner_id || 'N/A'}</div>
               </div>
+            </div>
 
-              {/* Right Column - Computation Details */}
-              <div>
-                <h3 style={{ margin: "0 0 1rem 0", color: "#374151", fontSize: "1.2rem" }}>
-                  Policy Computation
-                </h3>
-                {policy.policy_Computation_Table && policy.policy_Computation_Table.length > 0 ? (
-                  policy.policy_Computation_Table.map((computation, index) => (
-                    <div
-                      key={computation.id}
-                      style={{
-                        backgroundColor: "#fef3c7",
-                        border: "1px solid #f59e0b",
-                        borderRadius: "8px",
-                        padding: "1rem",
-                        marginBottom: index < policy.policy_Computation_Table.length - 1 ? "1rem" : "0"
-                      }}
-                    >
-                      <div style={{ display: "grid", gap: "0.5rem", fontSize: "0.875rem" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between" }}>
-                          <strong>Original Value:</strong>
-                          <span>{formatCurrency(computation.original_Value)}</span>
+            {/* Policy Computation */}
+            <div className="policy-computation">
+              <h3>Policy Computation</h3>
+              {policy.policy_Computation_Table && policy.policy_Computation_Table.length > 0 ? (
+                policy.policy_Computation_Table.map((computation) => (
+                  <div key={computation.id} className="computation-card">
+                    <div><strong>Original Value:</strong> {formatCurrency(computation.original_Value)}</div>
+                    <div><strong>Current Value:</strong> {formatCurrency(computation.current_Value)}</div>
+                    <div><strong>AON Cost:</strong> {formatCurrency(computation.aon_Cost)}</div>
+                    <div><strong>Vehicle Rate Value:</strong> {formatCurrency(computation.vehicle_Rate_Value)}</div>
+                    <hr />
+                    <div><strong style={{ color: "#92400e" }}>Total Premium:</strong> <span style={{ fontWeight: 700, color: "#059669" }}>{formatCurrency(computation.total_Premium)}</span></div>
+                  </div>
+                ))
+              ) : <div className="no-data">No computation data available</div>}
+            </div>
+
+            {/* Vehicle Details */}
+            <div className="vehicle-details">
+              <h3>Vehicle & Coverage Details</h3>
+              
+
+              {policy.vehicle_table?.length > 0 ? policy.vehicle_table.map(vehicle => (
+                <div key={vehicle.id}>
+                  <div className="vehicle-info">
+                    <h4>Vehicle Information</h4>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "0.5rem", fontSize: "0.875rem" }}>
+                      <div><strong>Vehicle:</strong> {vehicle.vehicle_name}</div>
+                      <div><strong>Color:</strong> {vehicle.vehicle_color}</div>
+                      <div><strong>Year:</strong> {vehicle.vehicle_year}</div>
+                      <div><strong>Plate Number:</strong> {vehicle.plate_num}</div>
+                      <div style={{ gridColumn: "1 / -1" }}><strong>VIN:</strong> {vehicle.vin_num}</div>
+                    </div>
+                  </div>
+
+                  {vehicle.calculation_Table ? (
+                    <div className="coverage-tax">
+                      <h4>Coverage & Tax Breakdown</h4>
+                      <div className="grid-three">
+                        <div>
+                          <h5>Coverage Amounts</h5>
+                          <div><span>Bodily Injury:</span> <span>{formatCurrency(vehicle.calculation_Table.bodily_Injury)}</span></div>
+                          <div><span>Property Damage:</span> <span>{formatCurrency(vehicle.calculation_Table.property_Damage)}</span></div>
+                          <div><span>Personal Accident:</span> <span>{formatCurrency(vehicle.calculation_Table.personal_Accident)}</span></div>
+                          <div><span>Vehicle Type:</span> <span>{vehicle.calculation_Table.vehicle_type}</span></div>
                         </div>
-                        <div style={{ display: "flex", justifyContent: "space-between" }}>
-                          <strong>Current Value:</strong>
-                          <span>{formatCurrency(computation.current_Value)}</span>
+                        <div>
+                          <h5>Rates & Premiums</h5>
+                          <div><span>Vehicle Rate:</span> <span>{(vehicle.calculation_Table.vehicle_Rate)}%</span></div>
+                          <div><span>AON:</span> <span>{formatPercentage(vehicle.calculation_Table.aon)}</span></div>
                         </div>
-                        <div style={{ display: "flex", justifyContent: "space-between" }}>
-                          <strong>AON Cost:</strong>
-                          <span>{formatCurrency(computation.aon_Cost)}</span>
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "space-between" }}>
-                          <strong>Vehicle Rate:</strong>
-                          <span>{formatCurrency(computation.vehicle_Rate_Value)}</span>
-                        </div>
-                        <hr style={{ margin: "0.5rem 0", border: "none", borderTop: "1px solid #f59e0b" }} />
-                        <div style={{ display: "flex", justifyContent: "space-between" }}>
-                          <strong style={{ color: "#92400e" }}>Total Premium:</strong>
-                          <span style={{ fontWeight: "700", color: "#059669" }}>
-                            {formatCurrency(computation.total_Premium)}
-                          </span>
+                        <div>
+                          <h5>Taxes & Fees</h5>
+                          <div><span>VAT Tax:</span> <span>{(vehicle.calculation_Table.vat_Tax)}%</span></div>
+                          <div><span>Documentary Stamp:</span> <span>{(vehicle.calculation_Table.docu_Stamp)}%</span></div>
+                          <div><span>Local Gov Tax:</span> <span>{(vehicle.calculation_Table.local_Gov_Tax)}%</span></div>
                         </div>
                       </div>
                     </div>
-                  ))
-                ) : (
-                  <div style={{
-                    backgroundColor: "#f3f4f6",
-                    border: "2px dashed #d1d5db",
-                    borderRadius: "8px",
-                    padding: "2rem",
-                    textAlign: "center",
-                    color: "#6b7280",
-                    fontStyle: "italic"
-                  }}>
-                    No computation data available
-                  </div>
-                )}
-              </div>
+                  ) : <div className="no-calculation">No calculation data found for this vehicle</div>}
+                </div>
+              )) : <div className="no-data">No vehicle data available</div>}
             </div>
           </div>
         ))}
       </div>
 
       {/* Summary */}
-      <div style={{
-        marginTop: "2rem",
-        backgroundColor: "#f0f9ff",
-        border: "1px solid #0ea5e9",
-        borderRadius: "8px",
-        padding: "1.5rem"
-      }}>
-        <h3 style={{ margin: "0 0 1rem 0", color: "#0c4a6e" }}>Summary</h3>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: "2rem", fontWeight: "700", color: "#1f2937" }}>
-              {details.length}
-            </div>
+      <div className="summary">
+        <h3>Summary</h3>
+        <div className="grid">
+          <div>
+            {details.length}
             <div style={{ color: "#6b7280" }}>Total Policies</div>
           </div>
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: "2rem", fontWeight: "700", color: "#059669" }}>
-              {details.filter(p => p.policy_is_active).length}
-            </div>
+          <div>
+            {details.filter(p => p.policy_is_active).length}
             <div style={{ color: "#6b7280" }}>Active Policies</div>
           </div>
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: "2rem", fontWeight: "700", color: "#dc2626" }}>
-              {details.filter(p => !p.policy_is_active).length}
-            </div>
+          <div>
+            {details.filter(p => !p.policy_is_active).length}
             <div style={{ color: "#6b7280" }}>Inactive Policies</div>
           </div>
         </div>
