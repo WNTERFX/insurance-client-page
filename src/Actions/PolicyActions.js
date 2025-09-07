@@ -1,28 +1,29 @@
 import { db } from "../dbServer";
 
-// Get logged in client info
+// Get current client's info (only returns their row)
 export async function getCurrentClient() {
-  const { data, error } = await db.auth.getUser();
+  const { data, error } = await db.from("clients_Table").select("*");
   if (error) {
-    console.error("Get user error:", error.message);
+    console.error("Get client error:", error.message);
     return null;
   }
-  return data?.user || null; // this is the Supabase Auth user
+  return data; // returns an array of rows
 }
 
-// Get insurance details of the logged in client
+// Get policies for the logged-in client with computations
 export async function fetchPoliciesWithComputation() {
+  const clients = await getCurrentClient();
+  if (!clients || clients.length === 0) {
+    console.error("No client found");
+    return null;
+  }
+
+  const clientId = clients[0].uid; // or the actual primary key field
+
   const { data, error } = await db
     .from("policy_Table")
     .select(`
-      id,
-      created_at,
-      policy_type,
-      policy_inception,
-      policy_expiry,
-      policy_is_active,
-      client_id,
-      partner_id,
+      *,
       policy_Computation_Table (
         id,
         original_Value,
@@ -31,11 +32,12 @@ export async function fetchPoliciesWithComputation() {
         aon_Cost,
         vehicle_Rate_Value
       )
-    `);
+    `)
+    .eq("client_id", clientId);
 
   if (error) {
-    console.error("Error fetching policies with computation:", error.message);
-    return [];
+    console.error("Fetch policies error:", error.message);
+    return null;
   }
 
   return data;
