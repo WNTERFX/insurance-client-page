@@ -19,7 +19,7 @@ export async function fetchPoliciesWithComputation() {
       created_at,
       policy_type,
       policy_inception,
-      policy_expirty,
+      policy_expiry,
       policy_is_active,
       client_id,
       partner_id,
