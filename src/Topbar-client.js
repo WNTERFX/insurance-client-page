@@ -1,9 +1,12 @@
 import { FaBell, FaSignOutAlt } from "react-icons/fa";
 import { Menu } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import React, { useState, useRef, useEffect } from "react";
 import "./styles/Topbar-client.css";
 
+
 export default function Topbar_client() {
+   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -21,6 +24,7 @@ export default function Topbar_client() {
 
   const handleLogout = () => {
     console.log("Logging out...");
+     navigate("/appinsurance/login")
   };
 
   return (
