@@ -77,6 +77,21 @@
     border: none;
     outline: none;
   }
+
+  .login-controls
+  {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    
+  }
+
+  .login-controls button {
+    flex: 1;
+    max-width: 150px;
+
+  }
   
   button {
     

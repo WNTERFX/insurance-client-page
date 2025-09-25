@@ -57,12 +57,13 @@ export default function LoginForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-
+              <div className="login-controls">
               <button type="submit" disabled={loading}>
                 {loading ? "Logging in..." : "Log In"}
               </button>
 
-              <p>Reset Password</p>
+              <button type="button" onClick={() => navigate("/appinsurance/signin")}>Sign In</button>
+              </div>
             </form>
           </div>
         </div>

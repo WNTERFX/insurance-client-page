@@ -14,7 +14,7 @@ import Claims from './Claims';
 import Quotation from './Quotation';
 import Payment from './Payment';
 import MainArea from './MainArea';
-
+import { SignInForm } from './SignInForm';
 
 
 function App() {
@@ -22,6 +22,7 @@ function App() {
     
     <Routes>
       <Route path="/appinsurance" element={<LandingPage/> }/>
+      <Route path="/appinsurance/signin" element={<SignInForm/> }/>
       <Route path="/appinsurance/login" element={<LoginForm/> }/>
     
 
