@@ -3,10 +3,22 @@
   justify-content: space-between;
   align-items: center;
   background-color: #8F71B1;
-  padding: 15px 20px;
+  padding: 0px 10px;
   position: sticky;
   top: 0;
   z-index: 1000;
+}
+.Name_Company{
+  color: white;
+  font-weight: 600;
+  font-size: 28px; 
+  font-family: 'Inter', sans-serif;
+}
+
+.logo-container{
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .logo {
@@ -24,6 +36,8 @@
   color: white;
   text-decoration: none;
   font-weight: 500;
+   font-size: 20px; 
+   font-family: 'Inter', sans-serif;
 }
 
 .nav-link:hover,

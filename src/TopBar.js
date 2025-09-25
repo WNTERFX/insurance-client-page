@@ -9,6 +9,7 @@ export default function TopBar() {
       {/* Logo */}
       <div className="logo-container">
         <img src={require("./images/SilverstarLOGO.png")} alt="Logo" className="logo" />
+        <p className="Name_Company">Silverstar Insurance Acency</p>
       </div>
 
       {/* Hamburger for mobile */}
@@ -23,10 +24,10 @@ export default function TopBar() {
       {/* Nav Links */}
       <nav className={`nav-links ${menuOpen ? "active" : ""}`}>
         <a href="#insurance" className="nav-link" onClick={() => setMenuOpen(false)}>Insurance</a>
-        <a href="#customer-service" className="nav-link" onClick={() => setMenuOpen(false)}>Customer Service</a>
+        <a href="#customer-service" className="nav-link" onClick={() => setMenuOpen(false)}>Partners</a>
         <a href="#contact" className="nav-link" onClick={() => setMenuOpen(false)}>Contact Us</a>
         <a href="#about" className="nav-link" onClick={() => setMenuOpen(false)}>About Us</a>
-         <a href="/appinsurance/login" className="login-button">Login</a>
+         <a href="/appinsurance/login" className="login-button">Log in</a>
       </nav>
     </header>
   );

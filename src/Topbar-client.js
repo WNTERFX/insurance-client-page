@@ -24,7 +24,7 @@ export default function Topbar_client() {
 
   const handleLogout = () => {
     console.log("Logging out...");
-     navigate("/appinsurance/login")
+     navigate("/appinsurance/")
   };
 
   return (

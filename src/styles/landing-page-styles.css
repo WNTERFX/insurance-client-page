@@ -1,5 +1,5 @@
 html {
-  scroll-behavior: smooth; /* Smooth scrolling */
+  scroll-behavior: smooth;
 }
 
 .landing-page-container {
@@ -7,21 +7,39 @@ html {
   flex-direction: column;
 }
 
-/* Hero */
-.landing-page-content {
+/* Hero Section */
+.landing-page-hero {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #3a5ca9;
   padding: 60px 40px;
   flex-wrap: wrap;
+  background: linear-gradient(
+    135deg,
+    rgba(125, 86, 131, 0.15),
+    rgba(158, 129, 191, 0.15),
+    rgba(189, 189, 189, 0.15)
+  );
 }
 
 .welcome-message h1 {
-  font-size: 2rem;
+  font-size: 2.8rem;
   font-weight: bold;
   color: black;
   max-width: 400px;
+}
+
+.welcome-message p {
+  margin: 20px 0;
+  font-size: 1rem;
+}
+
+.quote-btn {
+  padding: 12px 24px;
+  background: white;
+  border: 2px solid black;
+  cursor: pointer;
+  font-weight: bold;
 }
 
 .img-container {
@@ -34,12 +52,77 @@ html {
   height: auto;
 }
 
-/* Section styles */
-.section {
-  padding: 80px 20px;
+/* Partners */
+.partners-section {
+  position: relative;
   text-align: center;
+  padding: 80px 20px;
+  color: white;
+  overflow: hidden;
 }
 
-.section.alt {
-  background-color: #f3f4f6;
+
+.partners-logos {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 55px;
+  flex-wrap: wrap;
+}
+
+.partners-logos img {
+  background: white;
+  border-radius: 20px;
+  padding: 15px 25px;
+  height: 80px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Features */
+.features-section {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  padding: 60px 20px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 1),
+    rgba(240, 240, 250, 1)
+  );
+  flex-wrap: wrap;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 20px;
+  width: 250px;
+}
+
+.icon.purple {
+  background: #4b2a75;
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 24px;
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  justify-content: space-around;
+  padding: 40px 20px;
+  background: #2e0854;
+  color: white;
+  flex-wrap: wrap;
+}
+
+.footer-column {
+  max-width: 300px;
+}
+
+.footer h4 {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
 }
