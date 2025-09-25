@@ -1,4 +1,4 @@
-
+import { db } from "../dbServer";
 
 export async function signInClient({ clientInternalId, policyInternalId, email, password }) {
   try {
