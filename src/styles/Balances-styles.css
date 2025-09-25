@@ -44,7 +44,7 @@
 .schedule-total {
   display: flex;
   justify-content: space-between;
-  background: #007bff;
+  background: #9bbadc;
   color: white;
   padding: 5px;
   border-radius: 5px;
@@ -70,4 +70,76 @@
 
 .red-text {
   color: red;
+}
+
+.policy-section {
+  margin-top: 20px;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.policy-title {
+  color: #333;
+  margin: 0 0 0.5rem 0;
+  font-size: 1.2rem;
+}
+
+.policy-balance {
+  color: #666;
+  margin: 0 0 1rem 0;
+  font-weight: 500;
+}
+
+.paid-status {
+  color: #28a745;
+  font-weight: 500;
+}
+
+.unpaid-status {
+  color: #dc3545;
+  font-weight: 500;
+}
+
+.no-payments {
+  color: #666;
+  font-style: italic;
+  padding: 1rem;
+}
+
+.schedule-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.balances-container{
+  padding: 2rem;
+}
+
+.loading-message {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #555;
+}
+
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin-left: 8px;
+  border: 2px solid #ccc;
+  border-top: 2px solid #555; 
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle; 
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

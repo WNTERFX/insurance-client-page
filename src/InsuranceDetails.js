@@ -32,7 +32,7 @@ export default function InsuranceDetails() {
   const formatPercentage = (rate) => `${((rate || 0) * 100).toFixed(0)}%`;
   const formatDate = (date) => (date ? new Date(date).toLocaleDateString() : "N/A");
 
-  if (loading) return <div className="InsuranceDetails-container"><div className="loading-message">Loading insurance details...</div></div>;
+  if (loading) return <div className="InsuranceDetails-container"><div className="loading-message">Loading insurance details <span className="spinner"></span></div></div>;
   if (error) return <div className="InsuranceDetails-container"><div className="error-box"><strong>Error:</strong> {error}</div></div>;
   if (!details.length) return <div className="InsuranceDetails-container"><div className="empty-state"><h3>No Insurance Policies Found</h3><p>You don't have any insurance policies yet.</p></div></div>;
 
