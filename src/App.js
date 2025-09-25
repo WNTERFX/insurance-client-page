@@ -15,38 +15,36 @@ import Quotation from './Quotation';
 import Payment from './Payment';
 import MainArea from './MainArea';
 import { SignInForm } from './SignInForm';
+import InvalidAuthRoute from './AdminApp/ControllerAdmin/InvalidAuthRoute';
 
 
 function App() {
   return (
     
-    <Routes>
-      <Route path="/appinsurance" element={<LandingPage/> }/>
-      <Route path="/appinsurance/signin" element={<SignInForm/> }/>
-      <Route path="/appinsurance/login" element={<LoginForm/> }/>
+  <Routes>
+  <Route path="/appinsurance" element={<LandingPage />} />
+  <Route path="/appinsurance/signin" element={<SignInForm />} />
+  <Route path="/appinsurance/login" element={<LoginForm />} />
+
+  {/* Protected routes */}
+  <Route element={<InvalidAuthRoute />}>
+    <Route path="/appinsurance/login/MainArea" element={<MainArea />}>
+      <Route path="Home" element={<Home />} />
+      <Route path="InsuranceDetails" element={<InsuranceDetails />} />
+      <Route path="DueDates" element={<DueDates />} />
+      <Route path="Balances" element={<Balances />} />
+      <Route path="History" element={<History />} />
+      <Route path="PendingPayments" element={<PendingPayments />} />
+      <Route path="Claims" element={<Claims />} />
+      <Route path="Quotation" element={<Quotation />} />
+      <Route path="Payment" element={<Payment />} />
+    </Route>
+  </Route>
+
+  <Route path="*" element={<div>Page not found</div>} />
+</Routes>
+
     
-
-      <Route path="/appinsurance/login/MainArea" element={<MainArea />}>
-        <Route path="/appinsurance/login/MainArea/Home" element={<Home />} />
-        <Route path="/appinsurance/login/MainArea/InsuranceDetails" element={<InsuranceDetails />} />
-        <Route path="/appinsurance/login/MainArea/DueDates" element={<DueDates />} />
-        <Route path="/appinsurance/login/MainArea/Balances" element={<Balances />} />
-        <Route path="/appinsurance/login/MainArea/History" element={<History />} />
-        <Route path="/appinsurance/login/MainArea/PendingPayments" element={<PendingPayments />} />
-        <Route path="/appinsurance/login/MainArea/Claims" element={<Claims />} />
-        <Route path="/appinsurance/login/MainArea/Quotation" element={<Quotation />} />
-        <Route path="/appinsurance/login/MainArea/Payment" element={<Payment />} />
-
-
-      </Route>
-
-       
-
-      
-      <Route path="*" element={<div>Page not found</div>} />  
-     
-
-    </Routes>
     
   );
   

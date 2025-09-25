@@ -14,32 +14,35 @@ export function SignInForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSignIn = async (e) => {
-    e.preventDefault();
+    const handleSignIn = async (e) => {
+    e.preventDefault(); // ✅ prevent page reload
 
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
-      return;
+        alert("Passwords do not match!");
+        return;
     }
 
     setLoading(true);
+
     const result = await signInClient({
-      policyInternalId: policyId,
-      clientInternalId: clientId,
-      email,           // ✅ pass email to API
-      password,
+        policyInternalId: policyId,
+        clientInternalId: clientId,
+        email,
+        password,
     });
+
     setLoading(false);
 
     if (!result.success) {
-      alert("Sign In failed: " + result.error);
-      return;
+        alert("Sign In failed: " + result.error);
+        return;
     }
 
     console.log("Signed in client:", result.user);
 
-    navigate("/appinsurance/dashboard");
-  };
+    // Navigate to dashboard after successful login
+    navigate("/appinsurance/login");
+    };
 
   return (
     <div className="signin-container">

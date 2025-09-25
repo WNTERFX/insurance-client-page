@@ -41,7 +41,17 @@ export default function InsuranceDetails() {
       {/* Header */}
       <div className="insurance-header" style={{ marginBottom: "2rem" }}>
         <h1>Insurance Details</h1>
-        {currentUser && <p>Welcome back, {currentUser.email}</p>}
+        {currentUser && <p>
+          Welcome back, {[
+            currentUser.prefix,
+            currentUser.first_Name,
+            currentUser.middle_Name,
+            currentUser.family_Name,
+            currentUser.suffix
+          ]
+            .filter(Boolean) // remove null/undefined/empty strings
+            .join(' ')}
+        </p>}
       </div>
 
 
@@ -53,7 +63,7 @@ export default function InsuranceDetails() {
             <div className="policy-header">
               <div>
                 <h2>{policy.policy_type || 'Insurance Policy'}</h2>
-                <p>Policy ID: {policy.id}</p>
+                <p>Policy ID: {policy.internal_id}</p>
               </div>
               <div className={`policy-status ${policy.policy_is_active ? 'active' : 'inactive'}`}>
                 {policy.policy_is_active ? "Active" : "Inactive"}

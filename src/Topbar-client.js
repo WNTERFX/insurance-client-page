@@ -2,6 +2,7 @@ import { FaBell, FaSignOutAlt } from "react-icons/fa";
 import { Menu } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import React, { useState, useRef, useEffect } from "react";
+import { logoutClient } from "./Actions/LoginActions";
 import "./styles/Topbar-client.css";
 
 
@@ -22,10 +23,19 @@ export default function Topbar_client() {
     };
   }, []);
 
-  const handleLogout = () => {
-    console.log("Logging out...");
-     navigate("/appinsurance/")
-  };
+  const handleLogout = async () => {
+  console.log("Logging out...");
+  const result = await logoutClient();
+  
+  if (result.success) {
+    // Successfully logged out, navigate to login page
+    navigate("/appinsurance/");
+  } else {
+    // Handle error if needed
+    console.error("Failed to log out:", result.error);
+    alert("Logout failed. Please try again.");
+  }
+};
 
   return (
     <header className="topbar">

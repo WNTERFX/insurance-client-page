@@ -1,163 +1,95 @@
 import { db } from "../dbServer";
 
-// Get current client's info (only returns their row)
+// Get the current logged-in client
 export async function getCurrentClient() {
-  const { data, error } = await db.from("clients_Table").select("*");
-  if (error) {
-    console.error("Get client error:", error.message);
-    return null;
-  }
-  return data; // returns an array of rows
-}
-
-// Debug version of fetchPoliciesWithComputation function
-// Corrected fetchPoliciesWithComputation function
-// Corrected fetchPoliciesWithComputation function
-export async function fetchPoliciesWithComputation() {
-  const clients = await getCurrentClient();
-  console.log("Current clients:", clients); // Debug log
-  
-  if (!clients || clients.length === 0) {
-    console.error("No client found");
-    return null;
-  }
-  const clientId = clients[0].uid;
-  console.log("Using client ID:", clientId); // Debug log
-  
-  const { data, error } = await db
-    .from("policy_Table")
-    .select(`
-      *,
-      policy_Computation_Table (
-        id,
-        original_Value,
-        current_Value,
-        total_Premium,
-        aon_Cost,
-        vehicle_Rate_Value
-      ),
-      vehicle_table (
-        id,
-        vehicle_color,
-        vehicle_name,
-        plate_num,
-        vin_num,
-        vehicle_year,
-        vehicle_type_id,
-        calculation_Table:vehicle_type_id (
-          id,
-          vat_Tax,
-          bodily_Injury,
-          property_Damage,
-          vehicle_Rate,
-          personal_Accident,
-          docu_Stamp,
-          aon,
-          local_Gov_Tax,
-          vehicle_type
-        )
-      )
-    `)
-    .eq("client_id", clientId);
-
-  console.log("Query result:", { data, error }); // Debug log
-  console.log("First policy vehicle_table:", data?.[0]?.vehicle_table); // Debug log
-  console.log("First vehicle calculation_Table:", data?.[0]?.vehicle_table?.[0]?.calculation_Table); // Debug log
-
-  if (error) {
-    console.error("Fetch policies error:", error.message);
-    return null;
-  }
-
-  return data;
-}
-
-// Alternative query using explicit join syntax if the above doesn't work
-export async function fetchPoliciesWithComputationAlt() {
-  const clients = await getCurrentClient();
-  if (!clients || clients.length === 0) {
-    console.error("No client found");
-    return null;
-  }
-  const clientId = clients[0].uid;
-  
-  const { data, error } = await db
-    .from("policy_Table")
-    .select(`
-      *,
-      policy_Computation_Table (
-        id,
-        original_Value,
-        current_Value,
-        total_Premium,
-        aon_Cost,
-        vehicle_Rate_Value
-      ),
-      vehicle_table!inner (
-        id,
-        vehicle_color,
-        vehicle_name,
-        plate_num,
-        vin_num,
-        vehicle_year,
-        vehicle_type_id
-      )
-    `)
-    .eq("client_id", clientId);
-
-  if (error) {
-    console.error("Fetch policies alt error:", error.message);
-    return null;
-  }
-
-  // If the nested join doesn't work, fetch calculation data separately
-  if (data && data.length > 0) {
-    for (let policy of data) {
-      if (policy.vehicle_table && policy.vehicle_table.length > 0) {
-        for (let vehicle of policy.vehicle_table) {
-          if (vehicle.vehicle_type_id) {
-            const { data: calcData } = await db
-              .from("calculation_Table")
-              .select("*")
-              .eq("id", vehicle.vehicle_type_id)
-              .single();
-            
-            vehicle.calculation_Table = calcData;
-          }
-        }
-      }
+  try {
+    const { data: userData, error: userError } = await db.auth.getUser();
+    if (userError || !userData?.user) {
+      console.error("No logged-in user found:", userError);
+      return null;
     }
-  }
 
-  console.log("Alternative query result:", data);
-  return data;
+    const currentUserId = userData.user.id;
+    console.log("Current logged-in user ID:", currentUserId);
+
+    // Fetch the client row linked to this auth_id
+    const { data: client, error: clientError } = await db
+      .from("clients_Table")
+      .select("*")
+      .eq("auth_id", currentUserId)
+      .maybeSingle(); // only one row expected
+
+    if (clientError) {
+      console.error("Error fetching client row:", clientError);
+      return null;
+    }
+
+    if (!client) {
+      console.warn("⚠️ No client row found for this logged-in user.");
+      return null;
+    }
+
+    console.log("Fetched client row:", client);
+    return client;
+  } catch (err) {
+    console.error("Unexpected error in getCurrentClient:", err);
+    return null;
+  }
 }
 
-// Test individual tables
-export async function testTables() {
-  // Test calculation table
-  const { data: calcData, error: calcError } = await db
-    .from("calculation_Table")
-    .select("*")
-    .limit(3);
-  console.log("Calculation table:", { calcData, calcError });
+// Fetch policies for the currently logged-in client
+export async function fetchPoliciesWithComputation() {
+  try {
+    const client = await getCurrentClient();
+    if (!client) return null;
 
-  // Test vehicle table
-  const { data: vehicleData, error: vehicleError } = await db
-    .from("vehicle_table")
-    .select("*")
-    .limit(3);
-  console.log("Vehicle table:", { vehicleData, vehicleError });
+    const clientId = client.uid;
 
-  // Test relationship
-  const { data: relationData, error: relationError } = await db
-    .from("vehicle_table")
-    .select(`
-      *,
-      calculation_Table!vehicle_table_vehicle_type_id_fkey (*)
-    `)
-    .limit(3);
-  console.log("Vehicle-Calculation relationship:", { relationData, relationError });
+    const { data, error } = await db
+      .from("policy_Table")
+      .select(`
+        *,
+        policy_Computation_Table (
+          id,
+          original_Value,
+          current_Value,
+          total_Premium,
+          aon_Cost,
+          vehicle_Rate_Value
+        ),
+        vehicle_table (
+          id,
+          vehicle_color,
+          vehicle_name,
+          plate_num,
+          vin_num,
+          vehicle_year,
+          vehicle_type_id,
+          calculation_Table:vehicle_type_id (
+            id,
+            vat_Tax,
+            bodily_Injury,
+            property_Damage,
+            vehicle_Rate,
+            personal_Accident,
+            docu_Stamp,
+            aon,
+            local_Gov_Tax,
+            vehicle_type
+          )
+        )
+      `)
+      .eq("client_id", clientId);
 
-  return { calcData, vehicleData, relationData };
+    if (error) {
+      console.error("Error fetching policies:", error);
+      return null;
+    }
+
+    console.log(`Fetched ${data?.length || 0} policies for client ${client.internal_id}`);
+    return data;
+  } catch (err) {
+    console.error("Unexpected error in fetchPoliciesWithComputation:", err);
+    return null;
+  }
 }

@@ -2,25 +2,27 @@ import { db } from "../dbServer";
 
 export async function loginClient({ email, password }) {
   try {
-    // Step 1: Try to log in with Supabase Auth
-    const { data, error } = await db.auth.signInWithPassword({
+    // Step 1: Log in with Supabase Auth
+    const { data: authData, error: authError } = await db.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (error) {
-      console.error("Login error:", error.message);
-      return { success: false, error: error.message };
+    if (authError) {
+      console.error("Login error:", authError.message);
+      return { success: false, error: authError.message };
     }
+
+    console.log("✅ Auth successful, user ID:", authData.user.id);
 
     // Step 2: Prevent employee/admin accounts from logging into client portal
     const { data: employeeData, error: employeeError } = await db
       .from("employee_Accounts")
       .select("*")
-      .eq("id", data.user.id)
-      .single();
+      .eq("id", authData.user.id) // use 'id' column
+      .maybeSingle();
 
-    if (employeeError && employeeError.code !== "PGRST116") {
+    if (employeeError) {
       console.error("Employee check error:", employeeError.message);
       await db.auth.signOut();
       return { success: false, error: "Unable to verify user permissions" };
@@ -28,22 +30,41 @@ export async function loginClient({ email, password }) {
 
     if (employeeData) {
       await db.auth.signOut();
-      return {
-        success: false,
-        error: "Admin accounts cannot access client portal",
-      };
+      return { success: false, error: "Admin accounts cannot access client portal" };
     }
 
-    // Step 3: Check if the client exists in clients_Table
-    const { data: clientData, error: clientError } = await db
+    // Step 3: Find client by auth_id first
+    let { data: clientData } = await db
       .from("clients_Table")
       .select("uid, is_archived")
-      .eq("uid", data.user.id) // auth.user.id should match clients_Table.uid
+      .eq("auth_id", authData.user.id)
       .maybeSingle();
 
-    if (clientError || !clientData) {
+    // Step 3a: Fallback to email if auth_id is null
+    if (!clientData) {
+      const { data: fallbackClient } = await db
+        .from("clients_Table")
+        .select("uid, is_archived")
+        .eq("email", authData.user.email)
+        .maybeSingle();
+
+      clientData = fallbackClient;
+
+      // Update auth_id for future logins
+      if (clientData) {
+        await db
+          .from("clients_Table")
+          .update({ auth_id: authData.user.id })
+          .eq("uid", clientData.uid);
+      }
+    }
+
+    if (!clientData) {
       await db.auth.signOut();
-      return { success: false, error: "Client record not found" };
+      return {
+        success: false,
+        error: "Client record not found. Please contact support.",
+      };
     }
 
     // Step 4: Check if the client is archived
@@ -52,30 +73,9 @@ export async function loginClient({ email, password }) {
       return { success: false, error: "This client account is archived" };
     }
 
-    // Step 5: Check if the client has at least one active policy
-    const { data: activePolicy, error: policyError } = await db
-      .from("policy_Table")
-      .select("id")
-      .eq("client_id", clientData.uid)
-      .eq("policy_is_active", true)
-      .limit(1);
-
-    if (policyError) {
-      await db.auth.signOut();
-      return { success: false, error: "Error checking client policies" };
-    }
-
-    if (!activePolicy || activePolicy.length === 0) {
-      await db.auth.signOut();
-      return {
-        success: false,
-        error: "No active policies found for this client",
-      };
-    }
-
     // ✅ All checks passed → client can log in
-    return { success: true, user: data.user, session: data.session };
-
+    console.log("✅ Client login successful");
+    return { success: true, user: authData.user, session: authData.session };
   } catch (err) {
     console.error("Unexpected error:", err);
     return { success: false, error: err.message };
