@@ -5,6 +5,18 @@ html {
 .landing-page-container {
   display: flex;
   flex-direction: column;
+  min-height: 100vh
+  
+}
+
+@media (min-width: 2560px) {
+  .landing-page-container {
+    max-width: 2000px; /* keeps content centered */
+   
+    margin-left: auto;
+    margin-right: auto;
+   
+  }
 }
 
 /* Hero Section */
@@ -20,6 +32,9 @@ html {
     rgba(158, 129, 191, 0.15),
     rgba(189, 189, 189, 0.15)
   );
+   min-height: 50vh;
+
+
 }
 
 .welcome-message h1 {
@@ -59,6 +74,7 @@ html {
   padding: 80px 20px;
   color: white;
   overflow: hidden;
+  
 }
 
 

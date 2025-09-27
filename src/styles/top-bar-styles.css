@@ -38,6 +38,8 @@
   font-weight: 500;
    font-size: 20px; 
    font-family: 'Inter', sans-serif;
+   padding: 10px;
+  
 }
 
 .nav-link:hover,
