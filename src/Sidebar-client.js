@@ -1,4 +1,4 @@
-import {FaHome,FaRegFileAlt,FaCalendarAlt,FaMoneyBill,FaHistory,FaWallet,FaClipboardCheck,FaFileInvoiceDollar,FaCreditCard,} from "react-icons/fa";
+import {FaHome,FaRegFileAlt,FaCalendarAlt,FaMoneyBill,FaHistory,FaWallet,FaClipboardCheck,FaFileInvoiceDollar,FaCreditCard,FaTruck } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import "./styles/Sidebar-client-styles.css";
 
@@ -28,6 +28,12 @@ export default function Sidebar() {
         <FaClipboardCheck className="menu-icon" />
         <span>Claims</span>
       </Link>
+      
+      <Link to="/appinsurance/login/MainArea/Delivery"className="menu-item">
+        <FaTruck  className="menu-icon" />
+        <span>Deliveries</span>
+      </Link>
+
          <Link to="/appinsurance/login/MainArea/Quotation"className="menu-item">
         <FaFileInvoiceDollar className="menu-icon" />
         <span>Quotation</span>
