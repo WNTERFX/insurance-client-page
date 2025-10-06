@@ -31,27 +31,25 @@ export async function getCurrentClient() {
  *  Fetch all active policies for this client
  */
 export async function fetchClientActivePolicies(clientUid) {
-  if (!clientUid) {
-    console.warn("fetchClientActivePolicies: no clientUid provided");
+  if (!clientUid) return [];
+
+  try {
+    const { data, error } = await db
+      .from("policy_Table")
+      .select("id, internal_id, policy_type, policy_inception, policy_expiry, policy_is_active, is_archived")
+      .eq("client_id", clientUid)
+      .eq("policy_is_active", true)
+      .or("is_archived.is.null,is_archived.eq.false");
+
+    if (error) {
+      console.error("fetchClientActivePolicies error:", error.message);
+      return [];
+    }
+    return data || [];
+  } catch (err) {
+    console.error("fetchClientActivePolicies unexpected:", err);
     return [];
   }
-
-  console.log("Fetching active policies for client UID:", clientUid);
-
-  const { data, error } = await db
-    .from("policy_Table")
-    .select("id, policy_type, policy_inception, policy_expiry, policy_is_active, is_archived")
-    .eq("client_id", clientUid)
-    .eq("policy_is_active", true)
-    .or("is_archived.is.null,is_archived.eq.false");
-
-  if (error) {
-    console.error("Error fetching client policies:", error.message);
-    return [];
-  }
-
-  console.log(`Found ${data.length} active policies`);
-  return data;
 }
 
 /**
@@ -115,86 +113,107 @@ export async function createClientDelivery({
 }
 
 /**
- *  Fetch deliveries linked to this client
+ * Used in creation form to disable policies that already have deliveries
  */
 export async function fetchClientDeliveries(clientUid) {
-  console.log("Fetching deliveries for client:", clientUid);
-
-  if (!clientUid) {
-    console.warn("No clientUid provided to fetchClientDeliveries");
-    return [];
-  }
-
+  if (!clientUid) return [];
   try {
-    // Get client’s active policies
     const { data: policies, error: policyError } = await db
       .from("policy_Table")
-      .select("id, internal_id, policy_is_active, clients_Table(uid, first_Name, phone_Number, address)")
-      .eq("clients_Table.uid", clientUid);
+      .select("id")
+      .eq("client_id", clientUid);
 
     if (policyError) throw policyError;
+    if (!policies?.length) return [];
 
-    if (!policies || policies.length === 0) {
-      console.warn("No active policies found for this client");
-      return [];
-    }
-
-    console.log(`Found ${policies.length} policy(ies) for client ${clientUid}`);
     const policyIds = policies.map((p) => p.id);
 
-    // Fetch deliveries linked to those policy IDs
     const { data: deliveries, error: deliveryError } = await db
       .from("delivery_Table")
-      .select("id, policy_id, estimated_delivery_date, delivered_at, remarks")
+      .select("id, policy_id, estimated_delivery_date, delivered_at, remarks, agent_id, created_at, is_archived")
       .in("policy_id", policyIds)
-      .order("estimated_delivery_date", { ascending: false });
+      .or("is_archived.is.null,is_archived.eq.false")
+      .order("created_at", { ascending: false });
 
     if (deliveryError) throw deliveryError;
 
-    if (!deliveries || deliveries.length === 0) {
-      console.warn("No deliveries found for these policies");
-      return [];
-    }
+    return (deliveries || []).map((d) => ({
+      id: d.id,
+      policy_id: d.policy_id,
+      estimated_delivery_date: d.estimated_delivery_date || null,
+      delivered_at: d.delivered_at || null,
+      remarks: d.remarks || null,
+      agent_id: d.agent_id || null,
+      created_at: d.created_at || null,
+      is_archived: d.is_archived || false,
+    }));
+  } catch (err) {
+    console.error("fetchClientDeliveries unexpected:", err);
+    return [];
+  }
+}
 
-    console.log("Deliveries fetched:", deliveries);
+/**
+ * Fetch deliveries + related policy + client details for ActiveDeliveriesTable
+ */
+export async function fetchClientDeliveriesDetailed(clientUid) {
+  if (!clientUid) return [];
+  try {
+    const { data: policies, error: policyError } = await db
+      .from("policy_Table")
+      .select("id")
+      .eq("client_id", clientUid);
 
-    // Combine policy and client data for each delivery
-    const combined = deliveries.map((d) => {
-      const policy = policies.find((p) => p.id === d.policy_id);
-      const client = policy?.clients_Table || {};
+    if (policyError) throw policyError;
+    if (!policies?.length) return [];
 
+    const policyIds = policies.map((p) => p.id);
+
+    const { data: deliveries, error: deliveryError } = await db
+      .from("delivery_Table")
+      .select(`
+        id,
+        policy_id,
+        estimated_delivery_date,
+        delivered_at,
+        remarks,
+        is_archived,
+        created_at,
+        policy_Table (
+          internal_id,
+          policy_is_active,
+          clients_Table (
+            first_Name,
+            phone_Number,
+            address
+          )
+        )
+      `)
+      .in("policy_id", policyIds)
+      .or("is_archived.is.null,is_archived.eq.false")
+      .order("created_at", { ascending: false });
+
+    if (deliveryError) throw deliveryError;
+
+    return (deliveries || []).map((d) => {
+      const policy = d.policy_Table || {};
+      const client = policy.clients_Table || {};
       const isDelivered = !!d.delivered_at;
-      const status = isDelivered ? "Delivered" : "Scheduled";
-
-      // pick appropriate date
-      const displayDate = isDelivered
-        ? new Date(d.delivered_at).toLocaleDateString()
-        : d.estimated_delivery_date
-        ? new Date(d.estimated_delivery_date).toLocaleDateString()
-        : "N/A";
 
       return {
         id: d.id,
-        policy_number: policy?.internal_id || "N/A",
-        status,
-        first_name: client?.first_Name || "N/A",
-        phone_number: client?.phone_Number || "N/A",
-        address: client?.address || "N/A",
-        estimated_delivery_date: d.estimated_delivery_date
-          ? new Date(d.estimated_delivery_date).toLocaleDateString()
-          : "N/A",
-        delivered_at: d.delivered_at
-          ? new Date(d.delivered_at).toLocaleDateString()
-          : null,
+        policy_number: policy.internal_id || "N/A",
+        status: isDelivered ? "Delivered" : "Schedule",
+        first_name: client.first_Name || "N/A",
+        phone_number: client.phone_Number || "N/A",
+        address: client.address || "N/A",
+        estimated_delivery_date: d.estimated_delivery_date || null,
+        delivered_at: d.delivered_at || null,
         remarks: d.remarks || "None",
-        display_date: displayDate, //  dded for convenience
       };
     });
-
-    console.log("Final combined deliveries:", combined);
-    return combined;
   } catch (err) {
-    console.error("Unexpected error in fetchClientDeliveries:", err);
+    console.error("fetchClientDeliveriesDetailed unexpected:", err);
     return [];
   }
 }

@@ -1,17 +1,18 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   getCurrentClient,
   fetchClientActivePolicies,
   createClientDelivery,
+  fetchClientDeliveries,
 } from "../Actions/ClientDeliveryActions";
 import ClientDeliveryCreationForm from "../ClientForms/ClientDeliveryCreationForm";
 
 export default function ClientDeliveryCreationController({ onCancel, onDeliveryCreated }) {
   const navigate = useNavigate();
   const [policies, setPolicies] = useState([]);
-  const [clientUid, setClientUid] = useState(null);
   const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     policyId: "",
     deliveryDate: new Date().toISOString().split("T")[0],
@@ -19,24 +20,34 @@ export default function ClientDeliveryCreationController({ onCancel, onDeliveryC
     remarks: "",
   });
 
-  //  Load current client first, then their active policies
   useEffect(() => {
-    async function loadClientAndPolicies() {
-      const client = await getCurrentClient();
-      if (!client) {
-        console.warn("No logged-in client found");
-        return;
+    let mounted = true;
+    async function load() {
+      try {
+        const client = await getCurrentClient();
+        if (!client) return;
+
+        const [activePolicies, deliveries] = await Promise.all([
+          fetchClientActivePolicies(client.uid),
+          fetchClientDeliveries(client.uid),
+        ]);
+
+        const deliveredIds = new Set((deliveries || []).map((d) => String(d.policy_id)));
+
+        const updated = (activePolicies || []).map((p) => ({
+          ...p,
+          hasDelivery: deliveredIds.has(String(p.id)),
+        }));
+
+        if (mounted) setPolicies(updated);
+      } catch (err) {
+        console.error("Error loading policies/deliveries:", err);
       }
-
-      console.log("Client UID:", client.uid);
-      setClientUid(client.uid);
-
-      const activePolicies = await fetchClientActivePolicies(client.uid);
-      console.log("Active policies fetched:", activePolicies);
-      setPolicies(activePolicies);
     }
-
-    loadClientAndPolicies();
+    load();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const handleChange = (e) => {
@@ -46,8 +57,13 @@ export default function ClientDeliveryCreationController({ onCancel, onDeliveryC
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.policyId) {
+    const selected = policies.find((p) => String(p.id) === String(formData.policyId));
+    if (!selected) {
       alert("Please select a policy.");
+      return;
+    }
+    if (selected.hasDelivery) {
+      alert("This policy already has a scheduled delivery.");
       return;
     }
 
@@ -62,16 +78,12 @@ export default function ClientDeliveryCreationController({ onCancel, onDeliveryC
 
       alert("Delivery created successfully!");
 
-      // Refresh Active Deliveries automatically
-      if (onDeliveryCreated) {
-        onDeliveryCreated(created);
-      }
-
-      // Optional navigation
-      if (onCancel) onCancel(created);
+      if (typeof onDeliveryCreated === "function") onDeliveryCreated(created);
+      if (typeof onCancel === "function") onCancel(created);
       else navigate("/appinsurance/ClientArea/Delivery");
     } catch (err) {
-      alert("Failed to create delivery: " + (err.message || err));
+      alert("Failed to create delivery: " + (err?.message || err));
+      console.error(err);
     } finally {
       setLoading(false);
     }
