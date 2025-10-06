@@ -11,6 +11,7 @@ import Balances from './Balances';
 import History from './History';
 import PendingPayments from './PendingPayments';
 import Claims from './Claims';
+import Delivery from './Delivery';
 import Quotation from './Quotation';
 import Payment from './Payment';
 import MainArea from './MainArea';
@@ -36,6 +37,7 @@ function App() {
       <Route path="History" element={<History />} />
       <Route path="PendingPayments" element={<PendingPayments />} />
       <Route path="Claims" element={<Claims />} />
+      <Route path ="Delivery" element={<Delivery/>} />
       <Route path="Quotation" element={<Quotation />} />
       <Route path="Payment" element={<Payment />} />
     </Route>
