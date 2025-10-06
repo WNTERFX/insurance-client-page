@@ -27,7 +27,7 @@ export default function LoginForm() {
     console.log("Logged in client:", result.user);
 
 
-    navigate("/appinsurance/login/MainArea/");
+    navigate("/appinsurance/login/MainArea/Home");
   };
 
   return (
