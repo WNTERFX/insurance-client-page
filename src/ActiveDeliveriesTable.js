@@ -59,7 +59,7 @@ export default function ActiveDeliveriesTable({ refreshFlag }) {
     loadDeliveries();
   }, [clientData, refreshFlag]);
 
-  if (loading) return <p className="loading-text">Loading deliveries...</p>;
+   if(loading) { return <div className="balances-container"><div className="loading-message">Loading Balances <span className="spinner"></span></div></div>; }
   if (deliveries.length === 0) return <p className="no-delivery-text">No deliveries found</p>;
 
   return (

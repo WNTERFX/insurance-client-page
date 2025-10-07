@@ -77,7 +77,7 @@ export default function InsuranceDetails() {
                 <div><strong>Inception Date:</strong> {formatDate(policy.policy_inception)}</div>
                 <div><strong>Expiry Date:</strong> {formatDate(policy.policy_expiry)}</div>
                 <div><strong>Created:</strong> {formatDate(policy.created_at)}</div>
-                <div><strong>Partner ID:</strong> {policy.partner_id || 'N/A'}</div>
+                <div><strong>Partner Name:</strong> {policy.insurance_Partners?.insurance_Name || 'N/A'}</div>
               </div>
             </div>
 
@@ -112,7 +112,7 @@ export default function InsuranceDetails() {
                       <div><strong>Color:</strong> {vehicle.vehicle_color}</div>
                       <div><strong>Year:</strong> {vehicle.vehicle_year}</div>
                       <div><strong>Plate Number:</strong> {vehicle.plate_num}</div>
-                      <div style={{ gridColumn: "1 / -1" }}><strong>VIN:</strong> {vehicle.vin_num}</div>
+                      <div><strong>VIN:</strong> {vehicle.vin_num}</div>
                     </div>
                   </div>
 

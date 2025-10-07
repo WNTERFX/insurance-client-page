@@ -49,6 +49,9 @@ export async function fetchPoliciesWithComputation() {
       .from("policy_Table")
       .select(`
         *,
+        insurance_Partners:partner_id (
+          insurance_Name
+        ),
         policy_Computation_Table (
           id,
           original_Value,

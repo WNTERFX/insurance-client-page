@@ -104,6 +104,7 @@
 .vehicle-details {
   display: grid;
   gap: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .policy-info,
@@ -117,20 +118,24 @@
 
 .policy-info h3,
 .policy-computation h3,
-.vehicle-details h3,
-.vehicle-info h4,
-.coverage-tax h4,
-.coverage-tax h5 {
-  margin: 0 0 1rem 0;
+.vehicle-details h3
+ {
+
   color: #374151;
 }
+.vehicle-info h4,
+.coverage-tax h4,
+.coverage-tax h5{
+  margin: 0 0 1rem 0;
+}
+
 
 .computation-card {
   background-color: #fef3c7;
   border: 1px solid #f59e0b;
   border-radius: 8px;
   padding: 1rem;
-  margin-bottom: 1rem;
+
   font-size: 0.875rem;
 }
 
