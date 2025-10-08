@@ -17,6 +17,7 @@ import Payment from './Payment';
 import MainArea from './MainArea';
 import { SignInForm } from './SignInForm';
 import InvalidAuthRoute from './AdminApp/ControllerAdmin/InvalidAuthRoute';
+import ResetPasswordForm from "./ResetPasswordForm";
 
 
 function App() {
@@ -26,9 +27,10 @@ function App() {
   <Route path="/appinsurance" element={<LandingPage />} />
   <Route path="/appinsurance/signin" element={<SignInForm />} />
   <Route path="/appinsurance/login" element={<LoginForm />} />
-
+  <Route path="/appinsurance/reset-password" element={<ResetPasswordForm />} />
   {/* Protected routes */}
   <Route element={<InvalidAuthRoute />}>
+
     <Route path="/appinsurance/login/MainArea" element={<MainArea />}>
       <Route path="Home" element={<Home />} />
       <Route path="InsuranceDetails" element={<InsuranceDetails />} />
