@@ -37,34 +37,7 @@ export default function LoginForm() {
     navigate("/appinsurance/login/MainArea/Home");
   };
 
-  // Fetch user full name
-  const fetchUserNameByEmail = async (email) => {
-    if (!email) {
-      setUserName("");
-      return;
-    }
-    try {
-      const { data, error } = await db
-        .from("clients_Table")
-        .select("first_Name, middle_Name, family_Name")
-        .eq("email", email)
-        .single();
 
-      if (error && error.code !== "PGRST116") throw error;
-
-      if (data) {
-        const fullName = `${data.first_Name} ${data.middle_Name ? data.middle_Name + " " : ""}${data.family_Name}`;
-        setUserName(fullName);
-      } else setUserName("");
-    } catch (err) {
-      console.error("Error fetching user:", err);
-      setUserName("");
-    }
-  };
-
-  useEffect(() => {
-    fetchUserNameByEmail(resetEmail);
-  }, [resetEmail]);
 
   // Send password reset email
   const handleSendResetEmail = async () => {
@@ -176,14 +149,7 @@ export default function LoginForm() {
               </button>
             </div>
             <div className="modal-body">
-              {userName ? (
-                <p>
-                  Hi <strong>{userName}</strong>, enter your email to receive a password reset link.
-                </p>
-              ) : (
-                <p>Enter your email to receive a password reset link.</p>
-              )}
-
+            
               <label>Email Address</label>
               <input
                 type="email"
