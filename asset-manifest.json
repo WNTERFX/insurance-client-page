@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/insurance-client-page/static/css/main.e3bf4ddf.css",
-    "main.js": "/insurance-client-page/static/js/main.a679633f.js",
+    "main.js": "/insurance-client-page/static/js/main.b468dc2c.js",
     "static/media/car.png": "/insurance-client-page/static/media/car.e6c2e5685c9ae3cd42d2.png",
     "static/media/car-blur.png": "/insurance-client-page/static/media/car-blur.90d37032e622c9de93fc.png",
     "static/media/pay.png": "/insurance-client-page/static/media/pay.afe553b0b802e9587fce.png",
@@ -13,10 +13,10 @@
     "static/media/cocogen.png": "/insurance-client-page/static/media/cocogen.13c4ad732e7211614013.png",
     "index.html": "/insurance-client-page/index.html",
     "main.e3bf4ddf.css.map": "/insurance-client-page/static/css/main.e3bf4ddf.css.map",
-    "main.a679633f.js.map": "/insurance-client-page/static/js/main.a679633f.js.map"
+    "main.b468dc2c.js.map": "/insurance-client-page/static/js/main.b468dc2c.js.map"
   },
   "entrypoints": [
     "static/css/main.e3bf4ddf.css",
-    "static/js/main.a679633f.js"
+    "static/js/main.b468dc2c.js"
   ]
 }
