@@ -5,40 +5,40 @@ import "./styles/Sidebar-client-styles.css";
 export default function Sidebar() {
   return (
     <aside className="sidebar">
-      <Link to="/appinsurance/login/MainArea/Home" className="menu-item">
+      <Link to="/insurance-client-page/login/MainArea/Home" className="menu-item">
         <FaHome className="menu-icon" />
         <span>Home</span>
       </Link>
 
-      <Link to="/appinsurance/login/MainArea/InsuranceDetails" className="menu-item">
+      <Link to="/insurance-client-page/login/MainArea/InsuranceDetails" className="menu-item">
         <FaRegFileAlt className="menu-icon" />
         <span>Insurance Details</span>
       </Link>
 
-       <Link to="/appinsurance/login/MainArea/Balances"className="menu-item">
+       <Link to="/insurance-client-page/login/MainArea/Balances"className="menu-item">
         <FaMoneyBill className="menu-icon" />
         <span>Balances</span>
       </Link>
-      <Link to="/appinsurance/login/MainArea/history"className="menu-item">
+      <Link to="/insurance-client-page/login/MainArea/history"className="menu-item">
         <FaHistory className="menu-icon" />
         <span>History</span>
       </Link>
     
-      <Link to="/appinsurance/login/MainArea/Claims"className="menu-item">
+      <Link to="/insurance-client-page/login/MainArea/Claims"className="menu-item">
         <FaClipboardCheck className="menu-icon" />
         <span>Claims</span>
       </Link>
       
-      <Link to="/appinsurance/login/MainArea/Delivery"className="menu-item">
+      <Link to="/insurance-client-page/login/MainArea/Delivery"className="menu-item">
         <FaTruck  className="menu-icon" />
         <span>Deliveries</span>
       </Link>
 
-         <Link to="/appinsurance/login/MainArea/Quotation"className="menu-item">
+         <Link to="/insurance-client-page/login/MainArea/Quotation"className="menu-item">
         <FaFileInvoiceDollar className="menu-icon" />
         <span>Quotation</span>
       </Link>
-         <Link to="/appinsurance/login/MainArea/Payment"className="menu-item">
+         <Link to="/insurance-client-page/login/MainArea/Payment"className="menu-item">
         <FaCreditCard className="menu-icon" />
         <span>Payment</span>
       </Link>

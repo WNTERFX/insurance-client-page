@@ -24,14 +24,14 @@ function App() {
   return (
     
   <Routes>
-  <Route path="/appinsurance" element={<LandingPage />} />
-  <Route path="/appinsurance/signin" element={<SignInForm />} />
-  <Route path="/appinsurance/login" element={<LoginForm />} />
-  <Route path="/appinsurance/reset-password" element={<ResetPasswordForm />} />
+  <Route path="/insurance-client-page" element={<LandingPage />} />
+  <Route path="/insurance-client-page/signin" element={<SignInForm />} />
+  <Route path="/insurance-client-page/login" element={<LoginForm />} />
+  <Route path="/insurance-client-page/reset-password" element={<ResetPasswordForm />} />
   {/* Protected routes */}
   <Route element={<InvalidAuthRoute />}>
 
-    <Route path="/appinsurance/login/MainArea" element={<MainArea />}>
+    <Route path="/insurance-client-page/login/MainArea" element={<MainArea />}>
       <Route path="Home" element={<Home />} />
       <Route path="InsuranceDetails" element={<InsuranceDetails />} />
       <Route path="DueDates" element={<DueDates />} />

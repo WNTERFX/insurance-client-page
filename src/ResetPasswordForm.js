@@ -75,7 +75,7 @@ export default function ResetPasswordForm() {
       if (error) throw error;
 
       setMessage("✅ Password successfully updated! Redirecting to login...");
-      setTimeout(() => navigate("/appinsurance/login"), 2000);
+      setTimeout(() => navigate("/insurance-client-page/login"), 2000);
     } catch (err) {
       setMessage(`❌ ${err.message}`);
     } finally {
@@ -151,7 +151,7 @@ export default function ResetPasswordForm() {
 
             <button
               className="link-button"
-              onClick={() => navigate("/appinsurance/login")}
+              onClick={() => navigate("/insurance-client-page/login")}
               style={{ marginTop: "10px" }}
             >
               Back to Login

@@ -41,7 +41,7 @@ export function SignInForm() {
     console.log("Signed in client:", result.user);
 
     // Navigate to dashboard after successful login
-    navigate("/appinsurance/login");
+    navigate("/insurance-client-page/login");
     };
 
   return (
@@ -110,7 +110,7 @@ export function SignInForm() {
 
                 <button
                   type="button"
-                  onClick={() => navigate("/appinsurance/login")}
+                  onClick={() => navigate("/insurance-client-page/login")}
                 >
                   Back to Log In
                 </button>

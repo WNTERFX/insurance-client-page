@@ -1,12 +1,13 @@
 {
-  "homepage": "https://WNTERFX.github.io/appinsurance",
-  "name": "appinsurance",
+  "homepage": "https://WNTERFX.github.io/insurance-client-page",
+  "name": "insurance-client-page",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/x-charts": "^8.0.0",
+    "@supabase/supabase-js": "^2.75.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",

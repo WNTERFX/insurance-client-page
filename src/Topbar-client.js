@@ -47,7 +47,7 @@ export default function Topbar_client() {
     const result = await logoutClient();
    
     if (result.success) {
-      navigate("/appinsurance/");
+      navigate("/insurance-client-page/");
     } else {
       console.error("Failed to log out:", result.error);
       alert("Logout failed. Please try again.");

@@ -34,7 +34,7 @@ export default function LoginForm() {
       return;
     }
 
-    navigate("/appinsurance/login/MainArea/Home");
+    navigate("/insurance-client-page/login/MainArea/Home");
   };
 
 
@@ -47,7 +47,7 @@ export default function LoginForm() {
 
     try {
       const { data, error } = await db.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: window.location.origin + "/appinsurance/reset-password",
+        redirectTo: window.location.origin + "/insurance-client-page/reset-password",
       });
 
       if (error) throw error;
@@ -129,7 +129,7 @@ export default function LoginForm() {
                 <button type="submit" disabled={loading}>
                   {loading ? "Logging in..." : "Log In"}
                 </button>
-                <button type="button" onClick={() => navigate("/appinsurance/signin")}>
+                <button type="button" onClick={() => navigate("/insurance-client-page/signin")}>
                   Sign In
                 </button>
               </div>
