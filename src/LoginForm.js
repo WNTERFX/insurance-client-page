@@ -34,7 +34,7 @@ export default function LoginForm() {
       return;
     }
 
-    navigate("/insurance-client-page/login/MainArea/Home");
+    navigate("/insurance-client-page/main-portal/home");
   };
 
 

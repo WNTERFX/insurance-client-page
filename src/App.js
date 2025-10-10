@@ -31,7 +31,7 @@ function App() {
   {/* Protected routes */}
   <Route element={<InvalidAuthRoute />}>
 
-    <Route path="/insurance-client-page/login/MainArea" element={<MainArea />}>
+    <Route path="/insurance-client-page/main-portal" element={<MainArea />}>
       <Route path="Home" element={<Home />} />
       <Route path="InsuranceDetails" element={<InsuranceDetails />} />
       <Route path="DueDates" element={<DueDates />} />

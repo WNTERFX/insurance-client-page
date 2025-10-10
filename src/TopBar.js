@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from 'react-router-dom';
 import "./styles/top-bar-styles.css";
 
 export default function TopBar() {
@@ -27,7 +28,7 @@ export default function TopBar() {
         <a href="#customer-service" className="nav-link" onClick={() => setMenuOpen(false)}>Partners</a>
         <a href="#contact" className="nav-link" onClick={() => setMenuOpen(false)}>Contact Us</a>
         <a href="#about" className="nav-link" onClick={() => setMenuOpen(false)}>About Us</a>
-         <a href="/insurance-client-page/login" className="login-button">Log in</a>
+        <Link to="/insurance-client-page/login" className="login-button">Log in</Link>
       </nav>
     </header>
   );
