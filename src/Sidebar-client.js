@@ -19,7 +19,7 @@ export default function Sidebar() {
         <FaMoneyBill className="menu-icon" />
         <span>Balances</span>
       </Link>
-      <Link to="/insurance-client-page/main-portal/Balances"className="menu-item">
+      <Link to="/insurance-client-page/main-portal/History"className="menu-item">
         <FaHistory className="menu-icon" />
         <span>History</span>
       </Link>
