@@ -6,43 +6,36 @@ import { signInClient } from "./Actions/SignInActions";
 
 export function SignInForm() {
   const navigate = useNavigate();
-
   const [policyId, setPolicyId] = useState("");
-  const [clientId, setClientId] = useState("");
-  const [email, setEmail] = useState("");   // ✅ NEW STATE
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-    const handleSignIn = async (e) => {
-    e.preventDefault(); // ✅ prevent page reload
-
+  const handleSignIn = async (e) => {
+    e.preventDefault();
+    
     if (password !== confirmPassword) {
-        alert("Passwords do not match!");
-        return;
+      alert("Passwords do not match!");
+      return;
     }
 
     setLoading(true);
-
     const result = await signInClient({
-        policyInternalId: policyId,
-        clientInternalId: clientId,
-        email,
-        password,
+      policyInternalId: policyId,
+      email,
+      password,
     });
-
     setLoading(false);
 
     if (!result.success) {
-        alert("Sign In failed: " + result.error);
-        return;
+      alert("Sign In failed: " + result.error);
+      return;
     }
 
     console.log("Signed in client:", result.user);
-
-    // Navigate to dashboard after successful login
     navigate("/insurance-client-page/login");
-    };
+  };
 
   return (
     <div className="signin-container">
@@ -51,7 +44,6 @@ export function SignInForm() {
           <div className="logo-panel">
             <img src={logo} alt="silverstar_insurance_inc_Logo" />
           </div>
-
           <div className="right-panel">
             <h2>Create Your Account</h2>
             <form onSubmit={handleSignIn}>
@@ -64,17 +56,7 @@ export function SignInForm() {
                 onChange={(e) => setPolicyId(e.target.value)}
                 required
               />
-
-              <label>Client ID</label>
-              <input
-                type="text"
-                className="client-id"
-                placeholder="Enter your client ID"
-                value={clientId}
-                onChange={(e) => setClientId(e.target.value)}
-                required
-              />
-
+              
               <label>Email</label>
               <input
                 type="email"
@@ -84,7 +66,7 @@ export function SignInForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
-
+              
               <label>Password</label>
               <input
                 type="password"
@@ -93,7 +75,7 @@ export function SignInForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-
+              
               <label>Confirm Password</label>
               <input
                 type="password"
@@ -102,12 +84,11 @@ export function SignInForm() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
               />
-
+              
               <div className="signin-controls">
                 <button type="submit" disabled={loading}>
                   {loading ? "Signing in..." : "Sign In"}
                 </button>
-
                 <button
                   type="button"
                   onClick={() => navigate("/insurance-client-page/login")}
