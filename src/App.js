@@ -18,6 +18,7 @@ import MainArea from './MainArea';
 import { SignInForm } from './SignInForm';
 import InvalidAuthRoute from './AdminApp/ControllerAdmin/InvalidAuthRoute';
 import ResetPasswordForm from "./ResetPasswordForm";
+import ClientClaimsCreationController from './ClientController/ClientClaimsCreationController';
 
 
 function App() {
@@ -39,6 +40,7 @@ function App() {
       <Route path="History" element={<History />} />
       <Route path="PendingPayments" element={<PendingPayments />} />
       <Route path="Claims" element={<Claims />} />
+      <Route path="Claims/ClientClaimsCreationController" element={<ClientClaimsCreationController />} />
       <Route path ="Delivery" element={<Delivery/>} />
       <Route path="Quotation" element={<Quotation />} />
       <Route path="Payment" element={<Payment />} />
