@@ -33,6 +33,13 @@ function App() {
   <Route path="/insurance-client-page/signin" element={<SignInForm />} />
   <Route path="/insurance-client-page/login" element={<LoginForm />} />
   <Route path="/insurance-client-page/reset-password" element={<ResetPasswordForm />} />
+  
+    <Route path="/insurance-client-page/main-portal/payment/success" element={<PaymentSuccess />} />
+    <Route path="/insurance-client-page/main-portal/payment/failure" element={<PaymentFailure />} />
+
+  
+  
+  
   {/* Protected routes */}
   <Route element={<InvalidAuthRoute />}>
 
@@ -48,8 +55,6 @@ function App() {
       <Route path ="Delivery" element={<Delivery/>} />
       <Route path="Quotation" element={<Quotation />} />
       <Route path="Payment" element={<Payment />} />
-      <Route path="payment/success" element={<PaymentSuccess />} />
-      <Route path="payment/failure" element={<PaymentFailure />} />
     </Route>
   </Route>
 
