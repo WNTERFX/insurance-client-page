@@ -18,8 +18,12 @@ import MainArea from './MainArea';
 import { SignInForm } from './SignInForm';
 import InvalidAuthRoute from './AdminApp/ControllerAdmin/InvalidAuthRoute';
 import ResetPasswordForm from "./ResetPasswordForm";
+<<<<<<< HEAD
 import PaymentSuccess from './PaymentSuccess';
 import PaymentFailure from './PaymentFailure';
+=======
+import ClientClaimsCreationController from './ClientController/ClientClaimsCreationController';
+>>>>>>> b8d1b9079a105227c0d4fc95a7805d8124b641b1
 
 
 function App() {
@@ -41,6 +45,7 @@ function App() {
       <Route path="History" element={<History />} />
       <Route path="PendingPayments" element={<PendingPayments />} />
       <Route path="Claims" element={<Claims />} />
+      <Route path="Claims/ClientClaimsCreationController" element={<ClientClaimsCreationController />} />
       <Route path ="Delivery" element={<Delivery/>} />
       <Route path="Quotation" element={<Quotation />} />
       <Route path="Payment" element={<Payment />} />
