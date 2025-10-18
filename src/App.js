@@ -18,6 +18,8 @@ import MainArea from './MainArea';
 import { SignInForm } from './SignInForm';
 import InvalidAuthRoute from './AdminApp/ControllerAdmin/InvalidAuthRoute';
 import ResetPasswordForm from "./ResetPasswordForm";
+import PaymentSuccess from './PaymentSuccess';
+import PaymentFailure from './PaymentFailure';
 
 
 function App() {
@@ -42,6 +44,8 @@ function App() {
       <Route path ="Delivery" element={<Delivery/>} />
       <Route path="Quotation" element={<Quotation />} />
       <Route path="Payment" element={<Payment />} />
+      <Route path="payment/success" element={<PaymentSuccess />} />
+      <Route path="payment/failure" element={<PaymentFailure />} />
     </Route>
   </Route>
 
