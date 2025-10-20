@@ -1,3 +1,4 @@
+//client side
 import React, { useState, useEffect } from "react";
 import { MapPin, Calendar, Phone, FileText, Upload, User, Building2, DollarSign, AlertTriangle, X, Eye, Download } from "lucide-react";
 import { fetchClientClaims, getClaimDocumentUrls } from "./Actions/ClaimsActions";
@@ -60,7 +61,6 @@ export default function ClientClaimsDisplay({ refreshFlag }) {
         setClaims(data);
         if (data.length > 0 && !selectedClaim) {
           setSelectedClaim(data[0]);
-          // Check if the first claim has a message
           if (data[0].message && data[0].message.trim() !== '') {
             setCurrentMessage(data[0].message);
             setShowMessageModal(true);
@@ -180,7 +180,7 @@ export default function ClientClaimsDisplay({ refreshFlag }) {
     });
 
     // 2. Under Review
-    if (claim.status === 'Under Review' || claim.status === 'Approved' || claim.status === 'Rejected') {
+    if (claim.status === 'Under Review' || claim.status === 'Approved' || claim.status === 'Rejected' || claim.status === 'Completed') {
       items.push({
         title: "Under Review",
         date: formatDate(claim.under_review_date),
@@ -197,7 +197,7 @@ export default function ClientClaimsDisplay({ refreshFlag }) {
     }
 
     // 3. Initial Review Complete
-    if (claim.status === 'Approved') {
+    if (claim.status === 'Approved' || claim.status === 'Completed') {
       items.push({
         title: "Initial Review Complete",
         date: formatDate(claim.approved_claim_date),
@@ -221,7 +221,30 @@ export default function ClientClaimsDisplay({ refreshFlag }) {
       });
     }
 
+    // 4. Completed - Only show if status is Approved or Completed (NOT for Rejected)
+    if (claim.status === 'Completed') {
+      items.push({
+        title: "Completed",
+        date: formatDate(claim.completed_date),
+        description: "Your claim has been successfully completed",
+        completed: true
+      });
+    } else if (claim.status === 'Approved') {
+      items.push({
+        title: "Completed",
+        date: "Pending",
+        description: "Waiting for final completion",
+        completed: false
+      });
+    }
+    // If status is 'Rejected', don't show Completed step at all
+
     return items;
+  };
+
+  // Check if upload should be disabled
+  const isUploadDisabled = (status) => {
+    return status === 'Approved' || status === 'Rejected' || status === 'Completed';
   };
 
   if (loading) {
@@ -306,15 +329,15 @@ export default function ClientClaimsDisplay({ refreshFlag }) {
                 </div>
                 <div className="info-item">
                   <span className="info-label"><Phone size={14} /> Contact Number:</span>
-                  <span className="info-value">{selectedClaim.phone_number || "N/A"}</span>
+                  <span className="info-value">{selectedClaim.policy_Table?.clients_Table?.phone_Number || "N/A"}{" "}</span>
                 </div>
                 <div className="info-item">
                   <span className="info-label"><DollarSign size={14} /> Estimate Amount:</span>
                   <span className="info-value">{formatCurrency(selectedClaim.estimate_amount)}</span>
                 </div>
                 <div className="info-item info-item-full">
-                  <span className="info-label"><MapPin size={14} /> Location:</span>
-                  <span className="info-value">{selectedClaim.location_of_incident || "N/A"}</span>
+                  <span className="info-label"><DollarSign size={14} /> Approved Amount:</span>
+                  <span className="info-value">{formatCurrency(selectedClaim.approved_amount)}</span>
                 </div>
               </div>
             </div>
@@ -338,10 +361,6 @@ export default function ClientClaimsDisplay({ refreshFlag }) {
                 <div className="info-item">
                   <span className="info-label"><Calendar size={14} /> Claim Date:</span>
                   <span className="info-value">{formatDate(selectedClaim.claim_date)}</span>
-                </div>
-                <div className="info-item info-item-full">
-                  <span className="info-label"><FileText size={14} /> Description:</span>
-                  <span className="info-value">{selectedClaim.description_of_incident || "No description provided"}</span>
                 </div>
               </div>
             </div>
@@ -375,6 +394,12 @@ export default function ClientClaimsDisplay({ refreshFlag }) {
               <button 
                 className="btn-upload-files"
                 onClick={() => setShowUploadModal(true)}
+                disabled={isUploadDisabled(selectedClaim.status)}
+                style={{
+                  opacity: isUploadDisabled(selectedClaim.status) ? 0.5 : 1,
+                  cursor: isUploadDisabled(selectedClaim.status) ? 'not-allowed' : 'pointer'
+                }}
+                title={isUploadDisabled(selectedClaim.status) ? 'Upload disabled for this claim status' : 'Upload additional files'}
               >
                 <Upload size={20} /> Upload Files
               </button>
@@ -392,28 +417,6 @@ export default function ClientClaimsDisplay({ refreshFlag }) {
           </div>
         </div>
       )}
-
-      {/* Message Popup Modal - Simplified text */}
-     {/* {showMessageModal && currentMessage && (
-        <div className="message-popup-overlay" onClick={() => setShowMessageModal(false)}>
-          <div className="message-popup-content" onClick={(e) => e.stopPropagation()}>
-            <div className="message-popup-header">
-              <h3>Notice Message</h3>
-              <button className="message-popup-close" onClick={() => setShowMessageModal(false)}>
-                <X size={24} />
-              </button>
-            </div>
-            <div className="message-popup-body">
-              <p>{currentMessage}</p>
-            </div>
-            <div className="message-popup-footer">
-              <button className="message-popup-ok-btn" onClick={() => setShowMessageModal(false)}>
-                OK
-              </button>
-            </div>
-          </div>
-        </div>
-      )}*/}
 
       {/* Upload Files Modal */}
       {showUploadModal && (

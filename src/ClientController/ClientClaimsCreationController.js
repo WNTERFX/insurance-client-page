@@ -5,6 +5,7 @@ import {
     fetchClientActivePolicies,
     createClientClaim,
 } from '../Actions/ClaimsActions';
+import { enrichPoliciesWithClaimData, validateNewClaim } from '../Actions/claimsValidation';
 import ClientClaimsCreationForm from '../ClientForms/ClientClaimsCreationForm'; 
 import DeleteConfirmationModal from '../ClientForms/DeleteConfirmationModal';
 
@@ -13,6 +14,7 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
     const [currentClient, setCurrentClient] = useState(null);
     const [policies, setPolicies] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [selectedPolicyClaimableAmount, setSelectedPolicyClaimableAmount] = useState(0);
 
     const [incidentType, setIncidentType] = useState('');
     const [selectPolicy, setSelectPolicy] = useState('');
@@ -52,9 +54,13 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
                 const activePolicies = await fetchClientActivePolicies(client.uid);
                 console.log("✅ Active policies loaded:", activePolicies);
 
+                // Enrich policies with claimable amounts and validation
+                const enrichedPolicies = await enrichPoliciesWithClaimData(activePolicies);
+                console.log("✅ Policies enriched with claim data:", enrichedPolicies);
+
                 if (mounted) {
                     setCurrentClient(client);
-                    setPolicies(activePolicies || []);
+                    setPolicies(enrichedPolicies || []);
                 }
             } catch (err) {
                 console.error("❌ Error loading client/policies:", err);
@@ -66,6 +72,19 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
             mounted = false;
         };
     }, []);
+
+    // Update claimable amount when policy is selected
+    useEffect(() => {
+        if (selectPolicy) {
+            const selectedPolicy = policies.find(p => p.id === parseInt(selectPolicy));
+            if (selectedPolicy) {
+                setSelectedPolicyClaimableAmount(selectedPolicy.claimableAmount || 0);
+                console.log(`💰 Selected policy claimable amount: ₱${selectedPolicy.claimableAmount}`);
+            }
+        } else {
+            setSelectedPolicyClaimableAmount(0);
+        }
+    }, [selectPolicy, policies]);
 
     const handlePhotoUpload = (event) => {
         const files = event.target.files;
@@ -173,9 +192,9 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
         if (!selectPolicy) {
             newErrors.selectPolicy = true;
         }
-        if (!contactNumber || contactNumber.trim() === '') {
+       {/* if (!contactNumber || contactNumber.trim() === '') {
             newErrors.contactNumber = true;
-        }
+        }*/}
         if (!incidentDate) {
             newErrors.incidentDate = true;
         }
@@ -212,16 +231,23 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
             return;
         }
 
+        // Validate if claim can be created for selected policy
+        const validation = await validateNewClaim(parseInt(selectPolicy));
+        if (!validation.canCreate) {
+            alert(`Cannot create claim:\n\n${validation.reason}`);
+            return;
+        }
+
         if (!currentClient) {
             alert('Unable to identify current client. Please refresh and try again.');
             return;
         }
 
-        console.log(" Form validation passed");
-        console.log(" Form data:", {
+        console.log("✅ Form validation passed");
+        console.log("📊 Form data:", {
             policyId: selectPolicy,
             typeOfIncident: incidentType,
-            phoneNumber: contactNumber,
+          //  phoneNumber: contactNumber,
             locationOfIncident: incidentLocation,
             incidentDate: incidentDate,
             claimDate: claimDate,
@@ -237,7 +263,7 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
                 policyId: selectPolicy,
                 clientName: currentClient.first_Name,
                 typeOfIncident: incidentType,
-                phoneNumber: contactNumber,
+              //  phoneNumber: contactNumber,
                 locationOfIncident: incidentLocation,
                 incidentDate: incidentDate,
                 claimDate: claimDate,
@@ -256,7 +282,7 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
             setIncidentType('');
             setSelectPolicy('');
             setDescription('');
-            setContactNumber('');
+           // setContactNumber('');
             setIncidentLocation('');
             setIncidentDate('');
             setClaimDate('');
@@ -264,6 +290,7 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
             setPhotos([]);
             setDocuments([]);
             setErrors({});
+            setSelectedPolicyClaimableAmount(0);
 
             // Call callbacks if provided
             if (typeof onClaimCreated === "function") onClaimCreated(createdClaim);
@@ -293,8 +320,8 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
                 setSelectPolicy={setSelectPolicy}
                 description={description}
                 setDescription={setDescription}
-                contactNumber={contactNumber}
-                setContactNumber={setContactNumber}
+                //contactNumber={contactNumber}
+                //setContactNumber={setContactNumber}
                 incidentLocation={incidentLocation}
                 setIncidentLocation={setIncidentLocation}
                 incidentDate={incidentDate}
@@ -314,6 +341,7 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
                 setErrors={setErrors}
                 policies={policies}
                 loading={loading}
+                selectedPolicyClaimableAmount={selectedPolicyClaimableAmount}
             />
             
             <DeleteConfirmationModal
