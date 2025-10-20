@@ -1,80 +1,177 @@
+/* TopBar Styles */
 .top-bar-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #8F71B1;
-  padding: 0px 10px;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-.Name_Company{
+  background-color: #6a0572; /* Deep purple from your image */
   color: white;
-  font-weight: 600;
-  font-size: 28px; 
-  font-family: 'Inter', sans-serif;
+  padding: 15px 5%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  height: 90px; /* Slightly taller for more presence */
+  position: sticky; /* Makes the header sticky */
+  top: 0;
+  z-index: 1000; /* Ensures it stays on top of other content */
 }
 
-.logo-container{
+.logo-container {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px; /* A bit more space between logo and text */
 }
 
 .logo {
-  height: 90px;
+  height: 60px; /* Larger logo for prominence */
+  width: auto;
 }
 
-/* Nav links */
+.company-name {
+  font-family: 'Poppins', sans-serif; /* A more modern font */
+  font-size: 1.8rem; /* Larger company name */
+  font-weight: 700; /* Bolder */
+  margin: 0;
+  color: white;
+  letter-spacing: 0.5px;
+}
+
 .nav-links {
   display: flex;
-  gap: 20px;
+  gap: 35px; /* More space between links */
+  align-items: center;
 }
 
-.nav-link,
-.login-button {
+.nav-link {
   color: white;
   text-decoration: none;
+  font-size: 1.15rem; /* Larger font size */
   font-weight: 500;
-   font-size: 20px; 
-   font-family: 'Inter', sans-serif;
-   padding: 10px;
-  
+  transition: color 0.3s ease;
+  padding: 5px 0; /* Add some vertical padding for hover area */
 }
 
-.nav-link:hover,
+.nav-link:hover {
+  color: #e0d0e8; /* Lighter purple on hover */
+}
+
+.login-button {
+  background-color: white;
+  color: #6a0572; /* Deep purple text */
+  padding: 12px 25px; /* More padding for a larger button */
+  border-radius: 8px; /* Slightly more rounded */
+  text-decoration: none;
+  font-size: 1.15rem;
+  font-weight: bold;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for the button */
+}
+
 .login-button:hover {
-  text-decoration: underline;
+  background-color: #f0f0f0;
+  color: #4b0351;
+  transform: translateY(-2px);
 }
 
-/* Hamburger button hidden on desktop */
 .hamburger {
-  display: none;
-  font-size: 26px;
+  display: none; /* Hidden by default for desktop */
   background: none;
   border: none;
   color: white;
+  font-size: 2.2rem; /* Larger hamburger icon */
   cursor: pointer;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* Responsive adjustments for TopBar */
+@media (max-width: 1024px) {
+  .top-bar-container {
+    padding: 15px 3%;
+    height: 80px;
+  }
+  .company-name {
+    font-size: 1.6rem;
+  }
   .nav-links {
-    display: none;
-    flex-direction: column;
-    background-color: #8F71B1;
-    position: absolute;
-    top: 70px;
-    right: 20px;
-    padding: 15px;
-    border-radius: 8px;
+    gap: 25px;
+  }
+  .nav-link, .login-button {
+    font-size: 1.1rem;
+  }
+  .login-button {
+    padding: 10px 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .top-bar-container {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    height: auto;
+    padding: 15px 3%;
   }
 
-  .nav-links.active {
-    display: flex;
+  .logo-container {
+    flex-grow: 1;
+    justify-content: flex-start; /* Align logo to left */
   }
 
   .hamburger {
     display: block;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    position: absolute;
+    top: 90px; /* Below the top bar */
+    left: 0;
+    width: 100%;
+    background-color: #6a0572;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    padding: 20px 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-20px);
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+    z-index: 999; /* Ensure it's below the sticky top bar */
+  }
+
+  .nav-links.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .nav-link,
+  .login-button {
+    width: 90%; /* Take more width */
+    text-align: center;
+    padding: 18px 0; /* More padding for touch */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15); /* Slightly more visible separator */
+    font-size: 1.3rem;
+  }
+
+  .login-button {
+    margin-top: 15px;
+    background-color: white;
+    color: #6a0572;
+    border-radius: 0;
+    box-shadow: none; /* Remove shadow for mobile menu button */
+    padding: 18px 0; /* Match other links */
+  }
+
+  .nav-link:last-child {
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .company-name {
+    font-size: 1.3rem;
+  }
+  .logo {
+    height: 50px;
+  }
+  .hamburger {
+    font-size: 1.8rem;
+  }
+  .nav-link, .login-button {
+    font-size: 1.1rem;
   }
 }

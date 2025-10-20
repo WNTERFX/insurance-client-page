@@ -1,3 +1,4 @@
+//client side
 import { db } from "../dbServer";
 
 /**
@@ -129,12 +130,12 @@ export async function createClientClaim({
   policyId,
   clientName,
   typeOfIncident,
-  phoneNumber,
-  locationOfIncident,
+  //phoneNumber,
+ // locationOfIncident,
   incidentDate,
   claimDate,
   claimAmount,
-  descriptionOfIncident,
+  //descriptionOfIncident,
   photos,
   documents,
 }) {
@@ -144,7 +145,7 @@ export async function createClientClaim({
     // Validate required fields
     if (!policyId) throw new Error("Policy ID is required");
     if (!typeOfIncident) throw new Error("Type of incident is required");
-    if (!phoneNumber) throw new Error("Phone number is required");
+   //if (!phoneNumber) throw new Error("Phone number is required");
     if (!incidentDate) throw new Error("Incident date is required");
     if (!claimDate) throw new Error("Claim date is required");
 
@@ -160,12 +161,12 @@ export async function createClientClaim({
     const claimData = {
       policy_id: policyId,
       type_of_incident: typeOfIncident,
-      phone_number: phoneNumber,
-      location_of_incident: locationOfIncident || null,
+      //phone_number: phoneNumber,
+      //location_of_incident: locationOfIncident || null,
       incident_date: incidentDate,
       claim_date: claimDate,
       estimate_amount: parseFloat(claimAmount) || 0,
-      description_of_incident: descriptionOfIncident || null,
+      //description_of_incident: descriptionOfIncident || null,
       documents: [],
       status: 'Pending',
       is_approved: false,
@@ -264,6 +265,7 @@ export async function fetchClientClaims(clientUid) {
         under_review_date,
         reject_claim_date,
         approved_claim_date,
+        completed_date,
         created_at,
         policy_Table (
           id,
@@ -279,7 +281,12 @@ export async function fetchClientClaims(clientUid) {
             uid,
             first_Name,
             family_Name,
+            phone_Number,
             auth_id
+          ),
+          policy_Computation_Table (
+            policy_claim_amount,
+            current_Value
           )
         )
       `)

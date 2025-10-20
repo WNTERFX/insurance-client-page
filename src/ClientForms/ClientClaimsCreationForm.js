@@ -30,7 +30,8 @@ export default function ClientClaimsCreationForm({
     errors = {},
     setErrors,
     policies = [],
-    loading
+    loading,
+    selectedPolicyClaimableAmount = 0
 }) {
     const photoInputRef = useRef(null);
     const documentInputRef = useRef(null);
@@ -42,11 +43,11 @@ export default function ClientClaimsCreationForm({
         }
     }, [selectPolicy, errors.selectPolicy, setErrors]);
 
-    useEffect(() => {
+    {/*useEffect(() => {
         if (contactNumber && errors.contactNumber) {
             setErrors(prev => ({ ...prev, contactNumber: false }));
         }
-    }, [contactNumber, errors.contactNumber, setErrors]);
+    }, [contactNumber, errors.contactNumber, setErrors]);*/}
 
     useEffect(() => {
         if (incidentDate && errors.incidentDate) {
@@ -74,6 +75,14 @@ export default function ClientClaimsCreationForm({
         documentInputRef.current?.click();
     };
 
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat("en-PH", {
+            style: "currency",
+            currency: "PHP",
+            minimumFractionDigits: 2
+        }).format(amount || 0);
+    };
+
     return (
         <div className="claims-container">
             <h1 className="form-header">File New Claims</h1>
@@ -81,8 +90,18 @@ export default function ClientClaimsCreationForm({
 
             <form onSubmit={handleSubmit}>
                 <div className="form-section main-claim-details-section">
-                    <div className="form-group type-of-claim-comprehensive">
-                        <label className="label-heading">Type of Claim: Comprehensive</label>
+                    <div className="form-group-row-claim-info">
+                        <div className="form-group type-of-claim-comprehensive">
+                            <label className="label-heading">Type of Claim: Comprehensive</label>
+                        </div>
+
+                        <div className="form-group claimable-amount-display">
+                            <label className="label-heading">Claimable Amount:
+                            <span className={`claimable-amount-value ${selectedPolicyClaimableAmount <= 0 ? 'zero' : ''}`}>
+                                {formatCurrency(selectedPolicyClaimableAmount)}
+                            </span>
+                            </label>
+                        </div>
                     </div>
 
                     <div className="form-row">
@@ -120,13 +139,26 @@ export default function ClientClaimsCreationForm({
                                 <option value="">
                                     {policies.length === 0 ? 'No active policies available' : 'Select Policy'}
                                 </option>
-                                {policies.map((policy) => (
-                                    <option key={policy.id} value={policy.id}>
-                                        Policy #{policy.internal_id || policy.id} — {policy.policy_type || 'N/A'}
-                                        {policy.policy_inception && ` (${policy.policy_inception} to ${policy.policy_expiry || 'N/A'})`}
-                                    </option>
-                                ))}
+                                {policies.map((policy) => {
+                                    const isDisabled = !policy.canCreateClaim;
+                                    return (
+                                        <option 
+                                            key={policy.id} 
+                                            value={policy.id}
+                                            disabled={isDisabled}
+                                            style={isDisabled ? { color: '#999', fontStyle: 'italic' } : {}}
+                                        >
+                                            Policy #{policy.internal_id || policy.id} 
+                                            {isDisabled && ` - ${policy.claimValidationReason}`}
+                                        </option>
+                                    );
+                                })}
                             </select>
+                            {selectPolicy && policies.find(p => p.id === parseInt(selectPolicy))?.claimValidationReason && (
+                                <small style={{ color: '#dc3545', display: 'block', marginTop: '5px' }}>
+                                    {policies.find(p => p.id === parseInt(selectPolicy))?.claimValidationReason}
+                                </small>
+                            )}
                         </div>
 
                         <div className="form-group date-input-wrapper">
@@ -142,7 +174,7 @@ export default function ClientClaimsCreationForm({
                     </div>
 
                     <div className="form-row">
-                        <div className="form-group">
+                        {/*<div className="form-group">
                             <label className="label-heading">Location of Incident:</label>
                             <textarea
                                 placeholder="Enter location of incident"
@@ -163,7 +195,7 @@ export default function ClientClaimsCreationForm({
                                 style={errors.contactNumber ? { borderColor: '#dc3545', boxShadow: '0 0 0 2px rgba(220, 53, 69, 0.2)' } : {}}
                                 disabled={loading}
                             />
-                        </div>
+                        </div>*/}
 
                         <div className="form-group date-input-wrapper">
                             <label className="label-heading">Claim Date *:</label>
@@ -178,7 +210,7 @@ export default function ClientClaimsCreationForm({
                     </div>
 
                     <div className="form-row">
-                        <div className="form-group description-incident-group">
+                       {/* <div className="form-group description-incident-group">
                             <label className="label-heading">Description of Incident:</label>
                             <textarea
                                 placeholder="Describe the incident in detail..."
@@ -187,7 +219,7 @@ export default function ClientClaimsCreationForm({
                                 className="description-textarea"
                                 disabled={loading}
                             ></textarea>
-                        </div>
+                        </div>*/}
 
                         <div className="form-group right-column-inputs">
                             <div className="input-pair">
@@ -251,7 +283,7 @@ export default function ClientClaimsCreationForm({
                         </div>
                     </div>
 
-                    {/* Uploaded Files Preview - NEW STYLING */}
+                    {/* Uploaded Files Preview */}
                     {photos.length > 0 && (
                         <div className="uploaded-preview-section">
                             <h3 className="uploaded-preview-heading">Uploaded Photos: ({photos.length})</h3>
