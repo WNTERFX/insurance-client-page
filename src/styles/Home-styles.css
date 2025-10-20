@@ -1,109 +1,278 @@
-.dashboard {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+/*Dashboard*/
+.dashboard-containerHome {
+  background-color: #F2F5FA;
+    font-family: 'Inter', sans-serif;
+    height: auto;
+    max-width: 1000%;
+    padding-bottom: 30px;
 }
 
-/* Top Row */
-.top-row {
-  display: flex;
-  gap: 20px;
+/*Hello message*/
+.headermessage .headermessage h1 {
+  margin-bottom: 30px;
+  font-size: 2em;
+  margin-bottom: 5px;
 }
 
-.middle-row {
-  display: flex; /* Added flex display */
-  gap: 20px;
+/*your insurance details message*/
+.headermessage p {
+  font-size: 0.9em;
+  color: #555;
+  padding-bottom: 20px;
+  
 }
 
-/* Cards */
-.card {
-  background: #e3e3e3;
-  border-radius: 10px;
-  padding: 15px;
-  box-shadow: 4px 4px 6px rgba(0,0,0,0.3);
-  flex: 1; /* This makes the cards in a flex container take up equal space */
+.grid-layout_H {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Four columns for the top row */
+  grid-template-rows: auto auto auto; /* Three rows for the overall layout */
+  gap: 10px; /* Space between grid items */
 }
 
-.card-header {
-  display: flex;
+.card_ {
+  background-color: #fefefe; /* Light gray for cards */
+  border-radius: 8px;
+  box-shadow: 1px 1px 5px 1px #b5b4b4;
+  color: #000000;
+}
+
+/*See deails Button*/
+.see-details {
+ font-size: 12px;
+  color: #007bff;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: none;
+
+}
+
+.see-details:hover {
+  text-decoration: underline;
+  color: #0056b3;
+}
+
+/*Header box each card*/
+.boxh {
+   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+  padding-top: 5px;
+  padding-right: 2px;
+  padding-left: 5px;
+  box-sizing: border-box;
+  height: 30px;
+  margin-top: 5px;
+  border-radius: 2px;
+  
 }
 
-.card-header a {
-  font-size: 0.9em;
-  text-decoration: none;
-  color: #007bff;
+
+/* Specific grid area assignments based on your image layout */
+/*.balance_H {
+  grid-column: span 1;
+  grid-row: 1;
+  width: 210px;
+  height: 165px;
+  font-size: 15px;  
+  border-radius: 10px;
+}
+.balance-info_h h5{
+  font-size: 15px;
+  padding-left: 10px;
+  margin-bottom: 10px;
+}
+.balance-info_h span, p{
+  font-size: 15px;
+  padding-left: 10px;
+  margin-bottom: 5px;
 }
 
-.section-title {
-  font-weight: bold;
+*/
+
+.claims_H {
+  grid-column: span 1;
+  grid-row: 1;
+  width: 280px;
+  height: 170px;
+  font-size: 15px;  
+  border-radius: 10px;
+}
+.claims-info_h {
+  font-size: 15px;
+  padding-left: 10px;
 }
 
-.payment-header {
-  display: flex;
-  justify-content: space-between;
-  color: red;
-  font-weight: bold;
+.insurance-overview_H {
+  grid-column: span 1;
+  grid-row: 1;
+  width: 280px;
+  height: 170px;
+  font-size: 13px;  
+  border-radius: 10px;
+}
+.insurance-info_h {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 4px;
+  padding-right: 5px;
+  padding-left: 10px;
+}
+.insurance-info_h p{
+  font-size: 13px;
 }
 
-.payment-info {
-  display: flex;
-  justify-content: space-between;
+.payment-information_H {
+  grid-column: span 1;
+  grid-row: 1;
+  width: 280px;
+  font-size: 14px;
+  height: 170px;
+}
+.payment-info_h span{
+  font-size: 15px;
+  padding-left: 10px;
+  margin-bottom: 20px;
+}
+
+.payment-info_h p{
+  font-size: 15px;
+  padding-left: 10px;
   margin-top: 5px;
 }
 
-.details-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(150px, 1fr));
-  gap: 10px;
-}
 
-.amount-due {
-  text-align: left;
-  margin-top: 10px;
-}
-
-.amount-due h2 {
-  margin: 5px 0;
-}
-
-.pay-btn {
+.pay-btn { 
   background: #007bff;
   color: white;
-  padding: 5px 10px;
+  padding: 10px 20px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 10px;
+  width: 280px;
+  margin-top: 12px;
+
 }
 
-.last-payment {
-  margin-top: 15px;
+/* Calendar specific styles */
+.calendar_H {
+  grid-column: 5 / 5; /* Calendar spans the fifth column */
+  grid-row: 1 / 3; /* Calendar spans all three rows */
+  background-color:none;
+  width: 300px;
+  /* height: 300px; */ /* Removed fixed height to allow content to dictate height */
+  border-radius: 10px; /* Added border-radius */
+  padding: 10px; /* Added padding */
+  box-sizing: border-box; /* Include padding in the width/height */
+  display: flex; /* Use flexbox for calendar layout */
+  flex-direction: column; /* Stack header and grid vertically */
+  align-items: center; /* Center items horizontally */
 }
 
-.last-payment-row {
+.calendar-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
+  color: #333;
 }
 
-.right-column {
+.calendar-header h3 {
+  margin: 0;
+  font-size: 1.2em;
+}
+
+.calendar-header button {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #555;
+}
+
+.calendar-header button:hover {
+  color: #007bff;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  width: 100%;
+}
+
+.calendar-day {
+  font-weight: bold;
+  text-align: center;
+  padding: 5px 0;
+  color: #555;
+  font-size: 0.85em;
+}
+
+.calendar-date {
+  text-align: center;
+  padding: 8px 0;
+  background: white;
+  border-radius: 4px;
+  font-size: 0.9em;
+  color: #333;
+}
+
+.calendar-date.empty {
+  background: none;
+}
+/* Highlight for the current day */
+.calendar-date.current-day {
+  background-color: #007bff; /* Blue background */
+  color: white; /* White text */
+  font-weight: bold;
+}
+
+.best-insurance_H {
+  grid-column: 1 / 5; /* Best Insurance spans the first four columns */
+  grid-row: 2/5;
+  width: 860px;
+  height: 400px;
+  
+  
+}
+/* Chart Container */
+.chart-container {
+  padding: 10px 0 20px 0;
   display: flex;
-  flex-direction: column;
-  gap: 15px;
-  width: 250px;
+  justify-content: center;
+  align-items: center;
+  width: 860px;
+  overflow: auto;
+  
 }
 
-.calendar-card .calendar-box {
-  background: black;
-  height: 150px;
-  border-radius: 8px;
+.chart-container svg {
+  width: 790px;
+  height: auto;
+  justify-content: center;
+  
 }
 
-.due-date-row {
-  display: flex;
-  justify-content: space-between;
+
+.due-date_H {
+  grid-column: 5/ 5; /* Due Date in the fifth column */
+  grid-row: 3/3;
+  width: 300px;
+  font-size: 15px;  
+  
+  
 }
 
-.contact-card p {
-  margin: 5px 0;
+.contacts_H {
+  grid-column: 5 / 5; /* Contacts in the fifth column */
+  grid-row: 4/4;
+  width: 300px;
+   
+  
 }
