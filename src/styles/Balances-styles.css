@@ -1,0 +1,442 @@
+/* Balances-styles.css - Enhanced Version */
+
+.balances-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.balances-container h2 {
+  font-size: 28px;
+  color: #2c3e50;
+  margin-bottom: 30px;
+}
+
+/* Loading & Error States */
+.loading-message {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 1.2rem;
+  color: #555;
+}
+
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin-left: 8px;
+  border: 2px solid #ccc;
+  border-top: 2px solid #555;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.error-banner {
+  background-color: #fee;
+  border: 1px solid #fcc;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #c33;
+}
+
+.error-banner button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #c33;
+  padding: 0 8px;
+  line-height: 1;
+}
+
+.error-banner button:hover {
+  color: #a11;
+}
+
+.no-data-message {
+  text-align: center;
+  padding: 60px 20px;
+  color: #95a5a6;
+  font-size: 16px;
+}
+
+/* Policy Section */
+.policy-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.policy-title {
+  color: #2c3e50;
+  margin: 0 0 1rem 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #ecf0f1;
+}
+
+.policy-balance {
+  color: #666;
+  margin: 0 0 1rem 0;
+  font-weight: 500;
+}
+
+.total-balance {
+  text-align: right;
+  margin-top: -35px;
+  font-weight: normal;
+  color: #2c3e50;
+}
+
+/* Layout */
+.balances-row {
+  display: flex;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+@media (max-width: 968px) {
+  .balances-row {
+    flex-direction: column;
+  }
+}
+
+/* Card Styles */
+.card {
+  background: #fafbfc;
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid #e1e8ed;
+}
+
+.schedule-card {
+  flex: 2;
+}
+
+.pending-card {
+  flex: 1;
+}
+
+.card-header {
+  background: #e8eef3;
+  font-weight: 700;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  color: #2c3e50;
+  font-size: 16px;
+}
+
+.card h4 {
+  background: #e8eef3;
+  font-weight: 700;
+  padding: 10px;
+  border-radius: 6px;
+  margin: 0 0 12px 0;
+  color: #2c3e50;
+  font-size: 16px;
+}
+
+/* Schedule Styles */
+.schedule-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+  padding: 12px 0;
+  border-bottom: 1px solid #e1e8ed;
+  align-items: center;
+}
+
+.schedule-row:last-of-type {
+  border-bottom: none;
+}
+
+.paid-status {
+  color: #27ae60;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.unpaid-status {
+  color: #e67e22;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.schedule-total {
+  display: flex;
+  justify-content: space-between;
+  background: #3498db;
+  color: white;
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-top: 10px;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.schedule-penalties {
+  display: flex;
+  justify-content: space-between;
+  background: #e74c3c;
+  color: white;
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-top: 8px;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.penalty-text {
+  color: white;
+}
+
+.no-payments {
+  color: #95a5a6;
+  font-style: italic;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.no-pending {
+  color: #95a5a6;
+  font-style: italic;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+/* Pending Payments */
+.pending-header {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 130px;
+  gap: 12px;
+  padding: 12px 10px;
+  font-weight: 700;
+  border-bottom: 2px solid #e1e8ed;
+  margin-bottom: 8px;
+  color: #2c3e50;
+}
+
+.red-text {
+  color: #e74c3c;
+}
+
+.pending-info {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 130px;
+  gap: 12px;
+  padding: 14px 10px;
+  border-bottom: 1px solid #ecf0f1;
+  align-items: center;
+}
+
+.pending-info:last-child {
+  border-bottom: none;
+}
+
+/* Payment Amount Column */
+.payment-amount-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.base-amount {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 16px;
+}
+
+.penalty-amount {
+  font-size: 13px;
+  color: #e74c3c;
+  font-weight: 500;
+}
+
+.total-amount {
+  font-size: 14px;
+  color: #2c3e50;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+/* Date Column */
+.date-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.overdue-date {
+  color: #e74c3c !important;
+  font-weight: 600;
+}
+
+.overdue-badge {
+  font-size: 11px;
+  background: #e74c3c;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  width: fit-content;
+}
+
+/* Pay Now Button */
+.pay-now-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 130px;
+}
+
+.pay-now-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.pay-now-btn.overdue-btn {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(231, 76, 60, 0);
+  }
+}
+
+.pay-now-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Button Spinner */
+.btn-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .balances-container {
+    padding: 1rem;
+  }
+
+  .policy-section {
+    padding: 1rem;
+  }
+
+  .pending-header,
+  .pending-info {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .schedule-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .date-col {
+    align-items: flex-start;
+  }
+
+  .pay-now-btn {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .balances-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+.schedule-amount-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.schedule-base-amount {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.schedule-penalty-text {
+  font-size: 0.85em;
+  color: #e74c3c;
+  font-weight: 500;
+}
+
+/* Schedule Status Column */
+.schedule-status-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: flex-end;
+}
+
+.schedule-total-text {
+  font-size: 0.9em;
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+/* Update schedule-row to accommodate the new structure */
+.schedule-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 1rem;
+  padding: 12px 0;
+  border-bottom: 1px solid #e1e8ed;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .schedule-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .schedule-status-col {
+    align-items: flex-start;
+  }
+}

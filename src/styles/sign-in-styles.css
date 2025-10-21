@@ -1,0 +1,108 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.signin-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f9f9fb;
+  color: #444;
+}
+
+.container {
+  width: 100%;
+  max-width: 800px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.signin-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 420px;
+}
+
+.logo-panel {
+  background-color: #4b9cd3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+}
+
+.logo-panel img {
+  max-width: 100%;
+  max-height: 160px;
+  object-fit: contain;
+  filter: drop-shadow(4px 4px 12px rgba(0, 0, 0, 0.15));
+}
+
+.right-panel {
+  background-color: #fff;
+  color: #333;
+  padding: 40px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.right-panel h2 {
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: 600;
+  color: #4b9cd3;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 14px;
+}
+
+.signin-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 10px;
+}
+
+.signin-controls button {
+  flex: 1;
+  max-width: 160px;
+  padding: 10px;
+  background-color: #4b9cd3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.signin-controls button:hover {
+  background-color: #3577a8;
+}
+
+input.policy-id {
+  text-transform: uppercase;
+}
+input.client-id {
+  text-transform: uppercase;
+}

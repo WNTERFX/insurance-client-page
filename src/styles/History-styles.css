@@ -1,0 +1,39 @@
+.history-container {
+  padding: 20px;
+  font-family: sans-serif;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.search-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.search-container input {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #e0e0e0;
+  outline: none;
+}
+
+.history-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.history-grid.header {
+  font-weight: bold;
+}
+
+.history-grid.header div {
+  background-color: #d3d3d3;
+  padding: 8px;
+}
+
+.history-grid:not(.header) div {
+  padding: 8px;
+}

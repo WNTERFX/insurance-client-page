@@ -1,0 +1,238 @@
+/* Container */
+.InsuranceDetails-container {
+  padding: 2rem;
+}
+
+/* Loading & Error */
+.loading-message {
+  font-size: 1.2rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+.error-box {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 1rem;
+  color: #dc2626;
+}
+
+/* Empty state */
+.empty-state {
+  background-color: #f0f9ff;
+  border: 2px dashed #0ea5e9;
+  border-radius: 8px;
+  padding: 3rem;
+  color: #0c4a6e;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+/* Header */
+.insurance-header h1 {
+  margin: 0 0 0.5rem 0;
+  color: #1f2937;
+  font-size: 2rem;
+}
+
+.insurance-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 1.1rem;
+}
+
+/* Debug box */
+.debug-info {
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+/* Policy Card */
+.policy-card {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.policy-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.policy-header h2 {
+  margin: 0 0 0.5rem 0;
+  color: #1f2937;
+  font-size: 1.5rem;
+}
+
+.policy-header p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.policy-status {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.policy-status.active {
+  color: #065f46;
+  background-color: #d1fae5;
+}
+
+.policy-status.inactive {
+  color: #991b1b;
+  background-color: #fee2e2;
+}
+
+/* Policy Info & Computation */
+.policy-info,
+.policy-computation,
+.vehicle-details {
+  display: grid;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.policy-info,
+.vehicle-info,
+.coverage-tax {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.policy-info h3,
+.policy-computation h3,
+.vehicle-details h3
+ {
+
+  color: #374151;
+}
+.vehicle-info h4,
+.coverage-tax h4,
+.coverage-tax h5{
+  margin: 0 0 1rem 0;
+}
+
+
+.computation-card {
+  background-color: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 1rem;
+
+  font-size: 0.875rem;
+}
+
+.computation-card hr {
+  margin: 0.5rem 0;
+  border: none;
+  border-top: 1px solid #f59e0b;
+}
+
+.vehicle-info {
+  background-color: #f0f9ff;
+  border: 1px solid #0284c7;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.coverage-tax {
+  background-color: #f0fdf4;
+  border: 1px solid #16a34a;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.coverage-tax .grid-three {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+/* Vehicle & Calculation Debug */
+.vehicle-debug {
+  background-color: #f0f0f0;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+/* No data boxes */
+.no-data {
+  background-color: #f3f4f6;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.no-calculation {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 1rem;
+  color: #dc2626;
+}
+
+/* Summary */
+.summary {
+  margin-top: 2rem;
+  background-color: #f0f9ff;
+  border: 1px solid #0ea5e9;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.summary h3 {
+  margin: 0 0 1rem 0;
+  color: #0c4a6e;
+}
+
+.summary .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  text-align: center;
+}
+
+.summary .grid div {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin-left: 8px;
+  border: 2px solid #ccc;
+  border-top: 2px solid #555; 
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle; 
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

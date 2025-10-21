@@ -1,0 +1,138 @@
+.client-main-area {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+
+}
+
+/* Topbar styles */
+.topbar {
+  background-color: #0B5793;
+  color: #ffffff;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Left group: menu icon + company name */
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* space between menu icon and company name */
+}
+
+.nav-bar-icon {
+  cursor: pointer;
+}
+
+.company-name {
+  font-size: 1.25rem;
+  font-weight: normal;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+.user-info-container {
+  position: relative;
+}
+
+.user-dropdown {
+  position: relative;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dropdown-toggle {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.dropdown-toggle:hover {
+  opacity: 0.8;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  color: black;
+  width: 200px;
+  margin-top: 8px;
+  z-index: 1000;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+}
+
+.dropdown-item {
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  color: #333;
+  background-color: white;
+}
+
+.dropdown-item:hover {
+  background-color: #f2f2f2;
+}
+
+.logout {
+  color: #0B5793;
+  border-top: 1px solid #e0e0e0;
+  font-weight: 500;
+}
+
+.logout:hover {
+  background-color: #e6f0ff;
+}
+
+.sidebar {
+  width: 270px;
+  background-color: #fff;
+  padding: 1.5rem 1rem;
+  border-right: 1px solid #ddd;
+  height: calc(100vh - 72px); /* adjust if topbar height changes */
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+  overflow-y: auto;
+  
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
+  color: #526174;
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  text-decoration: none;
+}
+
+.menu-item:hover {
+  background-color: #f5f7fa;
+}
+
+
+.menu-icon {
+  font-size: 1.1rem;
+}

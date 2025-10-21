@@ -1,0 +1,885 @@
+/*client side*/
+
+/* Claims Display Container */
+.claims-display-container {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 20px;
+  height: calc(100vh - 200px);
+  margin-top: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Claims List Section */
+.claims-list-section {
+  overflow-y: auto;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.claim-card {
+  background: white;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.claim-card:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+}
+
+.claim-card.selected {
+  border-color: #007bff;
+  background: #f0f7ff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+}
+
+.claim-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.claim-card-header h3 {
+  font-size: 1.1em;
+  color: #333;
+  margin: 0;
+  font-weight: 600;
+}
+
+.claim-type-badge {
+  background: #007bff;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+.claim-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.info-label-list {
+  font-size: 0.9em;
+  color: #666;
+  font-weight: 500;
+}
+
+.info-value-list {
+  font-size: 0.9em;
+  color: #333;
+  font-weight: 400;
+}
+
+/* Claim Status Badge in List */
+.claim-status-small {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.8em;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.claim-status-small.pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.claim-status-small.under-review {
+  background-color: #cfe2ff;
+  color: #084298;
+}
+
+.claim-status-small.approved {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.claim-status-small.rejected {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Claim Details Section */
+.claim-details-section {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 20px;
+  overflow-y: auto;
+  padding: 20px;
+  background: #fafafa;
+  border-radius: 8px;
+}
+
+.claim-overview-middle {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.claim-id-header {
+  font-size: 1.5em;
+  color: #333;
+  margin: 0;
+  font-weight: 600;
+}
+
+.claim-id-divider {
+  border: none;
+  border-top: 2px solid #007bff;
+  margin: 0 0 5px 0;
+}
+
+/* Info Cards */
+.info-card {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.info-card h3 {
+  font-size: 1.1em;
+  color: #333;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.info-item-full {
+  grid-column: 1 / -1;
+}
+
+.info-label {
+  font-size: 0.85em;
+  color: #333;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.info-label svg {
+  color: #666;
+  width: 14px;
+  height: 14px;
+}
+
+.info-value {
+  font-size: 1em;
+  color: #333;
+  font-weight: 400;
+  line-height: 1.5;
+  padding-left: 20px;
+}
+
+/* Right Side - Progress */
+.claim-details-right {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  height: fit-content;
+}
+
+.claim-details-right h3 {
+  font-size: 1.3em;
+  color: #333;
+  margin: 0 0 24px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e0e0e0;
+  font-weight: 600;
+}
+
+/* Progress Timeline */
+.claim-progress-timeline {
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 30px;
+}
+
+.claim-progress-timeline::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  bottom: 0;
+  width: 2px;
+  background: #e0e0e0;
+}
+
+/* Notice Message Section */
+.notice-message-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+}
+
+.notice-message-section h4 {
+  font-size: 0.95em;
+  color: #856404;
+  margin: 0 0 10px 0;
+  font-weight: 600;
+}
+
+.notice-message-box {
+  background: white;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  color: #333;
+  line-height: 1.6;
+  border: 1px solid #ffeaa7;
+}
+
+.progress-item {
+  position: relative;
+  margin-bottom: 35px;
+}
+
+.progress-item:last-child {
+  margin-bottom: 0;
+}
+
+.progress-bullet {
+  position: absolute;
+  left: -28px;
+  top: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid #e0e0e0;
+  z-index: 1;
+}
+
+/* Completed status - Blue */
+.progress-item.completed .progress-bullet {
+  background: #007bff;
+  border-color: #007bff;
+}
+
+.progress-item.completed .progress-content h4 {
+  color: #007bff;
+}
+
+/* Rejected status - Red */
+.progress-item.rejected .progress-bullet {
+  background: #dc3545;
+  border-color: #dc3545;
+}
+
+.progress-item.rejected .progress-content h4 {
+  color: #dc3545;
+}
+
+.progress-item.rejected .progress-content p {
+  color: #dc3545;
+  font-weight: 500;
+}
+
+.progress-content h4 {
+  font-size: 1em;
+  color: #333;
+  margin: 0 0 6px 0;
+  font-weight: 600;
+}
+
+.progress-date {
+  font-size: 0.85em;
+  color: #999;
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 400;
+}
+
+.progress-content p {
+  font-size: 0.85em;
+  color: #999;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Claim Actions */
+.claim-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.claim-actions button {
+  padding: 14px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95em;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.claim-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-view-documents {
+  background: #dee2e6;
+  color: #333;
+  border: 1px solid #dee2e6;
+}
+
+.btn-view-documents:hover:not(:disabled) {
+  background: #c0c2c4;
+  border-color: #adb5bd;
+}
+
+.btn-upload-files {
+  background: #007bff;
+  color: white;
+}
+
+.btn-upload-files:hover {
+  background: #0056b3;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px 24px 16px 24px;
+  border-bottom: 2px solid #e0e0e0;
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 10;
+}
+
+.modal-header h2 {
+  font-size: 1.5em;
+  color: #333;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+}
+
+.modal-subtitle {
+  font-size: 0.95em;
+  color: #666;
+  margin: 0;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.documents-list {
+  padding: 24px;
+}
+
+.no-documents-text {
+  text-align: center;
+  color: #888;
+  font-size: 1.1em;
+  padding: 40px;
+}
+
+.document-item {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.document-item:last-child {
+  margin-bottom: 0;
+}
+
+.document-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.document-info h4 {
+  font-size: 1.1em;
+  color: #333;
+  margin: 0 0 6px 0;
+  font-weight: 600;
+}
+
+.document-meta {
+  font-size: 0.85em;
+  color: #666;
+  margin: 0;
+}
+
+.document-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-preview,
+.btn-download {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-preview {
+  background: #dee2e6;
+  color: #333;
+}
+
+.btn-preview:hover {
+  background: #c0c2c4;
+}
+
+.btn-download {
+  background: #007bff;
+  color: white;
+}
+
+.btn-download:hover {
+  background: #0056b3;
+}
+
+.document-preview {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.preview-image {
+  max-width: 100%;
+  max-height: 400px;
+  border-radius: 6px;
+  object-fit: contain;
+}
+
+.pdf-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #666;
+}
+
+.pdf-preview svg {
+  color: #4a90e2;
+}
+
+.pdf-preview p {
+  font-size: 1em;
+  color: #666;
+  margin: 0;
+  font-weight: 500;
+}
+
+.pdf-preview small {
+  font-size: 0.85em;
+  color: #999;
+}
+
+/* Expanded Modal */
+.expanded-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 40px;
+}
+
+.expanded-modal-content {
+  position: relative;
+  max-width: 95%;
+  max-height: 95%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.expanded-close-btn {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: white;
+  border: none;
+  cursor: pointer;
+  color: #333;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.expanded-close-btn:hover {
+  background: #f0f0f0;
+  transform: scale(1.1);
+}
+
+.expanded-image {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.expanded-pdf {
+  width: 90vw;
+  height: 90vh;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  background: white;
+}
+
+.expanded-document {
+  background: white;
+  padding: 60px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.expanded-document svg {
+  color: #4a90e2;
+}
+
+.expanded-document p {
+  font-size: 1.2em;
+  color: #333;
+  margin: 0;
+}
+
+.btn-download-expanded {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-download-expanded:hover {
+  background: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+}
+
+/* Loading and No Claims */
+.no-claims-text {
+  text-align: center;
+  color: #888;
+  font-size: 1.1em;
+  padding: 40px;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .claims-display-container {
+    grid-template-columns: 300px 1fr;
+  }
+
+  .claim-details-section {
+    grid-template-columns: 1fr;
+  }
+
+  .claim-details-right {
+    order: -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .claims-display-container {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .claims-list-section {
+    max-height: 400px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .modal-content {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .document-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .document-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .btn-preview,
+  .btn-download {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Message Popup Modal */
+.message-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.message-popup-content {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.message-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 2px solid #ffc107;
+  background: #fff3cd;
+  border-radius: 12px 12px 0 0;
+}
+
+.message-popup-header h3 {
+  margin: 0;
+  font-size: 1.3em;
+  color: #856404;
+  font-weight: 600;
+}
+
+.message-popup-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #856404;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.message-popup-close:hover {
+  background: rgba(133, 100, 4, 0.1);
+}
+
+.message-popup-body {
+  padding: 32px 24px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.message-popup-body p {
+  margin: 0;
+  font-size: 1.05em;
+  color: #333;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.message-popup-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: flex-end;
+  border-radius: 0 0 12px 12px;
+}
+
+.message-popup-ok-btn {
+  padding: 12px 32px;
+  background: #ffc107;
+  color: #856404;
+  border: none;
+  border-radius: 6px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.message-popup-ok-btn:hover {
+  background: #ffb300;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .message-popup-content {
+    width: 95%;
+    max-width: unset;
+  }
+
+  .message-popup-header h3 {
+    font-size: 1.1em;
+  }
+
+  .message-popup-body {
+    padding: 24px 20px;
+  }
+
+  .message-popup-body p {
+    font-size: 1em;
+  }
+}
+
+
+/* Add space above the notice message section    pag uwe ayusin*/
+.notice-message-section {
+  margin-top: 25px; /* Adjust this value as needed for more or less space */
+}
+
+/* Push the "Notice Message:" heading slightly down within its section */
+.notice-message-section h4 {
+  margin-bottom: 10px; /* Adds space below the heading and above the message box */
+}
