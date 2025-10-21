@@ -1,22 +1,27 @@
 {
   "files": {
-    "main.css": "/insurance-client-page/static/css/main.80c2f173.css",
-    "main.js": "/insurance-client-page/static/js/main.69db8ca5.js",
-    "static/media/car.png": "/insurance-client-page/static/media/car.e6c2e5685c9ae3cd42d2.png",
-    "static/media/car-blur.png": "/insurance-client-page/static/media/car-blur.90d37032e622c9de93fc.png",
-    "static/media/pay.png": "/insurance-client-page/static/media/pay.afe553b0b802e9587fce.png",
-    "static/media/logo.png": "/insurance-client-page/static/media/logo.5448075501641d203b84.png",
-    "static/media/SilverstarLOGO.png": "/insurance-client-page/static/media/SilverstarLOGO.7ee33bc4706cc2261d74.png",
-    "static/media/Gcash.png": "/insurance-client-page/static/media/Gcash.7d14513f58fc8bf706d0.png",
-    "static/media/stronghold.png": "/insurance-client-page/static/media/stronghold.cef9ff7d1271e8baacd1.png",
-    "static/media/mercantile.png": "/insurance-client-page/static/media/mercantile.47663c6e067109da2b5f.png",
-    "static/media/cocogen.png": "/insurance-client-page/static/media/cocogen.13c4ad732e7211614013.png",
-    "index.html": "/insurance-client-page/index.html",
-    "main.80c2f173.css.map": "/insurance-client-page/static/css/main.80c2f173.css.map",
-    "main.69db8ca5.js.map": "/insurance-client-page/static/js/main.69db8ca5.js.map"
+    "main.css": "/static/css/main.db3e3af7.css",
+    "main.js": "/static/js/main.a3890e6c.js",
+    "static/media/lanpage.png": "/static/media/lanpage.fbce9ba09a55c3591331.png",
+    "static/media/InsuranceJourney.png": "/static/media/InsuranceJourney.48054d502b4969489121.png",
+    "static/media/car-blur.png": "/static/media/car-blur.90d37032e622c9de93fc.png",
+    "static/media/pay.png": "/static/media/pay.afe553b0b802e9587fce.png",
+    "static/media/logo.png": "/static/media/logo.5448075501641d203b84.png",
+    "static/media/SilverstarLOGO.png": "/static/media/SilverstarLOGO.7ee33bc4706cc2261d74.png",
+    "static/media/Gcash.png": "/static/media/Gcash.7d14513f58fc8bf706d0.png",
+    "static/media/stronghold.png": "/static/media/stronghold.cef9ff7d1271e8baacd1.png",
+    "static/media/mercantile.png": "/static/media/mercantile.47663c6e067109da2b5f.png",
+    "static/media/cocogen.png": "/static/media/cocogen.13c4ad732e7211614013.png",
+    "static/media/trusted-experience.png": "/static/media/trusted-experience.d4a4d3f01c3503a8ceff.png",
+    "static/media/reliable-protection.png": "/static/media/reliable-protection.4be0489fc018680e54d1.png",
+    "static/media/personalized-assistance.png": "/static/media/personalized-assistance.c3ebe17a88aefca754a0.png",
+    "static/media/icon-policy.png": "/static/media/icon-policy.1eb8df2642b191d8bba6.png",
+    "index.html": "/index.html",
+    "main.db3e3af7.css.map": "/static/css/main.db3e3af7.css.map",
+    "main.a3890e6c.js.map": "/static/js/main.a3890e6c.js.map"
   },
   "entrypoints": [
-    "static/css/main.80c2f173.css",
-    "static/js/main.69db8ca5.js"
+    "static/css/main.db3e3af7.css",
+    "static/js/main.a3890e6c.js"
   ]
 }
