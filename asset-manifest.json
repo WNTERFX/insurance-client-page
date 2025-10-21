@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.db3e3af7.css",
-    "main.js": "/static/js/main.a3890e6c.js",
+    "main.js": "/static/js/main.fcbb454f.js",
     "static/media/lanpage.png": "/static/media/lanpage.fbce9ba09a55c3591331.png",
     "static/media/InsuranceJourney.png": "/static/media/InsuranceJourney.48054d502b4969489121.png",
     "static/media/car-blur.png": "/static/media/car-blur.90d37032e622c9de93fc.png",
@@ -18,10 +18,10 @@
     "static/media/icon-policy.png": "/static/media/icon-policy.1eb8df2642b191d8bba6.png",
     "index.html": "/index.html",
     "main.db3e3af7.css.map": "/static/css/main.db3e3af7.css.map",
-    "main.a3890e6c.js.map": "/static/js/main.a3890e6c.js.map"
+    "main.fcbb454f.js.map": "/static/js/main.fcbb454f.js.map"
   },
   "entrypoints": [
     "static/css/main.db3e3af7.css",
-    "static/js/main.a3890e6c.js"
+    "static/js/main.fcbb454f.js"
   ]
 }
