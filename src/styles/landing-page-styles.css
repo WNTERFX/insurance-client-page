@@ -30,14 +30,14 @@ h1, h2, h3, h4, h5, h6 {
 
 /* TopBar Styles */
 .top-bar-container {
-  background-color: #2e0854;
+  background-color: #402158; /* Solid dark purple as per image */
   color: white;
   padding: 15px 5%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  height: 90px;
+  height: 70px;
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -70,7 +70,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .nav-link {
-  color: white;
+  color: white; /* White color for links as per image */
   text-decoration: none;
   font-size: 1.15rem;
   font-weight: 500;
@@ -180,6 +180,9 @@ h1, h2, h3, h4, h5, h6 {
   background-color: white;
   padding: 80px 5%;
   text-align: center;
+  border: 1px solid #e0e0e0; /* Added border as per image */
+  /* REMOVED: margin: 20px 0; */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
 
 .silverstar-features-section h2 {
@@ -309,117 +312,353 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
-/* How It Works Section - Redesigned to EXACTLY match the image */
+/* How It Works Section - Revised to match the NEW image */
 .how-it-works-section {
-  background: #2e0854; /* Dark purple background */
-  padding: 80px 5%;
+  background: white; /* White background now */
+  padding: 60px 5%; /* Adjusted from 80px to 60px */
   text-align: center;
-  color: white;
-  overflow: hidden; /* To handle potential arrow overflow */
+  color: #333; /* Darker text color */
+  overflow: hidden;
+  position: relative; /* For positioning elements inside */
+  border: 1px solid #e0e0e0; /* Added border */
+  /* REMOVED: margin: 20px 0; */
+  box-sizing: border-box;
 }
 
 .how-it-works-section h2 {
   font-size: 2.8rem;
-  color: white;
-  margin-bottom: 60px;
+  color: #2e0854; /* Dark purple heading */
+  margin-bottom: 40px; /* Adjusted from 60px to 40px */
   font-weight: 700;
+  padding: 15px 40px; /* Padding for the pill shape */
+  background-color: #2e0854; /* Background for the pill shape */
+  color: white; /* White text for the pill shape */
+  border-radius: 50px; /* Rounded corners for the pill shape */
+  display: inline-block; /* To make padding and border-radius effective */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(-20px); /* Adjust position if needed */
 }
 
+/* Hide the old steps wrapper, as we'll reconstruct the flow */
 .how-it-works-steps-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center; /* Align items centrally */
-  flex-wrap: wrap; /* Allow wrapping on smaller screens */
-  max-width: 1400px; /* Max width for the whole section */
-  margin: 0 auto;
-  gap: 20px; /* Gap between steps and arrows */
+    display: none; /* Hide the original wrapper */
 }
 
-.how-it-works-step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  flex: 1; /* Allows columns to grow and shrink */
-  min-width: 250px; /* Minimum width for step card */
-  max-width: 300px; /* Maximum width for step card */
-  position: relative; /* For positioning the step count */
-  padding-top: 30px; /* Space for the number */
+/* --- NEW Structure for How It Works using CSS Grid --- */
+.how-it-works-content-area {
+    display: grid;
+    /* Define grid areas for a clear visual layout */
+    grid-template-areas:
+        "step1      arrow1_2_zone"
+        "arrow2_3_zone step2"
+        "step3      arrow3_4_zone"
+        "arrow4_5_zone step4"; /* Naming consistent with the image */
+    /* Adjust row and column sizes to match the image */
+    grid-template-columns: 1fr 1fr; /* Two columns for content and arrows */
+    /* ADJUSTED ARROW ROW HEIGHTS TO REDUCE OVERALL SECTION HEIGHT */
+    grid-template-rows: auto 90px auto 90px auto 90px auto; /* Reduced from 150px to 90px */
+    max-width: 1000px;
+    margin: 0 auto;
+    position: relative;
+    padding: 20px; /* Add some padding around the grid */
 }
 
-.step-count {
-  font-size: 5rem; /* Large number */
-  font-weight: bold;
-  color: rgba(255, 255, 255, 0.1); /* Very faded white */
-  position: absolute;
-  top: 0px; /* Position at the very top */
-  line-height: 1; /* Tighten line height */
-  z-index: 0; /* Behind other content */
+/* Assign steps to grid areas */
+.step-1-wrapper { grid-area: step1; justify-self: start; }
+.step-2-wrapper { grid-area: step2; justify-self: end; }
+.step-3-wrapper { grid-area: step3; justify-self: start; }
+.step-4-wrapper { grid-area: step4; justify-self: end; }
+
+/* General step container styling */
+.how-it-works-step-container {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Reduced gap slightly */
+    position: relative;
+    padding: 10px; /* Smaller padding */
+    width: fit-content; /* Only take necessary width */
+    margin: 10px 0; /* Adjusted from 20px to 10px */
 }
 
-.step-visual {
-  width: 120px; /* Size of the purple circular/square background */
-  height: 120px;
-  background-color: #6a0572; /* Purple background */
-  border-radius: 20px; /* Slight rounded square as in image */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 25px; /* Space below visual */
-  position: relative;
-  z-index: 1; /* Ensure visual is above count */
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+/* Step Number Circle */
+.how-it-works-step-container .step-num-circle {
+    width: 30px;
+    height: 30px;
+    background-color: #6a0572; /* Purple background */
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
-.step-visual img {
-  width: 65px; /* Size of the icon image itself */
-  height: 65px;
-  object-fit: contain;
-  /* Assuming your icons are already white on transparent background, no filter needed */
-  /* If icons are black and need to be white, use: filter: brightness(0) invert(1); */
+/* Text block for each step */
+.how-it-works-step-container .step-text-block {
+    border: 1px solid #c9a4e3; /* Purple border */
+    border-radius: 10px;
+    padding: 15px 25px;
+    background-color: white;
+    text-align: left;
+    flex-grow: 1;
+    max-width: 400px; /* Constrain width of text block */
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
 }
 
-.how-it-works-step h3 {
-  font-size: 1.6rem;
-  color: white;
-  margin-bottom: 15px;
-  font-weight: 600;
-  line-height: 1.3;
+.how-it-works-step-container .step-text-block h3 {
+    font-size: 1.2rem;
+    color: #2e0854;
+    margin-top: 0;
+    margin-bottom: 5px;
 }
 
-.how-it-works-step p {
-  font-size: 1rem;
-  color: #e0e0e0;
-  line-height: 1.7;
-  flex-grow: 1; /* Allow paragraph to take up available space, for consistent card height */
+.how-it-works-step-container .step-text-block p {
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 0;
 }
 
-.step-arrow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0; /* Prevent arrow from shrinking */
-  width: 80px; /* Width for the arrow */
-  margin: 0; /* No margin as gap handles spacing */
-  height: auto; /* Allow height to adjust */
-  position: relative;
-  /* Adjust top to align the arrow more centrally if steps have varied heights */
-  /* This value might need tweaking based on actual step card heights */
-  top: -20px; /* Visually pull the arrow up slightly */
+/* Floating Icons */
+.how-it-works-step-container .floating-icon {
+    position: absolute; /* Position relative to .how-it-works-step-container */
+    width: 80px;
+    height: 80px;
+    background-color: #8c2ee0; /* Different purple for icon */
+    border-radius: 15px; /* Slightly rounded square */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    z-index: 10; /* Ensure icon is above other elements */
 }
 
-.step-arrow img {
-  width: 100%;
-  height: auto;
-  object-fit: contain;
+.how-it-works-step-container .floating-icon img {
+    width: 50px;
+    height: 50px;
+    filter: brightness(0) invert(1); /* Ensure icons are white */
+}
+
+/* Specific positioning for each step's internal elements and icons */
+
+/* Step 1: Provide Vehicle Info (Icon on Right) */
+.step-1-wrapper {
+    flex-direction: row; /* Default order: number, text */
+}
+.step-1-wrapper .step-num-circle { order: 1; }
+.step-1-wrapper .step-text-block { order: 2; }
+.step-1-wrapper .floating-icon {
+    left: calc(100% - 20px); /* Overlap slightly with text block */
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Step 2: Get a Quotation (Icon on Right) */
+.step-2-wrapper {
+    flex-direction: row; /* Default order: number, text */
+}
+.step-2-wrapper .step-num-circle { order: 1; }
+.step-2-wrapper .step-text-block { order: 2; }
+.step-2-wrapper .floating-icon {
+    left: calc(100% - 20px); /* Overlap slightly with text block */
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Step 3: Confirm and Pay (Icon on Right) */
+.step-3-wrapper {
+    flex-direction: row; /* Default order: number, text */
+}
+.step-3-wrapper .step-num-circle { order: 1; }
+.step-3-wrapper .step-text-block { order: 2; }
+.step-3-wrapper .floating-icon {
+    left: calc(100% - 20px);
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Step 4: Receive Your Policy (Icon on Right) */
+.step-4-wrapper {
+    flex-direction: row; /* Default order: number, text */
+}
+.step-4-wrapper .step-num-circle { order: 1; }
+.step-4-wrapper .step-text-block { order: 2; }
+.step-4-wrapper .floating-icon {
+    left: calc(100% - 20px);
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 
+/* --- IMAGE-BASED Arrows --- */
+
+/* Common arrow container styles for placement */
+.arrow-1-2, .arrow-2-3, .arrow-3-4 {
+    display: flex; /* Use flexbox to center the background image */
+    justify-content: center;
+    align-items: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    /* Explicitly set size to ensure images are not cut. Adjust these as needed. */
+    width: 100px; /* Adjusted from 200px to 100px - smaller to fit new row height */
+    height: 100%; /* Take full height of grid cell (now 90px) */
+    position: relative; /* For absolute positioning adjustments if necessary */
+    /* Remove previous margin adjustments */
+    margin: 0;
+}
+
+/* Arrow 1-2: Rightward curve */
+.arrow-1-2 {
+    grid-area: arrow1_2_zone;
+    background-image: url('../images/curved-arrow-down-right.png');
+    /* Fine-tune position within its grid cell if needed */
+    justify-self: center; /* Center horizontally within its grid cell */
+    align-self: center;   /* Center vertically within its grid cell */
+    transform: rotate(0deg);
+}
+
+/* Arrow 2-3: Leftward curve */
+.arrow-2-3 {
+    grid-area: arrow2_3_zone;
+    background-image: url('../images/straight-arrow-down-left.png'); /* If this is indeed a down-left arrow */
+    /* Fine-tune position within its grid cell if needed */
+    justify-self: center; /* Center horizontally within its grid cell */
+    align-self: center;   /* Center vertically within its grid cell */
+    transform: rotate(0deg);
+}
+
+/* Arrow 3-4: Rightward curve (reusing image) */
+.arrow-3-4 {
+    grid-area: arrow3_4_zone;
+    background-image: url('../images/curved-arrow-down-right.png');
+    /* Fine-tune position within its grid cell if needed */
+    justify-self: center; /* Center horizontally within its grid cell */
+    align-self: center;   /* Center vertically within its grid cell */
+    transform: rotate(0deg);
+}
+
+
+/* Responsive adjustments for How It Works */
+@media (max-width: 992px) {
+    .how-it-works-content-area {
+        grid-template-columns: 1fr; /* Single column */
+        grid-template-areas:
+            "step1"
+            "arrow1_2_mobile"
+            "step2"
+            "arrow2_3_mobile"
+            "step3"
+            "arrow3_4_mobile"
+            "step4";
+        grid-template-rows: auto 50px auto 50px auto 50px auto; /* Adjusted from 80px to 50px for mobile arrows */
+    }
+
+    /* Assign mobile arrow grid areas */
+    .arrow-1-2 { grid-area: arrow1_2_mobile; }
+    .arrow-2-3 { grid-area: arrow2_3_mobile; }
+    .arrow-3-4 { grid-area: arrow3_4_mobile; }
+
+    /* Center steps on mobile */
+    .step-1-wrapper, .step-2-wrapper, .step-3-wrapper, .step-4-wrapper {
+        justify-self: center;
+        width: 100%; /* Take full width */
+    }
+
+    .how-it-works-step-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 0;
+        max-width: 350px; /* Constrain step width */
+        margin: 0 auto 10px auto; /* Added bottom margin, reduced top/bottom for overall compactness */
+    }
+    .how-it-works-step-container .step-num-circle {
+        margin-bottom: 10px;
+    }
+    .how-it-works-step-container .step-text-block {
+        max-width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .how-it-works-step-container .floating-icon {
+        position: static; /* Remove absolute positioning on small screens */
+        margin-top: 20px;
+        transform: none;
+        width: 60px;
+        height: 60px;
+    }
+    .how-it-works-step-container .floating-icon img {
+        width: 35px;
+        height: 35px;
+    }
+
+    /* Reset specific wrappers for mobile */
+    .step-1-wrapper, .step-2-wrapper, .step-3-wrapper, .step-4-wrapper {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 0;
+        margin-bottom: 15px; /* Adjusted from 20px to 15px */
+    }
+    .step-1-wrapper .step-num-circle, .step-2-wrapper .step-num-circle,
+    .step-3-wrapper .step-num-circle, .step-4-wrapper .step-4-wrapper .step-num-circle {
+        order: unset;
+        margin: 0 0 10px 0;
+    }
+    .step-1-wrapper .step-text-block, .step-2-wrapper .step-text-block,
+    .step-3-wrapper .step-text-block, .step-4-wrapper .step-text-block {
+        order: unset;
+        max-width: 90%;
+    }
+
+    /* Mobile arrows: Straight down */
+    .arrow-1-2, .arrow-2-3, .arrow-3-4 {
+        background-image: url('../images/curved-arrow-down-right.png'); /* Use the down-right arrow for all, then rotate */
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        transform: rotate(90deg); /* Rotate to point straight down */
+        width: 50px; /* Adjusted from 60px to 50px */
+        height: 50px; /* Adjusted from 60px to 50px */
+        margin: 0 auto; /* Center horizontally */
+    }
+
+    /* Ensure specific icons are placed correctly for mobile */
+    .step-1-wrapper .floating-icon { margin-top: 15px; } /* Adjusted from 20px to 15px */
+    .step-2-wrapper .floating-icon { margin-top: 15px; } /* Adjusted from 20px to 15px */
+    .step-3-wrapper .floating-icon { margin-top: 15px; } /* Adjusted from 20px to 15px */
+    .step-4-wrapper .floating-icon { margin-top: 15px; } /* Adjusted from 20px to 15px */
+}
+
+@media (max-width: 480px) {
+    .how-it-works-section h2 {
+        font-size: 1.8rem;
+        padding: 8px 20px;
+    }
+    .how-it-works-step-container .step-text-block h3 {
+        font-size: 1.1rem;
+    }
+    .how-it-works-step-container .step-text-block p {
+        font-size: 0.85rem;
+    }
+    .how-it-works-step-container .step-num-circle {
+        width: 25px;
+        height: 25px;
+        font-size: 0.8rem;
+    }
+}
 /* FAQ Section */
 .faq-section {
   background-color: #f7f7f7;
   padding: 80px 5%;
   text-align: center;
+  border: 1px solid #e0e0e0; /* Added border as per image */
+  /* REMOVED: margin: 20px 0; */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
 
 .faq-section h2 {
@@ -553,7 +792,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   justify-content: space-around;
   padding: 60px 5%;
-  background: #042440; /* Darker blue/purple for footer */
+  background: #1A1A1A; /* Darker blue/purple for footer */
   color: white;
   flex-wrap: wrap;
   gap: 40px;
@@ -594,7 +833,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Style for react-icons within the footer */
 .footer p svg, .footer a svg {
   font-size: 1.2rem; /* Adjust icon size */
-  color: #6a0572; /* Color of the icon */
+  color: white; /* Changed to white as requested */
 }
 
 /* Responsive adjustments */

@@ -31,7 +31,7 @@ import reliableProtectionIcon from "./images/reliable-protection.png";
 import SilverstarLOGO from "./images/SilverstarLOGO.png";
 
 // Import icons for footer using react-icons (Example with Font Awesome)
-import { FaHome, FaInfoCircle, FaPhone, FaEnvelope, FaMapMarkerAlt, FaUsers, FaHandshake } from 'react-icons/fa'; 
+import { FaHome, FaInfoCircle, FaPhone, FaEnvelope, FaMapMarkerAlt, FaUsers, FaHandshake } from 'react-icons/fa';
 
 export default function LandingPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -174,56 +174,61 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* How It Works Section - Redesigned to match the image */}
+      {/* How It Works Section - Redesigned to match the NEW image */}
       <section id="how-it-works" className="how-it-works-section">
         <h2>How It Works</h2>
-        <div className="how-it-works-steps-wrapper">
-          <div className="how-it-works-step">
-            <div className="step-count">1</div>
-            <div className="step-visual">
-              <img src={provideInfoIcon} alt="Provide Vehicle Info" />
+        {/* Removed the old how-it-works-steps-wrapper */}
+
+        <div className="how-it-works-content-area">
+          {/* Step 1: Provide Vehicle Info */}
+          <div className="how-it-works-step-container step-1-wrapper">
+            <div className="step-num-circle">1</div>
+            <div className="step-text-block">
+              <h3>Provide Vehicle Info</h3>
+              <p>Submit your vehicle details such as type, brand, model, and plate number to help us determine the best insurance coverage for you.</p>
             </div>
-            <h3>Provide Vehicle Info</h3>
-            <p>Submit your vehicle details such as type, brand, model, and plate number to help us determine the best insurance coverage for you.</p>
-          </div>
-
-          <div className="step-arrow">
-            <img src={arrowRightWhite} alt="Arrow" />
-          </div>
-
-          <div className="how-it-works-step">
-            <div className="step-count">2</div>
-            <div className="step-visual">
-              <img src={getQuoteIcon} alt="Get A Quotation" />
+            <div className="floating-icon">
+              <img src={provideInfoIcon} alt="Provide Vehicle Info Icon" /> {/* Assuming this is the 'i' icon */}
             </div>
-            <h3>Get A Quotation</h3>
-            <p>Receive competitive quotes from top insurers. Compare options, customize coverage, and pick the best one for you.</p>
           </div>
+          <div className="arrow-1-2"></div> {/* Arrow after Step 1 */}
 
-          <div className="step-arrow">
-            <img src={arrowRightWhite} alt="Arrow" />
-          </div>
-
-          <div className="how-it-works-step">
-            <div className="step-count">3</div>
-            <div className="step-visual">
-              <img src={confirmPayIcon} alt="Confirm and Pay" />
+          {/* Step 2: Get a Quotation */}
+          <div className="how-it-works-step-container step-2-wrapper">
+            <div className="floating-icon">
+              <img src={getQuoteIcon} alt="Get A Quotation Icon" /> {/* Assuming this is the '$' icon */}
             </div>
-            <h3>Confirm and Pay</h3>
-            <p>After you’re satisfied with the quotation, proceed with a secure online payment using your preferred method.</p>
-          </div>
-
-          <div className="step-arrow">
-            <img src={arrowRightWhite} alt="Arrow" />
-          </div>
-
-          <div className="how-it-works-step">
-            <div className="step-count">4</div>
-            <div className="step-visual">
-              <img src={receivePolicyIcon} alt="Receive Your Policy" />
+            <div className="step-num-circle">2</div>
+            <div className="step-text-block">
+              <h3>Get a Quotation</h3>
+              <p>Receive an accurate insurance quotation based on your chosen policy, complete with premium computations and required charges.</p>
             </div>
-            <h3>Receive Your Policy</h3>
-            <p>Your policy documents are sent instantly to your email. You’re covered as soon as your policy is issued!</p>
+          </div>
+          <div className="arrow-2-3"></div> {/* Arrow after Step 2 */}
+
+          {/* Step 3: Confirm and Pay */}
+          <div className="how-it-works-step-container step-3-wrapper">
+            <div className="step-num-circle">3</div>
+            <div className="step-text-block">
+              <h3>Confirm and Pay</h3>
+              <p>Once you agree with the quotation, proceed with a secure online payment using your preferred method.</p>
+            </div>
+            <div className="floating-icon">
+              <img src={confirmPayIcon} alt="Confirm and Pay Icon" /> {/* Assuming this is the payment icon */}
+            </div>
+          </div>
+          <div className="arrow-3-4"></div> {/* Arrow after Step 3 */}
+
+          {/* Step 4: Receive Your Policy */}
+          <div className="how-it-works-step-container step-4-wrapper">
+            <div className="floating-icon">
+              <img src={receivePolicyIcon} alt="Receive Your Policy Icon" /> {/* Assuming this is the phone icon */}
+            </div>
+            <div className="step-num-circle">4</div>
+            <div className="step-text-block">
+              <h3>Receive Your Policy</h3>
+              <p>Your policy documents are sent instantly to your email. You’re covered as soon as your policy is issued!</p>
+            </div>
           </div>
         </div>
       </section>
