@@ -1,51 +1,118 @@
+body, html {
+   margin: 0;
+   padding: 0;
+   background-color: #F2F5FA;
+}
+
 /*Dashboard*/
 .dashboard-containerHome {
-  background-color: #F2F5FA;
-    font-family: 'Inter', sans-serif;
-    height: auto;
-    max-width: 1000%;
-    padding-bottom: 30px;
+  /*background-color: #7199d8;*/
+  font-family: 'Inter', sans-serif;
+  height: auto;
+  max-width: 100%;
+  width: 100%;
+  padding-bottom: 30px;
 }
 
 /*Hello message*/
-.headermessage .headermessage h1 {
-  margin-bottom: 30px;
+.headermessage {
+  margin-bottom: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  color: #000000; /* Assuming you want the welcome message text to be white */
+}
+
+.headermessage h1 {
   font-size: 2em;
   margin-bottom: 5px;
 }
 
-/*your insurance details message*/
 .headermessage p {
   font-size: 0.9em;
-  color: #555;
-  padding-bottom: 20px;
-  
+  color: #000000; /* Slightly darker white for the paragraph */
 }
 
+/* Main Grid Layout - Two Columns */
 .grid-layout_H {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Four columns for the top row */
-  grid-template-rows: auto auto auto; /* Three rows for the overall layout */
-  gap: 10px; /* Space between grid items */
+  grid-template-columns: 3fr 1fr;
+  gap: 10px;
+  width: calc(100% - 5px);
+  max-width: 1400px;
+  margin-left: 20px;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+  box-sizing: border-box;
+  min-height: 75vh;
+  /* IMPORTANT: Add align-items: start; to prevent the left column from stretching if right column is very tall */
+  align-items: start; /* Ensures grid items align to the start of their cell */
 }
 
+/* Left Section - Contains Top 3 cards + Best Insurance */
+.left-main-section {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  /* Make the first row flexible (e.g., auto) and the second row for the chart */
+  grid-template-rows: auto auto; /* 'auto' means height based on content, but will stretch due to align-items: stretch on this container */
+  gap: 10px;
+  align-items: stretch; /* This ensures grid items stretch to fill the row height */
+}
+
+/* Target all top-row cards for consistent height */
+.claims_H,
+.insurance-overview_H,
+.payment-information_H {
+  grid-row: 1; /* Explicitly place them in the first row */
+  min-height: 280px; /* Adjust this value as needed to match your desired height */
+  flex-basis: 0; /* Ensures flex items distribute space correctly if you later add flex-grow/shrink to these specific cards. */
+}
+
+
+.claims_H { grid-column: 1 / 2; } /* No change */
+.insurance-overview_H { grid-column: 2 / 3; } /* No change */
+.payment-information_H { grid-column: 3 / 4; } /* No change */
+
+.best-insurance_H {
+  grid-column: 1 / 4;
+  grid-row: 2;
+  min-height: 450px; /* Increased height for chart */
+}
+
+/* Right Sidebar Section - Contains Calendar, Due Date, Contacts */
+.right-sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* NEW: Add a max-height to the sidebar to control its overall size */
+  /* Adjust this value based on your desired overall height. E.g., 700px or 800px. */
+  /* If you want it to fill the remaining space minus header/footer, you might use calc(100vh - Xpx) */
+  max-height: 800px; /* Example fixed height, adjust as needed */
+  overflow-y: auto; /* Allow the entire sidebar to scroll if its contents exceed the max-height */
+  padding-bottom: 5px; /* Add some padding if it scrolls to prevent content touching the bottom edge */
+}
+
+/* General card styling (applies to all cards) */
 .card_ {
-  background-color: #fefefe; /* Light gray for cards */
+  background-color: #fefefe;
   border-radius: 8px;
   box-shadow: 1px 1px 5px 1px #b5b4b4;
   color: #000000;
+  padding: 15px;
+  box-sizing: border-box;
+  display: flex; /* Make cards a flex container */
+  flex-direction: column; /* Stack content vertically */
 }
 
-/*See deails Button*/
+/*See details Button*/
 .see-details {
- font-size: 12px;
+  font-size: 12px;
   color: #007bff;
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
   text-decoration: none;
-
 }
 
 .see-details:hover {
@@ -55,122 +122,256 @@
 
 /*Header box each card*/
 .boxh {
-   display: flex;
+  display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding-top: 5px;
-  padding-right: 2px;
-  padding-left: 5px;
-  box-sizing: border-box;
-  height: 30px;
-  margin-top: 5px;
-  border-radius: 2px;
-  
-}
-
-
-/* Specific grid area assignments based on your image layout */
-/*.balance_H {
-  grid-column: span 1;
-  grid-row: 1;
-  width: 210px;
-  height: 165px;
-  font-size: 15px;  
-  border-radius: 10px;
-}
-.balance-info_h h5{
-  font-size: 15px;
-  padding-left: 10px;
   margin-bottom: 10px;
 }
-.balance-info_h span, p{
-  font-size: 15px;
-  padding-left: 10px;
-  margin-bottom: 5px;
+
+.boxh h3, .boxh h4 {
+  margin: 0;
 }
 
-*/
-
-.claims_H {
-  grid-column: span 1;
-  grid-row: 1;
-  width: 280px;
-  height: 170px;
-  font-size: 15px;  
-  border-radius: 10px;
-}
-.claims-info_h {
-  font-size: 15px;
-  padding-left: 10px;
+/* NEW: Ensure content areas within these cards flex properly */
+.claim-details-content-home,
+.insurance-details-content-home,
+.payment-details-content-home {
+  flex-grow: 1; /* This is crucial: makes these content areas fill available space */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Distributes vertical space among rows */
+  padding: 0 5px;
+  /* Remove any specific 'height' or 'max-height' from these if they exist elsewhere */
 }
 
-.insurance-overview_H {
-  grid-column: span 1;
-  grid-row: 1;
-  width: 280px;
-  height: 170px;
-  font-size: 13px;  
-  border-radius: 10px;
-}
-.insurance-info_h {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-top: 4px;
-  padding-right: 5px;
-  padding-left: 10px;
-}
-.insurance-info_h p{
-  font-size: 13px;
+/* >>>>>>>>>>>>>> START: FONT SIZE ADJUSTMENTS FOR CLAIMS AND INSURANCE ONLY <<<<<<<<<<<<<< */
+/* Styles specifically for font size in Claims (Recent) section */
+.claim-details-content-home .payment-row-home .label-home,
+.claim-details-content-home .payment-row-home .value-home {
+  font-size: 16px; /* Adjust this value as desired for Claims */
+   line-height: 1.9;
 }
 
+/* Styles specifically for font size in Insurance (Recent) section */
+.insurance-details-content-home .payment-row-home .label-home,
+.insurance-details-content-home .payment-row-home .value-home {
+  font-size: 16px; /* Adjust this value as desired for Insurance */
+  line-height: 1.9;
+}
+/* >>>>>>>>>>>>>> END: FONT SIZE ADJUSTMENTS FOR CLAIMS AND INSURANCE ONLY <<<<<<<<<<<<<< */
+
+
+/* Status coloring in Insurance (Recent) card - FIXED FOR SPECIFICITY */
+.payment-row-home .value-home.status-active { /* Make this more specific */
+  color: #28a745; /* Green for Active */
+  font-weight: bold;
+}
+
+.payment-row-home .value-home.status-inactive { /* Make this more specific */
+  color: #dc3545; /* Red for Inactive */
+  font-weight: bold;
+}
+
+
+/* Payment Information Card Specific Styles (now also applied by extension to Claims/Insurance details) */
 .payment-information_H {
-  grid-column: span 1;
-  grid-row: 1;
-  width: 280px;
-  font-size: 14px;
-  height: 170px;
-}
-.payment-info_h span{
-  font-size: 15px;
-  padding-left: 10px;
-  margin-bottom: 20px;
+  /* display: flex; REMOVED - already on .card_ */
+  /* flex-direction: column; REMOVED - already on .card_ */
+  align-items: stretch;
+  padding: 15px;
+  overflow-y: hidden; /* Prevent this card from showing its own scrollbar initially */
 }
 
-.payment-info_h p{
-  font-size: 15px;
-  padding-left: 10px;
-  margin-top: 5px;
+.payment-header-nav-home {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
+  color: #000;
+}
+
+.payment-title-home {
+  font-size: 1.2em;
+  margin: 0;
+  flex-grow: 1;
+  text-align: center;
+  font-weight: bold;
+}
+
+.nav-arrow-home {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #333;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.nav-arrow-home:hover:not(:disabled) {
+  background-color: #f0f0f0;
+  color: #007bff;
+}
+
+.nav-arrow-home:disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.payment-details-content-home {
+  /* flex-grow: 1; REMOVED - already above with other content divs */
+  /* display: flex; REMOVED - already above with other content divs */
+  /* flex-direction: column; REMOVED - already above with other content divs */
+  /* justify-content: space-between; REMOVED - already above with other content divs */
+  padding: 0 5px;
+  overflow-y: auto; /* ADD THIS: If content overflows, this will create a scrollbar here */
+}
+
+.payment-row-home {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px; 
+}
+
+.payment-row-home .label-home {
+  font-weight: bold;
+  color: #000;
+  margin-right: 5px;
+}
+
+.payment-row-home .value-home {
+  font-weight: normal;
+  /* color: #000000; REMOVED - letting specific status classes or default inherit */
+  text-align: right;
+}
+
+/* Specific color for black text */
+.black-text-home {
+    color: #000000 !important;
+}
+
+.remaining-balance-row-home {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.remaining-balance-row-home .label-home.black-text-home,
+.remaining-balance-row-home .value-home.red-text-home {
+  color: #000000; /* Label is black */
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.remaining-balance-row-home .value-home.red-text-home {
+  color: #dc3545; /* Value is red */
 }
 
 
-.pay-btn { 
-  background: #007bff;
+.make-payment-btn-home {
+  background-color: #007bff;
   color: white;
-  padding: 10px 20px;
+  padding: 10px 15px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 10px;
-  width: 280px;
-  margin-top: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  width: 100%;
+  margin-top: auto; /* Pushes the button to the bottom if there's extra space */
+  transition: background-color 0.2s ease;
+}
 
+.make-payment-btn-home:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.make-payment-btn-home:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Loading and Error Messages for Payment Section */
+.loading-message-home,
+.no-schedules-message-home,
+.no-details-message-home {
+    text-align: center;
+    color: #555;
+    margin: 20px 0;
+    font-style: italic;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.error-banner-home {
+    background-color: #ffe0e0;
+    color: #cc0000;
+    border: 1px solid #cc0000;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
+}
+
+.error-banner-home button {
+    background: none;
+    border: none;
+    color: #cc0000;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1.2em;
+}
+
+/* Spinner for payment processing */
+.btn-spinner-home {
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid #fff;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+/* Global Spinner for loading states */
+.loading-spinner-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1; /* Allow it to take full height of parent */
+  min-height: 80px; /* Ensure some minimum height for the spinner */
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid #007bff; /* Blue spinner */
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* Calendar specific styles */
 .calendar_H {
-  grid-column: 5 / 5; /* Calendar spans the fifth column */
-  grid-row: 1 / 3; /* Calendar spans all three rows */
-  background-color:none;
-  width: 300px;
-  /* height: 300px; */ /* Removed fixed height to allow content to dictate height */
-  border-radius: 10px; /* Added border-radius */
-  padding: 10px; /* Added padding */
-  box-sizing: border-box; /* Include padding in the width/height */
-  display: flex; /* Use flexbox for calendar layout */
-  flex-direction: column; /* Stack header and grid vertically */
-  align-items: center; /* Center items horizontally */
+  padding: 15px;
+  /* display: flex; REMOVED - already on .card_ */
+  /* flex-direction: column; REMOVED - already on .card_ */
+  align-items: center;
+  flex-shrink: 0; /* Prevent the calendar from shrinking if upcoming content is too big */
 }
 
 .calendar-header {
@@ -193,6 +394,7 @@
   font-size: 1.5em;
   cursor: pointer;
   color: #555;
+  padding: 5px;
 }
 
 .calendar-header button:hover {
@@ -206,73 +408,482 @@
   width: 100%;
 }
 
+.calendar-day,
+.calendar-date {
+  text-align: center;
+  padding: 8px 0;
+  font-size: 0.9em;
+  color: #333;
+}
+
 .calendar-day {
   font-weight: bold;
-  text-align: center;
-  padding: 5px 0;
   color: #555;
   font-size: 0.85em;
 }
 
 .calendar-date {
-  text-align: center;
-  padding: 8px 0;
   background: white;
   border-radius: 4px;
-  font-size: 0.9em;
-  color: #333;
+  transition: all 0.2s ease;
 }
 
 .calendar-date.empty {
   background: none;
 }
-/* Highlight for the current day */
+
 .calendar-date.current-day {
-  background-color: #007bff; /* Blue background */
-  color: white; /* White text */
+  background-color: #007bff;
+  color: white;
   font-weight: bold;
 }
 
-.best-insurance_H {
-  grid-column: 1 / 5; /* Best Insurance spans the first four columns */
-  grid-row: 2/5;
-  width: 860px;
-  height: 400px;
-  
+/* NEW: Styles for dates with payments */
+.calendar-date.has-payment {
+  font-weight: bold;
+  color: #000;
+  cursor: pointer;
+  position: relative;
+}
+
+/* General hover for dates with payments (not current day) */
+.calendar-date.has-payment:not(.current-day):hover {
+  background-color: #f0f0f0; /* Or a light yellow for payment dates */
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* If a date is both current day and has payment */
+.calendar-date.current-day.has-payment {
+  background-color: #ff6b6b; /* Maintain the distinct color for combined state */
+  color: white;
+}
+
+/* Specific hover for the current day that also has a payment */
+.calendar-date.current-day.has-payment:hover {
+  /* IMPORTANT: Keep background and color the same as the non-hover state */
+  background-color: #ff6b6b; /* Stays the same */
+  color: white; /* Stays the same */
+  transform: scale(1.1); /* Apply scale on hover */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Apply stronger shadow on hover */
+}
+
+/* Hover effect for ONLY the current day (without payment) */
+.calendar-date.current-day:not(.has-payment):not(.empty):hover {
+  background-color: #007bff; /* Stays the same */
+  color: white; /* Stays the same */
+ /* transform: scale(1.1); /* Apply scale on hover */
+ /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Apply stronger shadow on hover */
+}
+
+
+/* Hover effect for regular dates without payments (if desired) */
+.calendar-date:not(.has-payment):not(.current-day):not(.empty):hover {
+  background-color: #e9ecef; /* A subtle hover for non-payment dates */
+  transform: scale(1.05); /* Slight scale */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: default; /* Keep default cursor */
+}
+
+/* NEW: Upcoming Section Styles */
+.upcoming_H {
+  /* max-height: 400px; REMOVED - Handled by parent .right-sidebar-section */
+  flex-grow: 1; /* Allow it to take up remaining space within the sidebar */
+  overflow-y: auto; /* Keep this to ensure internal scrolling */
+  max-height: unset; /* Ensure it doesn't have a conflicting max-height from earlier */
+}
+
+.upcoming-content {
+  flex-grow: 1;
+  padding: 5px;
+}
+
+.upcoming-loading,
+.upcoming-info {
+  text-align: center;
+  color: #555;
+  font-style: italic;
+  padding: 20px 10px;
+}
+
+.upcoming-payments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+
+.upcoming-month-group {
+  display: flex;
+  flex-direction: column;
   
 }
+
+.upcoming-month-header {
+  background-color: #e0e0e0; /* Changed to light grey as in your image */
+  color: #000;
+  font-weight: bold;
+  font-size: 13px;
+  padding: 8px 15px; /* Adjusted padding for a wider look */
+  border-radius: 0; /* Removed border-radius for sharp corners like in the image */
+  margin-bottom: 0; /* Ensures it sits directly above the first payment item */
+  text-align: left; /* Aligned text to the left as in the image */
+}
+
+.upcoming-payment-item {
+  background-color: #fefefe; /* Ensured white background */
+  border: none; /* Removed all borders */
+  border-bottom: 1px solid #eee; /* Added a subtle light grey bottom border for separation */
+  border-radius: 0; /* Removed border-radius */
+  padding: 12px 15px; /* Adjusted padding to match the spacing in your image */
+  margin-bottom: 0; /* Removed margin-bottom since border-bottom handles separation */
+  transition: background-color 0.2s ease;
+
+}
+
+.upcoming-payment-item:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.upcoming-payment-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  font-size: 13px;
+}
+
+.upcoming-payment-row:last-child {
+  margin-bottom: 0;
+}
+
+.upcoming-label {
+  font-weight: bold;
+  color: #000;
+}
+
+.upcoming-value {
+  color: #333;
+  text-align: right;
+}
+
+/* Scrollbar styling for upcoming section */
+.upcoming_H::-webkit-scrollbar {
+  width: 6px;
+}
+
+.upcoming_H::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.upcoming_H::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.upcoming_H::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* ========== BEST INSURANCE CHART STYLES ========== */
+
 /* Chart Container */
 .chart-container {
-  padding: 10px 0 20px 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 860px;
-  overflow: auto;
-  
+  width: 100%;
+  flex-grow: 1;
+  overflow-x: auto;
+  margin-top: 10px;
+  min-height: 300px;
+  padding: 10px;
+  background-color: #fafafa;
+  border-radius: 8px;
 }
 
 .chart-container svg {
-  width: 790px;
+  width: 100%;
   height: auto;
+  max-width: 900px;
+}
+
+/* Chart Header Styles */
+.boxh-chart {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.chart-title-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 200px;
+}
+
+.chart-icon-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.chart-icon-title svg {
+  color: #333;
+  flex-shrink: 0;
+  font-size: 20px;
+}
+
+.chart-icon-title h3 {
+  margin: 0;
+  font-size: 1.3em;
+  font-weight: 600;
+  color: #000;
+}
+
+.chart-subtitle {
+  margin: 0;
+  font-size: 0.85em;
+  color: #666;
+  font-weight: normal;
+  padding-left: 28px;
+}
+
+.chart-filters {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.month-selector,
+.year-selector {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: white;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.month-selector:hover,
+.year-selector:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
+.month-selector:focus,
+.year-selector:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.month-selector {
+  min-width: 130px;
+}
+
+.year-selector {
+  min-width: 90px;
+}
+
+/* Chart Error State */
+.chart-error-container {
+  display: flex;
+  flex-direction: column;
   justify-content: center;
-  
+  align-items: center;
+  min-height: 300px;
+  gap: 12px;
 }
 
-
-.due-date_H {
-  grid-column: 5/ 5; /* Due Date in the fifth column */
-  grid-row: 3/3;
-  width: 300px;
-  font-size: 15px;  
-  
-  
+.error-icon {
+  font-size: 48px;
+  color: #e74c3c;
 }
 
-.contacts_H {
-  grid-column: 5 / 5; /* Contacts in the fifth column */
-  grid-row: 4/4;
-  width: 300px;
-   
-  
+.error-text {
+  color: #e74c3c;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* Chart No Data State */
+.no-data-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  gap: 12px;
+}
+
+.no-data-icon {
+  font-size: 48px;
+  color: #95a5a6;
+}
+
+.no-data-message {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 20px;
+  font-size: 16px;
+}
+
+/* ========== END BEST INSURANCE CHART STYLES ========== */
+
+/* Responsive adjustments */
+@media (max-width: 1199px) and (min-width: 768px) {
+  .grid-layout_H {
+    grid-template-columns: 2fr 1fr;
+    width: calc(100% - 40px);
+  }
+
+  .left-main-section {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto auto auto;
+  }
+
+  .claims_H { grid-column: 1 / 2; grid-row: 1; }
+  .insurance-overview_H { grid-column: 2 / 3; grid-row: 1; }
+  .payment-information_H { grid-column: 1 / 3; grid-row: 2; }
+  .best-insurance_H { grid-column: 1 / 3; grid-row: 3; }
+
+  .chart-container svg {
+    max-width: 100%;
+  }
+
+  .boxh-chart {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .chart-filters {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 767px) {
+  .grid-layout_H {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    width: calc(100% - 30px);
+    align-items: start; /* Keep consistent */
+  }
+
+  .claims_H, .insurance-overview_H, .payment-information_H, .best-insurance_H {
+    grid-column: auto;
+    grid-row: auto;
+    min-height: unset; /* Allow heights to be natural on small screens */
+  }
+
+  .right-sidebar-section {
+      max-height: unset; /* Remove max-height on mobile */
+      overflow-y: unset;
+      gap: 15px;
+      padding-bottom: 15px;
+  }
+
+  .headermessage {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .upcoming-month-header {
+    font-size: 0.85em;
+  }
+
+  .upcoming-payment-row {
+    font-size: 12px;
+  }
+
+  /* Chart responsive */
+  .chart-container {
+    padding: 5px;
+    overflow-x: auto;
+  }
+
+  .chart-container svg {
+    min-width: 600px;
+  }
+
+  .boxh-chart {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .chart-filters {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .month-selector,
+  .year-selector {
+    width: 100%;
+  }
+
+  .chart-subtitle {
+    padding-left: 28px;
+    font-size: 0.8em;
+  }
+}
+
+.claims-info_h p, .insurance-info_h p {
+  margin-bottom: 5px;
+  margin-top: 0;
+  line-height: 2.0;
+}
+
+.claims-info_h b, .insurance-info_h b {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.see-details .material-icons {
+  font-size: 16px;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+
+.menu-icon-home {
+  margin-right: 3px;
+}
+
+/* Styles for overdue text in Home.js payment section */
+.overdue-date-home {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.penalty-amount-home {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.penalty-amount-display-home {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.make-payment-btn-home.overdue-btn-home {
+  background-color: #dc3545;
+}
+
+.make-payment-btn-home.overdue-btn-home:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.payment-amount-with-penalty-home {
+  color: #dc3545;
 }
