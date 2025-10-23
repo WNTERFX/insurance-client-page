@@ -18,7 +18,6 @@ export async function getPolicyClaimableAmount(policyId) {
       return { claimableAmount: 0, currentValue: 0 };
     }
 
-    // FIXED: Use correct column name from database
     return {
       claimableAmount: data?.policy_claim_amount || 0,
       currentValue: data?.current_Value || 0
@@ -36,7 +35,7 @@ export async function getPolicyClaims(policyId) {
   try {
     const { data, error } = await db
       .from("claims_Table")
-      .select("id, status, approved_amount, created_at")
+      .select("id, status, approved_amount, completed_date, created_at")
       .eq("policy_id", policyId)
       .order("created_at", { ascending: false });
 
@@ -89,7 +88,7 @@ export async function validateNewClaim(policyId) {
       };
     }
 
-    // Rule 5: Check if there's a pending or under review claim
+    // Rule 5: Check for Pending or Under Review claims
     const pendingOrUnderReview = claims.find(
       c => c.status === 'Pending' || c.status === 'Under Review'
     );
@@ -102,6 +101,23 @@ export async function validateNewClaim(policyId) {
         claimsCount
       };
     }
+
+    // Rule 6: NEW RULE - Check for Approved claims that are NOT completed
+    const approvedNotCompleted = claims.find(
+      c => c.status === 'Approved' && !c.completed_date
+    );
+
+    if (approvedNotCompleted) {
+      return {
+        canCreate: false,
+        reason: "A claim has been Approved but is not yet Completed. Please wait until it is marked as Completed before filing a new claim.",
+        claimableAmount,
+        claimsCount
+      };
+    }
+
+    // Rule 7: Rejected claims are OK - can create new claim immediately
+    // (No check needed - rejected claims don't block new claims)
 
     // All validation passed
     console.log(`✅ Validation passed: Can create new claim`);

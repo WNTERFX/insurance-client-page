@@ -5,35 +5,113 @@
   min-height: 100vh;
 }
 
+.history-container h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
 .search-container {
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: 10px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 10px;
 }
 
 .search-container input {
-  padding: 6px 10px;
+  flex: 1;
+  max-width: 400px;
+  padding: 8px 12px;
   border-radius: 6px;
   border: 1px solid #ccc;
-  background-color: #e0e0e0;
+  background-color: #fff;
   outline: none;
+  font-size: 14px;
+}
+
+.search-container input:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+}
+
+.results-count {
+  font-size: 14px;
+  color: #666;
+  white-space: nowrap;
 }
 
 .history-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1.2fr 1.2fr 1.5fr 1.2fr 1.2fr;
   gap: 10px;
+  margin-bottom: 2px;
 }
 
 .history-grid.header {
   font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .history-grid.header div {
   background-color: #d3d3d3;
-  padding: 8px;
+  padding: 12px 8px;
+  border-radius: 4px;
+}
+
+.history-grid:not(.header) {
+  background-color: #fff;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.history-grid:not(.header):hover {
+  background-color: #f9f9f9;
 }
 
 .history-grid:not(.header) div {
-  padding: 8px;
+  padding: 12px 8px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.penalty-badge {
+  display: inline-block;
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+
+.loading,
+.error,
+.no-results {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.loading {
+  color: #666;
+  font-size: 16px;
+}
+
+.error {
+  color: #d32f2f;
+  font-size: 16px;
+}
+
+.no-results {
+  color: #666;
+  font-size: 16px;
 }
