@@ -1,4 +1,4 @@
-import {FaHome,FaRegFileAlt,FaCalendarAlt,FaMoneyBill,FaHistory,FaWallet,FaClipboardCheck,FaFileInvoiceDollar,FaCreditCard,FaTruck } from "react-icons/fa";
+import {FaHome,FaRegFileAlt, FaCog, FaCalendarAlt,FaMoneyBill,FaHistory,FaWallet,FaClipboardCheck,FaFileInvoiceDollar,FaCreditCard,FaTruck } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import "./styles/Sidebar-client-styles.css";
 
@@ -17,11 +17,11 @@ export default function Sidebar() {
 
        <Link to="/insurance-client-page/main-portal/Balances"className="menu-item">
         <FaMoneyBill className="menu-icon" />
-        <span>Balances</span>
+        <span>Payments</span>
       </Link>
       <Link to="/insurance-client-page/main-portal/History"className="menu-item">
         <FaHistory className="menu-icon" />
-        <span>History</span>
+        <span>Payment History</span>
       </Link>
     
       <Link to="/insurance-client-page/main-portal/Claims"className="menu-item">
@@ -38,10 +38,13 @@ export default function Sidebar() {
         <FaFileInvoiceDollar className="menu-icon" />
         <span>Quotation</span>
       </Link>
-         <Link to="/insurance-client-page/main-portal/Payment"className="menu-item">
-        <FaCreditCard className="menu-icon" />
-        <span>Payment</span>
+
+       <Link to="/insurance-client-page/main-portal/AccountSettings"className="menu-item menu-item-bottom">
+        <FaCog className="menu-icon" />
+        <span>Settings</span>
       </Link>
+
+      
     </aside>
   );
 }

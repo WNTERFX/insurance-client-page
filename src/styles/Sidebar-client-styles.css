@@ -25,3 +25,8 @@
 .menu-icon {
   margin-right: 12px;
 }
+
+.menu-item-bottom {
+  margin-top: auto;
+  margin-bottom: 10px;
+}
