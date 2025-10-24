@@ -34,10 +34,10 @@ export default function Sidebar() {
         <span>Deliveries</span>
       </Link>
 
-         <Link to="/insurance-client-page/main-portal/Quotation"className="menu-item">
+         {/*<Link to="/insurance-client-page/main-portal/Quotation"className="menu-item">
         <FaFileInvoiceDollar className="menu-icon" />
         <span>Quotation</span>
-      </Link>
+      </Link>*/}
 
        <Link to="/insurance-client-page/main-portal/AccountSettings"className="menu-item menu-item-bottom">
         <FaCog className="menu-icon" />

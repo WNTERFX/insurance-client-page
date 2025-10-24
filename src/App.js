@@ -25,6 +25,7 @@ import PaymentFailure from './PaymentFailure';
 
 import ClientClaimsCreationController from './ClientController/ClientClaimsCreationController';
 import Partners from './Partners';
+import AboutUs from './AboutUs';
 
 function App() {
   return (
@@ -39,7 +40,7 @@ function App() {
     <Route path="/insurance-client-page/main-portal/payment/failure" element={<PaymentFailure />} />
 
    <Route path="/insurance-client-page/Partners" element={<Partners />} />
-  
+  <Route path="/insurance-client-page/AboutUs" element={<AboutUs />} />
   
   {/* Protected routes */}
   <Route element={<InvalidAuthRoute />}>

@@ -1,0 +1,262 @@
+/* General Container */
+html {
+  scroll-behavior: smooth;
+}
+
+
+/* Our Agency Hero Section */
+.ourAcency-page-hero {
+  position: relative;
+  height: 600px;
+   width: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+
+
+  
+
+ 
+
+
+}
+
+.hero-overlay-ourAcency {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1;
+}
+
+.hero-content-ourAcency {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: white;
+  max-width: 900px;
+  padding: 0 2rem;
+}
+
+.hero-content-ourAcency h2:first-child {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  letter-spacing: 1px;
+   animation: fadeInUp 0.8s ease;
+}
+
+.hero-content-ourAcency h2:nth-child(2) {
+  font-size: 3rem;
+  font-weight: 400;
+  margin: 0 0 1.5rem 0;
+   animation: fadeInUp 0.8s ease;
+}
+
+.hero-content-ourAcency p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin: 0;
+  font-weight: 300;
+   animation: fadeInUp 0.8s ease;
+}
+
+/* Corporate Tagline Section */
+.corporate-tagline-section {
+  background-color: #ffffff;
+  padding: 5rem 2rem;
+}
+
+.corporate-tagline-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.corporate-tagline-container h2:first-child {
+  color: #8b5ab8;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.corporate-tagline-container h2:nth-child(2) {
+  color: #2c3e50;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  line-height: 1.3;
+}
+
+.corporate-tagline-container p {
+  color: #666;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Mission and Vision Section */
+.mission-vision-section {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 6rem 2rem;
+  overflow: hidden;
+}
+
+.mission-visionoverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.65);
+  z-index: 1;
+}
+
+.mission-visioncontent {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  color: white;
+}
+
+.mission-visioncontent h2 {
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  margin-top: 2rem;
+}
+
+.mission-visioncontent h2:first-child {
+  margin-top: 0;
+}
+
+.mission-visioncontent p {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  margin-bottom: 3rem;
+  font-weight: 300;
+}
+
+
+
+
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .footer {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .nav-links {
+    gap: 1rem;
+  }
+  
+  .hero-content-ourAcency h2:first-child {
+    font-size: 2rem;
+  }
+  
+  .hero-content-ourAcency h2:nth-child(2) {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+  }
+  
+  .ourAcency-page-hero {
+    height: auto;
+    padding: 3rem 0;
+  }
+  
+  .hero-content-ourAcency h2:first-child {
+    font-size: 1.5rem;
+  }
+  
+  .hero-content-ourAcency h2:nth-child(2) {
+    font-size: 2rem;
+  }
+  
+  .hero-content-ourAcency p {
+    font-size: 1rem;
+  }
+  
+  .corporate-tagline-section {
+    padding: 3rem 1.5rem;
+  }
+  
+  .corporate-tagline-container h2:first-child {
+    font-size: 1.5rem;
+  }
+  
+  .corporate-tagline-container h2:nth-child(2) {
+    font-size: 1.8rem;
+  }
+  
+  .corporate-tagline-container p {
+    font-size: 1rem;
+  }
+  
+  .mission-vision-section {
+    padding: 3rem 1.5rem;
+  }
+  
+  .mission-visioncontent h2 {
+    font-size: 2rem;
+  }
+  
+  .mission-visioncontent p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .company-name {
+    font-size: 1rem;
+  }
+  
+  .nav-link {
+    font-size: 0.9rem;
+  }
+  
+  .hero-content-ourAcency h2:first-child {
+    font-size: 1.3rem;
+  }
+  
+  .hero-content-ourAcency h2:nth-child(2) {
+    font-size: 1.7rem;
+  }
+  
+  .corporate-tagline-container h2:first-child {
+    font-size: 1.3rem;
+  }
+  
+  .corporate-tagline-container h2:nth-child(2) {
+    font-size: 1.5rem;
+  }
+  
+  .mission-visioncontent h2 {
+    font-size: 1.7rem;
+  }
+  
+}

@@ -13,6 +13,9 @@ import standard from "./images/standard.png";
 import stronghold from "./images/stronghold.png";
 import cocogen from "./images/cocogen.png";
 import mercantile from "./images/mercantile.png";
+import AlphaInsurance from "./images/Alpha-Insurance-Logo.png";
+import Liberty from "./images/Liberty-logo.png";
+import philbritish from "./images/philbritish-logo.png";
 
 // Step icons for "How It Works" - assuming these are white icons on transparent background
 import provideInfoIcon from "./images/info.png"; // Replace with your actual icon for Provide Vehicle Info
@@ -76,6 +79,31 @@ export default function LandingPage() {
     }
   ];
 
+
+      // Partner data with correct image imports and URLs
+    const companyPartners = [
+        { name: "Standard Insurance", logo: standard, url: "https://www.standard-insurance.com/" },
+        { name: "Mercantile Insurance", logo: mercantile, url: "https://www.mercantile.ph/" },
+        { name: "Cocogen Insurance", logo: cocogen, url: "https://www.cocogen.com/" },
+        { name: "Stronghold Insurance", logo: stronghold, url: "https://strongholdinsurance.com.ph/" },
+        { name: "Philbritish Insurance", logo: philbritish, url: "https://www.philbritish.com/" },
+        { name: "Alpha Insurance", logo: AlphaInsurance, url: "https://alphainsurance.com.ph/" },
+        { name: "Liberty Insurance", logo: Liberty, url: "https://www.libertyinsurance.com.ph/" },
+    ];
+
+        // Helper function to render a partner logo with a link
+    const renderPartnerLogo = (partner, index) => (
+        <a
+            key={index} // Unique key for React list rendering
+            href={partner.url}
+            target="_blank"           // Opens link in a new tab
+            rel="noopener noreferrer" // Security best practice
+            aria-label={`${partner.name} - opens in new tab`} // Accessibility
+        >
+            <img src={partner.logo} alt={`${partner.name} Logo`} />
+        </a>
+    );
+
   return (
     <div className="landing-page-container">
       {/* TopBar Merged Here */}
@@ -97,11 +125,11 @@ export default function LandingPage() {
 
         {/* Nav Links */}
         <nav className={`nav-links ${menuOpen ? "active" : ""}`}>
-          <a href="#home" className="nav-link" onClick={() => setMenuOpen(false)}>Home</a>
-          <a href="#partners" className="nav-link" onClick={() => navigate("/insurance-client-page/Partners")}>Partners</a> {/* Added Partners */}
+          <a href="/insurance-client-page" className="nav-link" >Home</a>
+          <a href="/insurance-client-page/Partners" className="nav-link" >Partners</a> {/* Added Partners */}
           <a href="#how-it-works" className="nav-link" onClick ={() => setMenuOpen(false)}>How It Works</a>
           <a href="#faq" className="nav-link" onClick={() => setMenuOpen(false)}>FAQ</a>
-          <a href="#about" className="nav-link" onClick={() => setMenuOpen(false)}>About Us</a>
+          <a href="/insurance-client-page/AboutUs" className="nav-link" >About Us</a>
           <Link to="/insurance-client-page/login" className="login-button" onClick={() => setMenuOpen(false)}>Log in</Link>
         </nav>
       </header>
@@ -161,21 +189,20 @@ export default function LandingPage() {
       </section>
 
       {/* Company Partners Section */}
-      <section id="partners" className="company-partners-section" style={{ backgroundImage: `url(${carBlur})` }}>
-        <h2>COMPANY PARTNERS</h2>
-        <div className="partners-logos-container"> {/* New container for alignment */}
-          <div className="partners-logo-row">
-            <img src={standard} alt="Standard Insurance Logo" />
-            <img src={mercantile} alt="Mercantile Insurance Logo" />
-            <img src={cocogen} alt="Cocogen Insurance Logo" />
-          </div>
-          <div className="partners-logo-row">
-            <img src={stronghold} alt="Stronghold Insurance Logo" />
-            <img src={cocogen} alt="Cocogen Insurance Logo" /> {/* Placeholder, adjust if you have a 5th partner */}
-            <img src={mercantile} alt="Mercantile Insurance Logo" /> {/* Placeholder */}
-          </div>
-        </div>
-      </section>
+            {/* Company Partners Section */}
+            <section className="company-partners-section" style={{ backgroundImage: `url(${carBlur})` }}>
+                <h2>COMPANY PARTNERS</h2>
+                <div className="partners-logos-container">
+                    <div className="partners-logo-row">
+                        {/* Map the first 4 partners */}
+                        {companyPartners.slice(0, 4).map(renderPartnerLogo)}
+                    </div>
+                    <div className="partners-logo-row">
+                        {/* Map the remaining partners */}
+                        {companyPartners.slice(4).map(renderPartnerLogo)}
+                    </div>
+                </div>
+            </section>
 
       {/* How It Works Section - Redesigned to match the NEW image */}
       <section id="how-it-works" className="how-it-works-section">
