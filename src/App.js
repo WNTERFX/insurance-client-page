@@ -14,6 +14,7 @@ import Claims from './Claims';
 import Delivery from './Delivery';
 import Quotation from './Quotation';
 import Payment from './Payment';
+import AccountSettings from './AccountSettings';
 import MainArea from './MainArea';
 import { SignInForm } from './SignInForm';
 import InvalidAuthRoute from './AdminApp/ControllerAdmin/InvalidAuthRoute';
@@ -23,7 +24,7 @@ import PaymentSuccess from './PaymentSuccess';
 import PaymentFailure from './PaymentFailure';
 
 import ClientClaimsCreationController from './ClientController/ClientClaimsCreationController';
-
+import Partners from './Partners';
 
 function App() {
   return (
@@ -37,7 +38,7 @@ function App() {
     <Route path="/insurance-client-page/main-portal/payment/success" element={<PaymentSuccess />} />
     <Route path="/insurance-client-page/main-portal/payment/failure" element={<PaymentFailure />} />
 
-  
+   <Route path="/insurance-client-page/Partners" element={<Partners />} />
   
   
   {/* Protected routes */}
@@ -55,6 +56,7 @@ function App() {
       <Route path ="Delivery" element={<Delivery/>} />
       <Route path="Quotation" element={<Quotation />} />
       <Route path="Payment" element={<Payment />} />
+      <Route path ="AccountSettings" element={<AccountSettings/>} />
     </Route>
   </Route>
 

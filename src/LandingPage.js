@@ -33,7 +33,10 @@ import SilverstarLOGO from "./images/SilverstarLOGO.png";
 // Import icons for footer using react-icons (Example with Font Awesome)
 import { FaHome, FaInfoCircle, FaPhone, FaEnvelope, FaMapMarkerAlt, FaUsers, FaHandshake } from 'react-icons/fa';
 
+import { useNavigate } from "react-router-dom";
+
 export default function LandingPage() {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
@@ -95,8 +98,8 @@ export default function LandingPage() {
         {/* Nav Links */}
         <nav className={`nav-links ${menuOpen ? "active" : ""}`}>
           <a href="#home" className="nav-link" onClick={() => setMenuOpen(false)}>Home</a>
-          <a href="#partners" className="nav-link" onClick={() => setMenuOpen(false)}>Partners</a> {/* Added Partners */}
-          <a href="#how-it-works" className="nav-link" onClick={() => setMenuOpen(false)}>How It Works</a>
+          <a href="#partners" className="nav-link" onClick={() => navigate("/insurance-client-page/Partners")}>Partners</a> {/* Added Partners */}
+          <a href="#how-it-works" className="nav-link" onClick ={() => setMenuOpen(false)}>How It Works</a>
           <a href="#faq" className="nav-link" onClick={() => setMenuOpen(false)}>FAQ</a>
           <a href="#about" className="nav-link" onClick={() => setMenuOpen(false)}>About Us</a>
           <Link to="/insurance-client-page/login" className="login-button" onClick={() => setMenuOpen(false)}>Log in</Link>
