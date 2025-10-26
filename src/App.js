@@ -27,6 +27,7 @@ import ClientClaimsCreationController from './ClientController/ClientClaimsCreat
 import Partners from './Partners';
 import AboutUs from './AboutUs';
 import Contact from './Contact';
+import CreateQuote from './CreateQuote';
 
 function App() {
   return (
@@ -43,7 +44,7 @@ function App() {
   <Route path="/insurance-client-page/Partners" element={<Partners />} />
   <Route path="/insurance-client-page/AboutUs" element={<AboutUs />} />
   <Route path="/insurance-client-page/Contact" element={<Contact />} />
-
+    <Route path="/insurance-client-page/CreateQuote" element={<CreateQuote />} />
   {/* Protected routes */}
   <Route element={<InvalidAuthRoute />}>
 

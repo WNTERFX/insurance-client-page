@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link } from 'react-router-dom';
 import "./styles/landing-page-styles.css";
 import CreateQuote from "./CreateQuote";
-
+import { useNavigate } from "react-router-dom";
 
 // Import images and icons (omitted for brevity, assume they are correct)
 import lanpage from "./images/lanpage.png";
@@ -38,6 +38,8 @@ export default function LandingPage() {
 
   const observerRef = useRef(null);
   const faqAnswerRefs = useRef([]); 
+
+    const navigate = useNavigate();
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -208,7 +210,9 @@ export default function LandingPage() {
             Get instant quotes, manage your policy, and file <br /> claims with
             ease.
           </p>
-          <button className="quote-btn" onClick={() => setIsModalOpen(true)}>
+          <button className="quote-btn"  onClick={() =>
+              navigate("/insurance-client-page/CreateQuote")
+            }>
             GET A QUOTE
           </button>
         </div>
@@ -375,7 +379,7 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      <CreateQuote isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      {/*<CreateQuote isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />*/}
     </div>
   );
 }
