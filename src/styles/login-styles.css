@@ -1,149 +1,186 @@
-/* ==============================
-   RESET & GLOBAL STYLES
-============================== */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-:root {
-  --primary-color: #7c31d2;
-  --accent-color: #007bff;
-  --hover-accent: #0056b3;
-  --light-bg: #f3f3f3;
-  --text-color: #333;
-  --border-color: #ddd;
-  --error-bg: #fee;
-  --error-color: #c33;
-  --success-bg: #efe;
-  --success-color: #383;
-  --radius: 8px;
-  --transition: 0.3s ease;
-  --font-main: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* ==============================
-   LAYOUT
-============================== */
-.login-container {
+/* Page */
+.login-page {
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background-color: var(--light-bg);
-  color: silver;
+  background: #f4f7fa;
+  font-family: "Poppins", sans-serif;
 }
 
-.container {
-  width: 100%;
-  max-width: 800px;
-  background-color: white;
-  border-radius: var(--radius);
+/* Card */
+.login-box {
+  background: #fff;
+  border-radius: 20px;
+  width: 490px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
   overflow: hidden;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.login-card {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  height: 400px;
-}
-
-/* ==============================
-   LEFT LOGO PANEL
-============================== */
-.logo-panel {
-  background-color: var(--primary-color);
+/* Header section (left text and logo) */
+.login-header {
+  background: linear-gradient(90deg, #9f8eb1 0%, #673b92 48%, #402158 100%);
+  color: #fff;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 20px;
-  text-align: center;
+  justify-content: space-between;  /* push text left, logo right */
+  padding: 5px 28px;
 }
 
-.logo-panel img {
-  max-width: 100%;
-  max-height: 180px;
+/* Force h2 and p to stack vertically and align left */
+.header-left {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center;
+  text-align: left;
+}
+
+/* make sure p does not sit beside h2 */
+.header-left h2,
+.header-left p {
+  display: block;
+  width: 100%;
+}
+
+.header-left h2 {
+  margin: 0;
+  margin-bottom: 8px; /* gives space before p */
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.header-left p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: rgba(235, 235, 235, 0.95);
+  line-height: 1.2;
+}
+
+/* logo to the right */
+.header-logo {
+  width: 90px;
+  height: auto;
   object-fit: contain;
-  margin-bottom: 10px;
-  filter: drop-shadow(10px 10px 20px rgba(0, 0, 0, 0.1));
+  margin-left: 20px;
 }
 
-/* ==============================
-   RIGHT LOGIN PANEL
-============================== */
-.right-panel {
-  background-color: white;
-  color: var(--text-color);
-  padding: 40px 30px;
+/* Form */
+.login-form {
+  padding: 2rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  font-family: var(--font-main);
 }
 
-.right-panel h2 {
-  margin-bottom: 25px;
-  font-size: 24px;
+.login-form label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #000;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-input[type="email"],
-input[type="password"] {
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid var(--border-color);
+.login-form input {
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  background-color: #f3f5ff;
   outline: none;
-  transition: border-color var(--transition);
+  transition: all 0.3s ease;
 }
 
-input:focus {
-  border-color: var(--accent-color);
+.login-form input:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
 }
 
-/* ==============================
-   BUTTONS
-============================== */
-button {
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
+/* Password wrapper */
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 2.5rem;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-100%);
   cursor: pointer;
-  transition: background var(--transition);
-}
-
-
-
-.login-controls {
+  color: black;
+  font-size: 1.1rem;
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 1rem;
+  justify-content: center;
 }
 
-.login-controls button {
-  flex: 1;
-  max-width: 150px;
-  background-color: #ddd;
+/* Forgot password link */
+.forgot-password-client {
+  display: block;
+  text-align: right;
+  font-size: 0.85rem;
+  color: #777;
+  text-decoration: none;
+  margin-bottom: 1.3rem;
+  margin-top: 0.5rem;
+  transition: all 0.3s ease;
+  width: fit-content; /* Only takes space of text */
+  margin-left: auto; /* Pushes it to the right */
 }
 
-.login-controls button:hover {
-  background-color: #ccc;
+.forgot-password-client:hover {
+  text-decoration: underline;
+  color: #555;
 }
+
+
+
+
+/* login button */
+.login-button-client {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #fff;
+  background: linear-gradient(90deg, #402158 0%, #683797 50%, #7b5f97 100%);
+  cursor: pointer;
+  transition: filter 0.25s ease; /* smooth light hover */
+ 
+}
+
+.login-button:hover {
+  filter: brightness(1.08); /* a little lighter on hover */
+}
+
+.login-button:active {
+  filter: brightness(0.98); /* very subtle darker press (no movement) */
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .login-box {
+    width: 90%;
+  }
+
+  .header-logo {
+    width: 70px;
+    top: 25px;
+  }
+}
+
+
+
 /* ==============================
    LINKS
 ============================== */
-.forgot-password-link {
-  text-align: right;
-  margin: -10px 0 15px 0;
-}
 
 .link-button {
   background: none;
@@ -343,24 +380,31 @@ button {
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* ==============================
-   RESPONSIVE
-============================== */
-@media (max-width: 768px) {
-  .login-card {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
 
-  .modal-content {
-    width: 95%;
-  }
+/* Login Controls - centered below button */
+.login-controls {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
 
-  .modal-header {
-    padding: 15px 20px;
-  }
+.login-controls p {
+  display: inline;
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
 
-  .modal-body {
-    padding: 20px;
-  }
+.login-controls a {
+  display: inline;
+  margin-left: 5px;
+  color: #7c3aed;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.login-controls a:hover {
+  text-decoration: underline;
+  color: #5b21b6;
 }

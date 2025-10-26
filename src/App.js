@@ -26,6 +26,7 @@ import PaymentFailure from './PaymentFailure';
 import ClientClaimsCreationController from './ClientController/ClientClaimsCreationController';
 import Partners from './Partners';
 import AboutUs from './AboutUs';
+import Contact from './Contact';
 
 function App() {
   return (
@@ -36,12 +37,13 @@ function App() {
   <Route path="/insurance-client-page/login" element={<LoginForm />} />
   <Route path="/insurance-client-page/reset-password" element={<ResetPasswordForm />} />
   
-    <Route path="/insurance-client-page/main-portal/payment/success" element={<PaymentSuccess />} />
-    <Route path="/insurance-client-page/main-portal/payment/failure" element={<PaymentFailure />} />
+  <Route path="/insurance-client-page/main-portal/payment/success" element={<PaymentSuccess />} />
+  <Route path="/insurance-client-page/main-portal/payment/failure" element={<PaymentFailure />} />
 
-   <Route path="/insurance-client-page/Partners" element={<Partners />} />
+  <Route path="/insurance-client-page/Partners" element={<Partners />} />
   <Route path="/insurance-client-page/AboutUs" element={<AboutUs />} />
-  
+  <Route path="/insurance-client-page/Contact" element={<Contact />} />
+
   {/* Protected routes */}
   <Route element={<InvalidAuthRoute />}>
 

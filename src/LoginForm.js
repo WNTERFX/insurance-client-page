@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { loginClient } from "./Actions/LoginActions";
 import { db } from "./dbServer"; // Supabase client
+import "./images/logo_.png"
+
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function LoginForm() {
   const navigate = useNavigate();
@@ -11,6 +14,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   // Password reset modal
   const [showResetModal, setShowResetModal] = useState(false);
@@ -21,6 +25,10 @@ export default function LoginForm() {
   const [resetSuccess, setResetSuccess] = useState("");
 
   const toggleShowPassword = () => setShowPassword((prev) => !prev);
+
+  const togglePassword = () => {
+    setPasswordVisible(!passwordVisible);
+  };
 
   // Login
   const handleLogin = async (e) => {
@@ -71,72 +79,58 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="login-container">
-      <div className="container">
-        <div className="login-card">
-          {/* Logo Panel */}
-          <div className="logo-panel">
-            <img src={logo} alt="silverstar_insurance_inc_Logo" />
+    <div className="login-page">
+      <div className="login-box">
+        <div className="login-header">
+          <div className="header-left">
+            <h2>LOGIN</h2>
+            <p>Welcome to Silverstar Insurance Inc.</p>
           </div>
-
-          {/* Login Panel */}
-          <div className="right-panel">
-            <h2>Log In to your account</h2>
-            <form onSubmit={handleLogin}>
-              {/* Email */}
-              <label>Email</label>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-
-              {/* Password */}
-              <label>Password</label>
-              <div className="password-field">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <button
-                  type="button"
-                  className="show-pass-btn"
-                  onClick={toggleShowPassword}
-                  tabIndex={-1}
-                >
-                  {showPassword ? "Hide" : "Show"}
-                </button>
-              </div>
-
-              {/* Forgot Password */}
-              <div className="forgot-password-link">
-                <button
-                  type="button"
-                  className="link-button"
-                  onClick={() => setShowResetModal(true)}
-                >
-                  Forgot Password?
-                </button>
-              </div>
-
-              {/* Login Controls */}
-              <div className="login-controls">
-                <button type="submit" disabled={loading}>
-                  {loading ? "Logging in..." : "Log In"}
-                </button>
-                <button type="button" onClick={() => navigate("/insurance-client-page/signin")}>
-                  Sign In
-                </button>
-              </div>
-            </form>
-          </div>
+          <img className="header-logo" src={require("./images/logo_.png")} alt="silverstar_insurance_inc_Logo" />
         </div>
+
+        <form className="login-form" onSubmit={handleLogin}>
+          <label>Email Address</label>
+          <input
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          <label>Password</label>
+          <div className="password-wrapper">
+            <input
+              type={passwordVisible ? "text" : "password"}
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <span onClick={togglePassword} className="eye-icon">
+              {passwordVisible ? <FaEyeSlash /> : <FaEye />}
+            </span>
+          </div>
+
+          <a href="#" className="forgot-password-client" onClick={(e) => {
+            e.preventDefault();
+            setShowResetModal(true);
+          }}>
+            Forgot password?
+          </a>
+          <button type="submit" className="login-button-client">Login</button>
+
+          {/* Login Controls */}
+          <div className="login-controls">
+            <p>Don’t have an account?</p>
+            <a href="#" type="button" onClick={() => navigate("/insurance-client-page/signin")}>
+              Sign In
+            </a>
+          </div>
+        </form>
       </div>
+
 
       {/* Password Reset Modal */}
       {showResetModal && (
@@ -149,7 +143,7 @@ export default function LoginForm() {
               </button>
             </div>
             <div className="modal-body">
-            
+
               <label>Email Address</label>
               <input
                 type="email"
@@ -173,6 +167,9 @@ export default function LoginForm() {
           </div>
         </div>
       )}
+
     </div>
+
+
   );
 }

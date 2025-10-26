@@ -12,35 +12,18 @@ html {
 }
 
 
-
-
-/* Breadcrumb 
-.breadcrumb {
-  background-color: #f5f5f5;
-  padding: 0.75rem 2rem;
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.breadcrumb a {
-  color: #6b2d8f;
-  text-decoration: none;
-}*/
-
 /* Hero Section */
 .partners-page-hero {
   position: relative;
+  height: 500px;
   width: 100%;
-  height: 600px; /* Adjust height as needed */
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   display: flex;
-  align-items: center; /* Vertically center content */
-  justify-content: center; /* Horizontally center content */
-  color: white;
-  text-align: center; /* Center align text for the whole section */
-  padding: 0 5%;
-  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .hero-overlay-partners {
@@ -65,7 +48,6 @@ html {
   font-size: 3.5rem; /* Larger font size for the heading */
   margin-bottom: 1.5rem; /* More space below heading */
   font-weight: bold; /* Make the heading bold */
-  animation: fadeInUp 0.8s ease;
   padding-top: 0; /* Remove specific top padding here, let flexbox handle vertical centering */
 }
 
@@ -364,4 +346,73 @@ footer {
   .footer-content {
     grid-template-columns: 1fr;
   }
+}
+
+
+/* Hero Content Animations */
+.hero-content-partners h1,
+.hero-content-partners p {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.hero-content-partners h1.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.3s;
+}
+
+.hero-content-partners p.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.6s;
+}
+
+/* Relationships Section Animation */
+.relationships-section {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.relationships-section.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Company Partners Section Heading Animation */
+.company-partners-section h2 {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.company-partners-section h2.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Partner Logos Animation */
+.partners-logos-container img {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.partners-logos-container img.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Why Choose Section Animation */
+.why-choose-section {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.why-choose-section.is-visible {
+    opacity: 1;
+    transform: translateY(0);
 }
