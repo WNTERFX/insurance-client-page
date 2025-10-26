@@ -1,86 +1,565 @@
+/* General body styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #e8e8f0;
+    color: #333;
+    line-height: 1.6;
+    min-height: 100vh; /* Ensure body itself is at least viewport height */
+    display: flex; /* Make body a flex container */
+    flex-direction: column; /* Stack children vertically */
+}
+
+/* Global Box Sizing */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* IMPORTANT: Assuming a 'top-bar' or 'header' class exists.
+   If your top bar has a different class/ID, please update this.
+   This section is designed to make a fixed/sticky header responsive and
+   ensure content doesn't get hidden behind it.
+*/
+.top-bar { /* Replace with your actual top bar class/ID if different */
+    width: 100%;
+    background-color: #333; /* Example background */
+    color: white; /* Example text color */
+    padding: 15px 20px;
+    position: sticky; /* Or fixed, depending on desired behavior */
+    top: 0;
+    left: 0;
+    z-index: 1000; /* Ensure it stays on top */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    /* Add any other styles specific to your top bar here */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Main content wrapper to push content below a fixed/sticky header */
+.content-wrapper { /* New wrapper for all content below the top bar */
+    flex-grow: 1; /* Allow content to fill available vertical space */
+    display: flex;
+    flex-direction: column;
+    padding-top: 0; /* Initially no padding, adjust if header is fixed and not sticky */
+}
+
+/* Main container for the create quote page */
+.create-quote-page {
+    display: flex;
+    flex-direction: column;
+    align-items: auto; /* Revert align-items to auto or flex-start if not centering everything */
+    min-height: auto; /* Remove min-height here, let content dictate height */
+    flex-grow: 1; /* Allow the quote page to fill available space within content-wrapper */
+    width: 100%; /* Ensure it takes full width within its parent */
+    padding: 0; /* Remove padding here, let quote-container handle it */
+}
+
+/* Quote Form Section */
 .quote-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
+    height: auto; /* Ensure height adjusts to content */
+    width: 100%;
+    max-width: 100%;
+    margin-top: 0;
+    padding: 30px 40px;
+    background-color: #ffffff;
+    border-radius: 0;
+    box-shadow: none;
+    flex-grow: 1; /* Allow it to grow, but content dictates final height */
 }
 
-/* Main Modal Box */
-.quote-content {
-  background: white;
-  padding: 30px 40px;
-  border-radius: 20px;
-  width: 95%;
-  max-width: 900px;
-  position: relative;
-  box-shadow: 0px 10px 25px rgba(0,0,0,0.3);
+.insurance-quote-container {
+    padding: 0;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
-/* Close button (X) */
-.close-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: none;
-  border: none;
-  font-size: 22px;
-  cursor: pointer;
+.insurance-quote-container h1 {
+    font-size: 2.2em;
+    color: #333;
+    text-align: left; /* Revert to left align for larger screens */
+    margin-bottom: 5px;
+    font-weight: 600;
 }
 
-/* Title Section */
-.quote-content h2 {
-  margin: 0;
-  font-size: 1.4rem;
-  font-weight: 700;
+.insurance-quote-container > p:first-of-type {
+    text-align: left; /* Revert to left align for larger screens */
+    font-size: 1em;
+    color: #666;
+    margin-bottom: 30px;
 }
 
-.quote-content p {
-  text-align: center;
-  margin: 10px 0 20px;
-  font-size: 1rem;
-  font-weight: 500;
+/* Form Sections */
+.form-section_ {
+    margin-bottom: 25px;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    margin-left: 50px;
+    margin-right: 50px;
 }
 
-/* Form Layout */
-.quote-form {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+.form-section_ h2 {
+    font-size: 1.1em;
+    color: #333;
+    margin-bottom: 5px;
+    border-bottom: none;
+    padding-bottom: 0;
+    font-weight: bold;
+    text-align: left; /* Revert to left align for larger screens */
 }
 
-/* Inputs */
-.quote-form input {
-  padding: 12px 14px;
-  border: 1px solid #d0d0d0;
-  border-radius: 8px;
-  background: #f0f3ff;
-  font-size: 0.95rem;
+.section-des_ {
+    text-align: left; /* Revert to left align for larger screens */
+    font-size: 0.85em;
+    color: #777;
+    margin-bottom: 20px;
 }
 
-/* Last field takes one full row */
-.quote-form input:nth-last-child(2) {
-  grid-column: span 3;
+/* Form Grid for Owner Details and Vehicle Information */
+.form-grid_,
+.form-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 40px;
+    margin-top: 15px;
 }
 
-/* Submit Button */
-.submit-btn {
-  grid-column: 3;
-  padding: 12px 20px;
-  border: none;
-  background: #4b2a75;
-  color: white;
-  font-weight: bold;
-  border-radius: 25px;
-  cursor: pointer;
-  justify-self: end;
+.form-grid_ label,
+.form-group label {
+    display: flex;
+    flex-direction: column;
+    font-weight: normal;
+    color: #444;
+    font-size: 0.9em;
 }
 
-.submit-btn:hover {
-  background: #3a2060;
+.form-grid_ input[type="text"],
+.form-grid_ input[type="number"],
+.form-group input[type="text"],
+.form-group input[type="number"] {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-top: 5px;
+    font-size: 0.95em;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-grid_ input[type="text"]:focus,
+.form-grid_ input[type="number"]:focus,
+.form-group input[type="text"]:focus,
+.form-group input[type="number"]:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
+
+/* Info Box */
+.info-box {
+    background-color: #e6f7ff;
+    border: 1px solid #91d5ff;
+    border-radius: 4px;
+    padding: 10px 15px;
+    margin-top: 20px;
+    margin-bottom: 25px;
+    color: #316d9d;
+    font-size: 0.9em;
+    text-align: center;
+    margin-left: 50px;
+    margin-right: 50px;
+}
+
+.info-box strong {
+    color: #316d9d;
+}
+
+/* Act of Nature Section */
+.aon-section_ {
+    margin-top: 30px;
+    margin-bottom: 20px;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 50px;
+    margin-right: 50px;
+}
+
+.checkbox-group_ {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 0;
+}
+
+.aonConsent {
+    font-weight: normal;
+    color: #333;
+    font-size: 0.8em;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    line-height: 1.6;
+}
+
+.aonConsent input[type="checkbox"] {
+    margin-right: 10px;
+    margin-top: 3px;
+    transform: scale(1.0);
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+    align-self: flex-start;
+}
+
+.aonConsent input[type="checkbox"]:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.aonConsent input[type="checkbox"]:checked::after {
+    content: '\2713';
+    font-size: 14px;
+    color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.aon-disclaimer {
+    font-size: 0.8em;
+    color: #555;
+    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+    margin-top: 15px; /* Added margin for separation */
+}
+
+.aon-disclaimer input[type="checkbox"] {
+    margin-right: 8px;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #ccc;
+    background-color: #eee;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    position: relative;
+    top: 3px;
+}
+
+/* Style for when the checkbox is checked */
+.aon-disclaimer input[type="checkbox"]:checked {
+    background-color: #777;
+    border-color: #777;
+}
+
+/* Add a custom checkmark for better control */
+.aon-disclaimer input[type="checkbox"]:checked::before {
+    content: '\2713';
+    display: block;
+    color: white;
+    font-size: 12px;
+    text-align: center;
+    line-height: 14px;
+}
+
+/* Privacy Statement */
+.privacy-statement {
+    text-align: center;
+    font-size: 0.8em;
+    color: #888;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+/* Submit Button Container */
+.submit-button-container {
+    text-align: right;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    margin-left: 50px;
+    margin-right: 50px;
+}
+
+.get-quotation-button {
+    background-color: #000;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.get-quotation-button:hover {
+    background-color: #333;
+    transform: none;
+}
+
+.get-quotation-button:active {
+    background-color: #000;
+    transform: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Adjustments */
+
+/* Large tablets and small laptops */
+@media (max-width: 1200px) {
+    .form-section_,
+    .info-box,
+    .aon-section_,
+    .submit-button-container {
+        margin-left: 30px;
+        margin-right: 30px;
+    }
+    
+    .form-grid_,
+    .form-group {
+        gap: 20px 30px;
+    }
+    .insurance-quote-container h1 {
+        font-size: 2.1em;
+    }
+}
+
+/* Tablets */
+@media (max-width: 992px) {
+    .quote-container {
+        padding: 25px 30px;
+    }
+    
+    .insurance-quote-container h1 {
+        font-size: 2em;
+    }
+    
+    .form-section_,
+    .info-box,
+    .aon-section_,
+    .submit-button-container {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+    
+    .form-grid_,
+    .form-group {
+        gap: 18px 25px;
+    }
+    .section-des_ {
+        font-size: 0.8em;
+    }
+    .info-box {
+        font-size: 0.85em;
+    }
+}
+
+/* Small tablets and large phones */
+@media (max-width: 768px) {
+    /* If the top bar is fixed, add padding to the content-wrapper */
+    .content-wrapper {
+        padding-top: var(--top-bar-height, 0); /* Use CSS variable if you know top-bar height */
+    }
+    .quote-container {
+        padding: 20px 15px;
+        /* Reverting border-radius/shadow for now, you can add them back if desired */
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .insurance-quote-container h1 {
+        font-size: 1.8em;
+        text-align: center; /* Centering for smaller screens is usually good */
+    }
+    
+    .insurance-quote-container > p:first-of-type {
+        font-size: 0.95em;
+        text-align: center; /* Centering for smaller screens */
+    }
+
+    .form-section_,
+    .info-box,
+    .aon-section_,
+    .submit-button-container {
+        margin-left: 15px;
+        margin-right: 15px;
+    }
+
+    .form-grid_,
+    .form-group {
+        grid-template-columns: 1fr; /* Stack columns */
+        gap: 20px;
+    }
+
+    .aon-disclaimer {
+        max-width: 100%;
+        /* No flex-direction: column here, keep it row by default unless text is too long */
+        align-items: flex-start;
+    }
+    /* Removed specific margin-bottom for checkbox in aon-disclaimer for default row behavior */
+
+    .submit-button-container {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 15px;
+    }
+    
+    .get-quotation-button {
+        width: 100%;
+        max-width: 400px;
+        padding: 14px 25px;
+    }
+    .form-section_ h2 {
+        text-align: left; /* Keep left aligned unless specifically needing center */
+    }
+    .section-des_ {
+        text-align: left; /* Keep left aligned */
+    }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+    .quote-container {
+        padding: 15px 10px;
+    }
+
+    .insurance-quote-container h1 {
+        font-size: 1.5em;
+        line-height: 1.3;
+    }
+    
+    .insurance-quote-container > p:first-of-type {
+        font-size: 0.9em;
+        margin-bottom: 20px;
+    }
+
+    .form-section_,
+    .info-box,
+    .aon-section_,
+    .submit-button-container {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    
+    .form-section_ h2 {
+        font-size: 1em;
+    }
+
+    .checkbox-group_ {
+        flex-direction: row; /* Keep checkbox and label in a row */
+        align-items: flex-start;
+    }
+    .aonConsent {
+        font-size: 0.75em;
+        line-height: 1.5;
+        /* margin-bottom: 10px; */ /* Removed, might cause extra space */
+    }
+    
+    .aonConsent input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        min-width: 16px;
+        min-height: 16px;
+        margin-top: 2px;
+        margin-right: 8px;
+    }
+
+    .form-grid_ input,
+    .form-group input {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+
+    .info-box {
+        font-size: 0.85em;
+        padding: 10px 12px;
+        text-align: left;
+    }
+    
+    .aon-disclaimer,
+    .privacy-statement {
+        font-size: 0.75em;
+        text-align: left;
+    }
+
+    .get-quotation-button {
+        padding: 12px 20px;
+        font-size: 0.95em;
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+/* Extra small phones */
+@media (max-width: 360px) {
+    .quote-container {
+        padding: 10px 5px;
+    }
+    
+    .insurance-quote-container h1 {
+        font-size: 1.3em;
+        margin-bottom: 10px;
+    }
+    
+    .form-section_,
+    .info-box,
+    .aon-section_,
+    .submit-button-container {
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+    
+    .section-des_,
+    .form-grid_ label,
+    .form-group label {
+        font-size: 0.85em;
+    }
+    
+    .aonConsent {
+        font-size: 0.7em;
+        line-height: 1.4;
+    }
+    
+    .aonConsent input[type="checkbox"] {
+        width: 14px;
+        height: 14px;
+        min-width: 14px;
+        min-height: 14px;
+        margin-top: 1px;
+        margin-right: 8px;
+    }
+    
+    .form-grid_ input,
+    .form-group input {
+        padding: 8px;
+        font-size: 0.85em;
+    }
+    
+    .get-quotation-button {
+        padding: 10px 15px;
+        font-size: 0.9em;
+    }
+    .privacy-statement {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
 }
