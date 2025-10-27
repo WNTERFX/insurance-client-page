@@ -702,6 +702,7 @@
   font-weight: 600;
   color: #333;
   margin: 0;
+  padding-top: 15px;
 }
 
 /* Claimable Amount Display */
@@ -714,9 +715,10 @@
 
 .claimable-amount-display .label-heading {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   color: #333;
   margin: 0;
+  
 
 }
 
@@ -730,7 +732,6 @@
   border: 2px solid #28a745;
   min-width: 150px;
   text-align: center;
-  
 }
 
 /* When claimable amount is zero */

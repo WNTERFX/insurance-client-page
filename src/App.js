@@ -28,6 +28,7 @@ import Partners from './Partners';
 import AboutUs from './AboutUs';
 import Contact from './Contact';
 import CreateQuote from './CreateQuote';
+import QuoteInfo from './QuoteInfo';
 
 function App() {
   return (
@@ -44,7 +45,10 @@ function App() {
   <Route path="/insurance-client-page/Partners" element={<Partners />} />
   <Route path="/insurance-client-page/AboutUs" element={<AboutUs />} />
   <Route path="/insurance-client-page/Contact" element={<Contact />} />
-    <Route path="/insurance-client-page/CreateQuote" element={<CreateQuote />} />
+  <Route path="/insurance-client-page/CreateQuote" element={<CreateQuote />} />
+  <Route path="/insurance-client-page/QuoteInfo" element={<QuoteInfo />} />
+
+
   {/* Protected routes */}
   <Route element={<InvalidAuthRoute />}>
 

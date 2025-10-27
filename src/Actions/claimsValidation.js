@@ -51,12 +51,54 @@ export async function getPolicyClaims(policyId) {
   }
 }
 
+
+/**
+ * Check if policy is voided
+ */
+export async function checkPolicyVoidStatus(policyId) {
+  try {
+    const { data, error } = await db
+      .from("policy_Table")
+      .select("policy_status, void_reason, voided_date")
+      .eq("id", policyId)
+      .single();
+
+    if (error) {
+      console.error("❌ Error checking void status:", error);
+      return { isVoided: false, voidReason: null };
+    }
+
+    const isVoided = data?.policy_status === 'voided';
+    
+    return {
+      isVoided: isVoided,
+      voidReason: data?.void_reason || null,
+      voidedDate: data?.voided_date || null
+    };
+  } catch (err) {
+    console.error("❌ checkPolicyVoidStatus error:", err);
+    return { isVoided: false, voidReason: null };
+  }
+}
+
 /**
  * Validate if a new claim can be created for a policy
  */
 export async function validateNewClaim(policyId) {
   try {
     console.log(`🔍 Validating new claim for policy ${policyId}`);
+
+    // Rule 0: Check if policy is voided
+    const voidStatus = await checkPolicyVoidStatus(policyId);
+    if (voidStatus.isVoided) {
+      return {
+        canCreate: false,
+        reason: "This policy has been declared void, all claims under this policy are considered invalid",
+        claimableAmount: 0,
+        claimsCount: 0,
+        isVoided: true
+      };
+    }
 
     // Rule 1: Get claimable amount
     const { claimableAmount, currentValue } = await getPolicyClaimableAmount(policyId);
@@ -102,7 +144,7 @@ export async function validateNewClaim(policyId) {
       };
     }
 
-    // Rule 6: NEW RULE - Check for Approved claims that are NOT completed
+    // Rule 6: Check for Approved claims that are NOT completed
     const approvedNotCompleted = claims.find(
       c => c.status === 'Approved' && !c.completed_date
     );
@@ -148,6 +190,21 @@ export async function enrichPoliciesWithClaimData(policies) {
   try {
     const enrichedPolicies = await Promise.all(
       policies.map(async (policy) => {
+        // Check voided status first
+        const isVoided = policy.policy_status === 'Voided';
+        
+        if (isVoided) {
+          return {
+            ...policy,
+            claimableAmount: 0,
+            canCreateClaim: false,
+            claimValidationReason: "This policy has been declared void, all claims under this policy are considered invalid",
+            existingClaimsCount: 0,
+            isVoided: true
+          };
+        }
+
+        // If not voided, proceed with normal validation
         const validation = await validateNewClaim(policy.id);
         
         return {
@@ -155,7 +212,8 @@ export async function enrichPoliciesWithClaimData(policies) {
           claimableAmount: validation.claimableAmount,
           canCreateClaim: validation.canCreate,
           claimValidationReason: validation.reason,
-          existingClaimsCount: validation.claimsCount
+          existingClaimsCount: validation.claimsCount,
+          isVoided: false
         };
       })
     );

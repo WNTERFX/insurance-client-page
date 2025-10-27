@@ -4,8 +4,8 @@ import { Camera, FileText, Trash2, X } from 'lucide-react';
 import "../styles/claims-creation-styles-client.css";
 
 export default function ClientClaimsCreationForm({
-    incidentType,
-    setIncidentType,
+    incidentTypes, // Changed from incidentType to incidentTypes (array)
+    setIncidentTypes, // Changed setter
     selectPolicy,
     setSelectPolicy,
     description,
@@ -43,12 +43,6 @@ export default function ClientClaimsCreationForm({
         }
     }, [selectPolicy, errors.selectPolicy, setErrors]);
 
-    {/*useEffect(() => {
-        if (contactNumber && errors.contactNumber) {
-            setErrors(prev => ({ ...prev, contactNumber: false }));
-        }
-    }, [contactNumber, errors.contactNumber, setErrors]);*/}
-
     useEffect(() => {
         if (incidentDate && errors.incidentDate) {
             setErrors(prev => ({ ...prev, incidentDate: false }));
@@ -83,6 +77,17 @@ export default function ClientClaimsCreationForm({
         }).format(amount || 0);
     };
 
+    // Handle incident type checkbox toggle
+    const handleIncidentTypeToggle = (type) => {
+        if (incidentTypes.includes(type)) {
+            // Remove if already selected
+            setIncidentTypes(incidentTypes.filter(t => t !== type));
+        } else {
+            // Add if not selected
+            setIncidentTypes([...incidentTypes, type]);
+        }
+    };
+
     return (
         <div className="claims-container">
             <h1 className="form-header">File New Claims</h1>
@@ -110,8 +115,8 @@ export default function ClientClaimsCreationForm({
                             <label className="checkbox-container">
                                 <input
                                     type="checkbox"
-                                    checked={incidentType === 'Own Damage'}
-                                    onChange={() => setIncidentType('Own Damage')}
+                                    checked={incidentTypes.includes('Own Damage')}
+                                    onChange={() => handleIncidentTypeToggle('Own Damage')}
                                     disabled={loading}
                                 />
                                 Own Damage
@@ -119,8 +124,8 @@ export default function ClientClaimsCreationForm({
                             <label className="checkbox-container">
                                 <input
                                     type="checkbox"
-                                    checked={incidentType === 'Third-party'}
-                                    onChange={() => setIncidentType('Third-party')}
+                                    checked={incidentTypes.includes('Third-party')}
+                                    onChange={() => handleIncidentTypeToggle('Third-party')}
                                     disabled={loading}
                                 />
                                 Third-party
@@ -160,8 +165,7 @@ export default function ClientClaimsCreationForm({
                                 </small>
                             )}
                         </div>
-
-                        <div className="form-group date-input-wrapper">
+                             <div className="form-group date-input-wrapper">
                             <label className="label-heading">Incident Date *:</label>
                             <input
                                 type="date"
@@ -172,8 +176,7 @@ export default function ClientClaimsCreationForm({
                             />
                         </div>
                     </div>
-
-                    <div className="form-row">
+                     <div className="form-row">
                         {/*<div className="form-group">
                             <label className="label-heading">Location of Incident:</label>
                             <textarea
@@ -184,9 +187,8 @@ export default function ClientClaimsCreationForm({
                                 disabled={loading}
                             ></textarea>
                         </div>
-
-                        <div className="form-group">
-                            <label className="label-heading">Phone Number *:</label>
+                         <div className="form-group">
+                            <label className="label-heading">Phone Number: (Optional)</label>
                             <input
                                 type="tel"
                                 placeholder="Enter phone number"
@@ -196,32 +198,7 @@ export default function ClientClaimsCreationForm({
                                 disabled={loading}
                             />
                         </div>*/}
-
-                        <div className="form-group date-input-wrapper">
-                            <label className="label-heading">Claim Date *:</label>
-                            <input
-                                type="date"
-                                value={claimDate}
-                                onChange={(e) => setClaimDate(e.target.value)}
-                                style={errors.claimDate ? { borderColor: '#dc3545', boxShadow: '0 0 0 2px rgba(220, 53, 69, 0.2)' } : {}}
-                                disabled={loading}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="form-row">
-                       {/* <div className="form-group description-incident-group">
-                            <label className="label-heading">Description of Incident:</label>
-                            <textarea
-                                placeholder="Describe the incident in detail..."
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                className="description-textarea"
-                                disabled={loading}
-                            ></textarea>
-                        </div>*/}
-
-                        <div className="form-group right-column-inputs">
+                       <div className="form-group right-column-inputs">
                             <div className="input-pair">
                                 <label className="label-heading">Estimate Damage Amount *:</label>
                                 <input
@@ -234,8 +211,40 @@ export default function ClientClaimsCreationForm({
                                 />
                             </div>
                         </div>
+
+                        <div className="form-group date-input-wrapper">
+                            <label className="label-heading">Claim Date *:</label>
+                            <input
+                                type="date"
+                                value={claimDate}
+                                onChange={(e) => setClaimDate(e.target.value)}
+                                style={errors.claimDate ? { borderColor: '#dc3545', boxShadow: '0 0 0 2px rgba(220, 53, 69, 0.2)' } : {}}
+                                disabled={loading}
+                            />
+                        </div>
+
+                         <div className="form-group date-input-wrapper">
+    
+                        </div>
+                    </div>    
+                                <div className="form-row">
+                       {/* <div className="form-group description-incident-group">
+                            <label className="label-heading">Description of Incident:</label>
+                            <textarea
+                                placeholder="Describe the incident in detail..."
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                className="description-textarea"
+                                disabled={loading}
+                            ></textarea>
+                        </div>*/}
+
+ 
                     </div>
+
                 </div>
+
+                
 
                 <div className="form-section supporting-documents-section">
                     <h2 className="section-title-heading">Supporting Documents:</h2>
