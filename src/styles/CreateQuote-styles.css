@@ -1,86 +1,277 @@
+/* Quote Container */
 .quote-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
+  max-width: 1200px;
+  margin: 10px auto;
+  padding: 0 20px;
+}
+
+.insurance-quote-container {
+  background-color: #f5f5f5;
+  padding: 40px 60px;
+  border-radius: 8px;
+}
+
+.insurance-quote-container h1 {
+  font-size: 32px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+  text-align: left;
+}
+
+.insurance-quote-container > p {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 40px 0;
+  text-align: left;
+}
+
+/* Form Sections */
+.form-section_ {
+  background-color: white;
+  padding: 30px;
+  margin-bottom: 24px;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.form-section_ h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 6px 0;
+}
+
+.section-des_ {
+  font-size: 13px;
+  color: #666;
+  margin: 0 0 24px 0;
+}
+
+/* Form Grid Layout */
+.form-grid_ {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 24px;
+}
+
+.form-grid_ label {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
+  flex-direction: column;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+  gap: 8px;
 }
 
-/* Main Modal Box */
-.quote-content {
-  background: white;
-  padding: 30px 40px;
-  border-radius: 20px;
-  width: 95%;
-  max-width: 900px;
-  position: relative;
-  box-shadow: 0px 10px 25px rgba(0,0,0,0.3);
+.form-grid_ label .label-text {
+  display: block;
 }
 
-/* Close button (X) */
-.close-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: none;
-  border: none;
-  font-size: 22px;
+.form-grid_ label .label-text .required {
+  color: red;
+  margin-left: 2px;
+}
+
+.form-grid_ input {
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background-color: white;
+  transition: border-color 0.2s;
+}
+
+.form-grid_ input:focus {
+  outline: none;
+  border-color: #4a5568;
+}
+
+/* Vehicle Information Section */
+.form-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 24px;
+}
+
+.form-group label {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+  gap: 8px;
+}
+
+.form-group label .label-text {
+  display: block;
+}
+
+.form-group label .label-text .required {
+  color: red;
+  margin-left: 2px;
+}
+
+.form-group input {
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background-color: white;
+  transition: border-color 0.2s;
+}
+
+.form-group select {
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background-color: white;
+  transition: border-color 0.2s;
   cursor: pointer;
 }
 
-/* Title Section */
-.quote-content h2 {
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #4a5568;
+}
+
+/* AON Section - positioned next to seater field */
+.checkbox-group_ {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
   margin: 0;
-  font-size: 1.4rem;
-  font-weight: 700;
+  padding-top: 28px;
 }
 
-.quote-content p {
-  text-align: center;
-  margin: 10px 0 20px;
-  font-size: 1rem;
+.checkbox-group_ span {
+  font-size: 14px;
   font-weight: 500;
+  color: #1a1a1a;
+  white-space: nowrap;
 }
 
-/* Form Layout */
-.quote-form {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+.checkbox-group_ input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  margin: 0;
+  flex-shrink: 0;
 }
 
-/* Inputs */
-.quote-form input {
-  padding: 12px 14px;
-  border: 1px solid #d0d0d0;
-  border-radius: 8px;
-  background: #f0f3ff;
-  font-size: 0.95rem;
+/* Data Privacy Consent Section */
+.aon-section_ {
+
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+
 }
 
-/* Last field takes one full row */
-.quote-form input:nth-last-child(2) {
-  grid-column: span 3;
+.aon-disclaimer {
+  display: flex;
+  align-items: flex-start;
+  font-size: 13px;
+  color: #4a5568;
+  line-height: 1.6;
+  gap: 10px;
+  margin: 0;
+}
+
+.aon-disclaimer input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  margin-top: 2px;
+  flex-shrink: 0;
+  border: 1px solid #d1d5db;
+}
+
+.aon-disclaimer span {
+  flex: 1;
+}
+
+/* Info Box */
+/* Info Box */
+.info-box {
+    background-color: #e6f7ff;
+    border: 1px solid #91d5ff;
+    border-radius: 4px;
+    padding: 10px 15px;
+    margin-top: 20px;
+    margin-bottom: 25px;
+    color: #316d9d;
+    font-size: 0.9em;
+    text-align: center;
+    margin-left: 50px;
+    margin-right: 50px;
+}
+
+.info-box strong {
+    color: #316d9d;
+}
+
+/* Privacy Statement */
+.privacy-statement {
+  font-size: 13px;
+  color: #666;
+  text-align: center;
+  margin: 16px 0 32px 0;
 }
 
 /* Submit Button */
-.submit-btn {
-  grid-column: 3;
-  padding: 12px 20px;
-  border: none;
-  background: #4b2a75;
-  color: white;
-  font-weight: bold;
-  border-radius: 25px;
-  cursor: pointer;
-  justify-self: end;
+.submit-button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
 }
 
-.submit-btn:hover {
-  background: #3a2060;
+.get-quotation-button {
+  background-color: #1a1a1a;
+  color: white;
+  padding: 12px 32px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.get-quotation-button:hover {
+  background-color: #333;
+}
+
+/* Required asterisk styling */
+label::after {
+  content: '';
+}
+
+/* Add red asterisk to labels with * in text */
+.form-grid_ label:has(input)::before,
+.form-group label:has(input)::before {
+  content: '';
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .insurance-quote-container {
+    padding: 30px 20px;
+  }
+
+  .form-grid_,
+  .form-group {
+    grid-template-columns: 1fr;
+  }
+
+  .insurance-quote-container h1 {
+    font-size: 24px;
+  }
 }

@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import {
     getCurrentClient,
     fetchClientActivePolicies,
+    fetchClientVoidedPolicies, // NEW: Add this import
     createClientClaim,
 } from '../Actions/ClaimsActions';
 import { enrichPoliciesWithClaimData, validateNewClaim } from '../Actions/claimsValidation';
 import ClientClaimsCreationForm from '../ClientForms/ClientClaimsCreationForm'; 
 import DeleteConfirmationModal from '../ClientForms/DeleteConfirmationModal';
+import CustomAlertModal from '../ClientForms/CustomAlertModal';
 
 export default function ClientClaimsCreationController({ onCancel, onClaimCreated }) {
     const navigate = useNavigate();
@@ -16,7 +18,7 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
     const [loading, setLoading] = useState(false);
     const [selectedPolicyClaimableAmount, setSelectedPolicyClaimableAmount] = useState(0);
 
-    const [incidentType, setIncidentType] = useState('');
+    const [incidentTypes, setIncidentTypes] = useState([]);
     const [selectPolicy, setSelectPolicy] = useState('');
     const [description, setDescription] = useState('');
     const [contactNumber, setContactNumber] = useState('');
@@ -33,9 +35,16 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
     // Modal states
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [fileToDelete, setFileToDelete] = useState(null);
-    const [deleteType, setDeleteType] = useState(''); // 'photo' or 'document'
+    const [deleteType, setDeleteType] = useState('');
+    
+    // Alert modal state
+    const [alertModal, setAlertModal] = useState({
+        isOpen: false,
+        message: '',
+        title: 'Alert'
+    });
 
-    // Load current client and their policies
+    // Load current client and their policies (both active and voided)
     useEffect(() => {
         let mounted = true;
         async function load() {
@@ -45,17 +54,41 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
                 
                 if (!client) {
                     console.error("❌ No client found");
-                    alert("Unable to load client information. Please log in again.");
+                    setAlertModal({
+                        isOpen: true,
+                        message: 'Unable to load client information. Please log in again.',
+                        title: 'Error'
+                    });
                     return;
                 }
 
                 console.log("✅ Client loaded:", client);
 
-                const activePolicies = await fetchClientActivePolicies(client.uid);
-                console.log("✅ Active policies loaded:", activePolicies);
+                // Fetch both active and voided policies
+                const [activePolicies, voidedPolicies] = await Promise.all([
+                    fetchClientActivePolicies(client.uid),
+                    fetchClientVoidedPolicies(client.uid)
+                ]);
 
-                // Enrich policies with claimable amounts and validation
-                const enrichedPolicies = await enrichPoliciesWithClaimData(activePolicies);
+                console.log("✅ Active policies loaded:", activePolicies);
+                console.log("✅ Voided policies loaded:", voidedPolicies);
+
+                // Filter out expired active policies
+                const now = new Date();
+                const nonExpiredActivePolicies = activePolicies.filter(policy => {
+                    if (!policy.policy_expiry) return true;
+                    const expiryDate = new Date(policy.policy_expiry);
+                    return expiryDate >= now;
+                });
+
+                console.log(`✅ Filtered ${nonExpiredActivePolicies.length} non-expired active policies`);
+
+                // Combine active and voided policies
+                const allPolicies = [...nonExpiredActivePolicies, ...voidedPolicies];
+                console.log(`✅ Total policies to display: ${allPolicies.length}`);
+
+                // Enrich all policies with claim data
+                const enrichedPolicies = await enrichPoliciesWithClaimData(allPolicies);
                 console.log("✅ Policies enriched with claim data:", enrichedPolicies);
 
                 if (mounted) {
@@ -64,7 +97,11 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
                 }
             } catch (err) {
                 console.error("❌ Error loading client/policies:", err);
-                alert("Error loading data: " + err.message);
+                setAlertModal({
+                    isOpen: true,
+                    message: 'Error loading data: ' + err.message,
+                    title: 'Error'
+                });
             }
         }
         load();
@@ -97,12 +134,15 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
         console.log(`Selected ${files.length} photo(s)`);
         const filesArray = Array.from(files);
         
-        // Validate file types
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
         const invalidFiles = filesArray.filter(file => !validTypes.includes(file.type));
         
         if (invalidFiles.length > 0) {
-            alert(`Invalid file type(s): ${invalidFiles.map(f => f.name).join(', ')}\nPlease upload only images (JPG, PNG, GIF, WebP)`);
+            setAlertModal({
+                isOpen: true,
+                message: `Invalid file type(s): ${invalidFiles.map(f => f.name).join(', ')}\n\nPlease upload only images (JPG, PNG, GIF, WebP)`,
+                title: 'Invalid File Type'
+            });
             event.target.value = null;
             return;
         }
@@ -134,7 +174,6 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
         console.log(`Selected ${files.length} document(s)`);
         const filesArray = Array.from(files);
         
-        // Validate file types
         const validTypes = [
             'application/pdf',
             'application/msword',
@@ -144,7 +183,11 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
         const invalidFiles = filesArray.filter(file => !validTypes.includes(file.type));
         
         if (invalidFiles.length > 0) {
-            alert(`Invalid file type(s): ${invalidFiles.map(f => f.name).join(', ')}\nPlease upload only PDFs, Word documents, or text files`);
+            setAlertModal({
+                isOpen: true,
+                message: `Invalid file type(s): ${invalidFiles.map(f => f.name).join(', ')}\n\nPlease upload only PDFs, Word documents, or text files`,
+                title: 'Invalid File Type'
+            });
             event.target.value = null;
             return;
         }
@@ -186,15 +229,20 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
         setDeleteType('');
     };
 
+    const closeAlertModal = () => {
+        setAlertModal({
+            isOpen: false,
+            message: '',
+            title: 'Alert'
+        });
+    };
+
     const validateForm = () => {
         const newErrors = {};
 
         if (!selectPolicy) {
             newErrors.selectPolicy = true;
         }
-       {/* if (!contactNumber || contactNumber.trim() === '') {
-            newErrors.contactNumber = true;
-        }*/}
         if (!incidentDate) {
             newErrors.incidentDate = true;
         }
@@ -207,13 +255,32 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
 
         setErrors(newErrors);
         
-        if (!incidentType) {
-            alert('Please select a Type of Incident');
+        // Validate incident types
+        if (incidentTypes.length === 0) {
+            setAlertModal({
+                isOpen: true,
+                message: 'Please select at least one Type of Incident',
+                title: 'Alert'
+            });
+            return false;
+        }
+        
+        // Validate attachments
+        if (photos.length === 0 && documents.length === 0) {
+            setAlertModal({
+                isOpen: true,
+                message: 'There is no Attachment of Documents!',
+                title: 'Alert'
+            });
             return false;
         }
         
         if (Object.keys(newErrors).length > 0) {
-            alert('Please fill in all required fields');
+            setAlertModal({
+                isOpen: true,
+                message: 'Please fill in all required fields',
+                title: 'Alert'
+            });
             return false;
         }
         
@@ -234,20 +301,27 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
         // Validate if claim can be created for selected policy
         const validation = await validateNewClaim(parseInt(selectPolicy));
         if (!validation.canCreate) {
-            alert(`Cannot create claim:\n\n${validation.reason}`);
+            setAlertModal({
+                isOpen: true,
+                message: `Cannot create claim:\n\n${validation.reason}`,
+                title: 'Cannot Create Claim'
+            });
             return;
         }
 
         if (!currentClient) {
-            alert('Unable to identify current client. Please refresh and try again.');
+            setAlertModal({
+                isOpen: true,
+                message: 'Unable to identify current client. Please refresh and try again.',
+                title: 'Error'
+            });
             return;
         }
 
         console.log("✅ Form validation passed");
         console.log("📊 Form data:", {
             policyId: selectPolicy,
-            typeOfIncident: incidentType,
-          //  phoneNumber: contactNumber,
+            typeOfIncidents: incidentTypes,
             locationOfIncident: incidentLocation,
             incidentDate: incidentDate,
             claimDate: claimDate,
@@ -259,11 +333,13 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
         setLoading(true);
 
         try {
+            // Convert array to comma-separated string for storage
+            const typeOfIncident = incidentTypes.join(', ');
+
             const claimData = {
                 policyId: selectPolicy,
                 clientName: currentClient.first_Name,
-                typeOfIncident: incidentType,
-              //  phoneNumber: contactNumber,
+                typeOfIncident: typeOfIncident,
                 locationOfIncident: incidentLocation,
                 incidentDate: incidentDate,
                 claimDate: claimDate,
@@ -279,10 +355,9 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
             console.log('✅ Claim created successfully:', createdClaim);
             
             // Reset form after successful submission
-            setIncidentType('');
+            setIncidentTypes([]);
             setSelectPolicy('');
             setDescription('');
-           // setContactNumber('');
             setIncidentLocation('');
             setIncidentDate('');
             setClaimDate('');
@@ -305,7 +380,11 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
 
         } catch (error) {
             console.error('❌ Error submitting claim:', error);
-            alert('Failed to submit claim: ' + (error?.message || error));
+            setAlertModal({
+                isOpen: true,
+                message: 'Failed to submit claim: ' + (error?.message || error),
+                title: 'Error'
+            });
         } finally {
             setLoading(false);
         }
@@ -314,14 +393,12 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
     return (
         <>
             <ClientClaimsCreationForm
-                incidentType={incidentType}
-                setIncidentType={setIncidentType}
+                incidentTypes={incidentTypes}
+                setIncidentTypes={setIncidentTypes}
                 selectPolicy={selectPolicy}
                 setSelectPolicy={setSelectPolicy}
                 description={description}
                 setDescription={setDescription}
-                //contactNumber={contactNumber}
-                //setContactNumber={setContactNumber}
                 incidentLocation={incidentLocation}
                 setIncidentLocation={setIncidentLocation}
                 incidentDate={incidentDate}
@@ -349,6 +426,13 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
                 onClose={cancelDelete}
                 onConfirm={confirmDelete}
                 fileName={fileToDelete?.name}
+            />
+
+            <CustomAlertModal
+                isOpen={alertModal.isOpen}
+                onClose={closeAlertModal}
+                message={alertModal.message}
+                title={alertModal.title}
             />
         </>
     );
