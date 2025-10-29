@@ -1,4 +1,3 @@
-// PaymentFailure.jsx
 import { useNavigate } from 'react-router-dom';
 
 export default function PaymentFailure() {
@@ -9,19 +8,21 @@ export default function PaymentFailure() {
       <div style={{ fontSize: '64px', color: '#f44336' }}>✗</div>
       <h1 style={{ color: '#f44336' }}>Payment Failed</h1>
       <p>Unfortunately, your payment could not be processed.</p>
-      <button 
+
+      <button
         onClick={() => navigate('/insurance-client-page/main-portal/Balances')}
         style={{
-          padding: '12px 24px',
-          background: '#667eea',
+          marginTop: '20px',
+          backgroundColor: '#f44336',
           color: 'white',
           border: 'none',
-          borderRadius: '6px',
-          cursor: 'pointer',
-          marginTop: '20px'
+          padding: '10px 20px',
+          borderRadius: '5px',
+          fontSize: '16px',
+          cursor: 'pointer'
         }}
       >
-        Back to Balances
+        Go Back to Balances
       </button>
     </div>
   );
