@@ -58,17 +58,34 @@ export async function fetchClientActivePolicies(clientUid) {
   if (!clientUid) return [];
 
   try {
+    // Fetch all policies that are marked as active (includes void policies)
+    // policy_is_active = true means the policy record is active (not deleted/archived)
+    // policy_status can be 'Active', 'Void', etc.
     const { data, error } = await db
       .from("policy_Table")
-      .select("id, internal_id, policy_type, policy_inception, policy_expiry, policy_is_active, is_archived, partner_id")
+      .select(`
+        id, 
+        internal_id, 
+        policy_type, 
+        policy_inception, 
+        policy_expiry, 
+        policy_is_active, 
+        is_archived, 
+        partner_id,
+        policy_status,
+        void_reason,
+        voided_date
+      `)
       .eq("client_id", clientUid)
-      .eq("policy_is_active", true)
+      .eq("policy_is_active", true)  // This means "not deleted/archived"
       .or("is_archived.is.null,is_archived.eq.false");
 
     if (error) {
       console.error("❌ fetchClientActivePolicies error:", error.message);
       return [];
     }
+    
+    console.log("📋 Fetched policies (including void):", data);
     return data || [];
   } catch (err) {
     console.error("❌ fetchClientActivePolicies unexpected:", err);
@@ -377,5 +394,27 @@ export async function uploadAdditionalFiles(claimId, files) {
   } catch (err) {
     console.error("❌ uploadAdditionalFiles error:", err.message);
     throw err;
+  }
+}
+
+export async function fetchClientVoidedPolicies(clientId) {
+  try {
+    const { data, error } = await db
+      .from("policy_Table")
+      .select("*")
+      .eq("client_id", clientId)
+      .eq("policy_status", "voided")
+      .order("voided_date", { ascending: false });
+
+    if (error) {
+      console.error("❌ Error fetching voided policies:", error);
+      return [];
+    }
+
+    console.log(`✅ Fetched ${data?.length || 0} voided policies`);
+    return data || [];
+  } catch (err) {
+    console.error("❌ fetchClientVoidedPolicies error:", err);
+    return [];
   }
 }

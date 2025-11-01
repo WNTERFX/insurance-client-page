@@ -1,0 +1,263 @@
+/* Hero Section */
+.contact-page-hero {
+   position: relative;
+  height: 500px;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.hero-overlay-contact {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Adjust darkness of overlay */
+  z-index: 0;
+}
+
+.hero-content-contact {
+  text-align: center; /* Ensure content itself is centered */
+  color: white;
+  z-index: 1;
+  max-width: 800px; /* Limit width of text content */
+  padding: 20px; /* Add some padding around the text */
+}
+
+.hero-content-contact h1 {
+  font-size: 3.5rem; /* Larger font size for the heading */
+  margin-bottom: 1.5rem; /* More space below heading */
+  font-weight: bold; /* Make the heading bold */
+  animation: fadeInUp 0.8s ease;
+  padding-top: 0; /* Remove specific top padding here, let flexbox handle vertical centering */
+}
+
+.hero-content-contact p {
+  font-size: 1.3rem; /* Adjust paragraph font size */
+  line-height: 1.6; /* Improve readability */
+  margin-bottom: 0; /* No margin at the bottom of the paragraph */
+}
+
+/* Optional: Add a subtle text shadow for better readability on varied backgrounds */
+.hero-content-contact h1,
+.hero-content-contact p {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* Contact Info Section */
+.contact-info-section {
+  background-color: #f5f5f5;
+  padding: 4rem 2rem;
+}
+
+.contact-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  align-items: stretch;
+}
+
+/* Message Form Card */
+.message-form-card {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.message-form-card h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 1.5rem 0;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+}
+
+.form-input {
+  padding: 0.9rem 1.2rem;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #6b2d8f;
+}
+
+.form-textarea {
+  padding: 0.9rem 1.2rem;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 180px;
+  flex: 1;
+  transition: border-color 0.3s ease;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: #6b2d8f;
+}
+
+.submit-button {
+  padding: 0.9rem 2rem;
+  background-color: #6b2d8f;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+.submit-button:hover {
+  background-color: #5a2576;
+}
+
+/* Location Card */
+.location-card {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.location-card h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 1.5rem 0;
+}
+
+.map-container {
+  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  overflow: hidden;
+  flex: 1;
+  min-height: 300px;
+}
+
+.map-container iframe {
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+}
+
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  margin-top: auto;
+}
+
+.contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  color: #333;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.contact-icon {
+  font-size: 1.2rem;
+  color: #000000;
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .contact-container {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .footer {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .top-bar-container {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+  }
+  
+  .hero-content-contact h1 {
+    font-size: 2.5rem;
+  }
+  
+  .hero-content-contact p {
+    font-size: 1.1rem;
+  }
+  
+  .contact-info-section {
+    padding: 2rem 1rem;
+  }
+  
+  .message-form-card,
+  .location-card {
+    padding: 1.5rem;
+  }
+  
+  .map-container {
+    min-height: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-content-contact h1 {
+    font-size: 2rem;
+  }
+  
+  .hero-content-contact p {
+    font-size: 1rem;
+  }
+  
+  .company-name {
+    font-size: 1rem;
+  }
+  
+  .contact-container {
+    gap: 1.5rem;
+  }
+}

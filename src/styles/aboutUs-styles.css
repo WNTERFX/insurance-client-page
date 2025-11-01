@@ -1,0 +1,354 @@
+/* General Container */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Our Agency Hero Section */
+.ourAcency-page-hero {
+  position: relative;
+  height: 500px;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.hero-overlay-ourAcency {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+.hero-content-ourAcency {
+  position: relative;
+  z-index: 2;
+  color: white;
+  max-width: 1000px;
+  padding: 0 3rem;
+  width: 100%;
+}
+
+/* Hero Content Animations */
+.hero-content-ourAcency h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin: 0 0 3rem 0;
+  letter-spacing: 1px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.hero-content-ourAcency h1.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.2s;
+}
+
+.hero-content-ourAcency h2 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin: 0 0 2rem 0;
+  text-align: left;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.hero-content-ourAcency h2.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.4s;
+}
+
+.hero-content-ourAcency p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin: 0;
+  font-weight: 300;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.hero-content-ourAcency p.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.6s;
+}
+
+.hero-content-ourAcency h1,
+.hero-content-ourAcency p{
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* Corporate Tagline Section */
+.corporate-tagline-section {
+  background-color: #f5f5f5;
+  padding: 5rem 3rem;
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.corporate-tagline-section.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.corporate-tagline-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.corporate-tagline-container h1 {
+  color: #8b5ab8;
+  font-size: 3rem;
+  font-weight: 600;
+  margin-bottom: 3rem;
+  text-transform: capitalize;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+.corporate-tagline-container h2 {
+  color: #2c3e50;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 3rem;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.corporate-tagline-container p {
+  color: #555;
+  font-size: 1.05rem;
+  line-height: 1.9;
+  margin: 0;
+  text-align: left;
+}
+
+/* Mission and Vision Section */
+.mission-vision-section {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 5rem 2rem;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+
+.mission-visionoverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1;
+}
+
+.mission-visioncontent {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  color: white;
+}
+
+.mission-box {
+  margin-bottom: 4rem;
+}
+
+.mission-box h2 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.mission-box h2.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.2s;
+}
+
+.mission-box p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  font-weight: 300;
+  max-width: 700px;
+  margin: 0 auto;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.mission-box p.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.4s;
+}
+
+.vision-box {
+  margin-bottom: 0;
+}
+
+.vision-box h2 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.vision-box h2.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.6s;
+}
+
+.vision-box p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  font-weight: 300;
+  max-width: 700px;
+  margin: 0 auto;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.vision-box p.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.8s;
+}
+
+.mission-box h2,
+.mission-box p{
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .hero-content-ourAcency h1 {
+    font-size: 2.8rem;
+  }
+  
+  .hero-content-ourAcency h2 {
+    font-size: 2rem;
+  }
+  
+  .hero-content-ourAcency p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .ourAcency-page-hero {
+    height: auto;
+    padding: 3rem 1rem;
+  }
+  
+  .hero-content-ourAcency {
+    padding: 0 1.5rem;
+  }
+  
+  .hero-content-ourAcency h1 {
+    font-size: 2.2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .hero-content-ourAcency h2 {
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  .hero-content-ourAcency p {
+    font-size: 0.95rem;
+  }
+  
+  .corporate-tagline-section {
+    padding: 3rem 1.5rem;
+  }
+  
+  .corporate-tagline-container h2 {
+    font-size: 2rem;
+  }
+  
+  .corporate-tagline-container h3 {
+    font-size: 1.8rem;
+    text-align: center;
+  }
+  
+  .corporate-tagline-container p {
+    font-size: 0.95rem;
+  }
+  
+  .mission-vision-section {
+    padding: 3rem 1.5rem;
+  }
+  
+  .mission-box {
+    margin-bottom: 3rem;
+  }
+  
+  .mission-box h2,
+  .vision-box h2 {
+    font-size: 2rem;
+  }
+  
+  .mission-box p,
+  .vision-box p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-content-ourAcency h1 {
+    font-size: 1.8rem;
+  }
+  
+  .hero-content-ourAcency h2 {
+    font-size: 1.4rem;
+  }
+  
+  .hero-content-ourAcency p {
+    font-size: 0.9rem;
+  }
+  
+  .corporate-tagline-container h2 {
+    font-size: 1.6rem;
+  }
+  
+  .corporate-tagline-container h3 {
+    font-size: 1.5rem;
+  }
+  
+  .mission-box h2,
+  .vision-box h2 {
+    font-size: 1.7rem;
+  }
+  
+  .mission-box p,
+  .vision-box p {
+    font-size: 0.95rem;
+  }
+}

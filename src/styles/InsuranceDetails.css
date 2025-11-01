@@ -1,6 +1,7 @@
 /* Container */
 .InsuranceDetails-container {
   padding: 2rem;
+
 }
 
 /* Loading & Error */
@@ -30,8 +31,12 @@
 }
 
 /* Header */
+.insurance-header {
+  margin-bottom: 2rem;
+}
+
 .insurance-header h1 {
-  margin: 0 0 0.5rem 0;
+   margin: 0 0 0.5rem 0;
   color: #1f2937;
   font-size: 2rem;
 }
@@ -42,16 +47,6 @@
   font-size: 1.1rem;
 }
 
-/* Debug box */
-.debug-info {
-  background-color: #fff3cd;
-  border: 1px solid #ffeaa7;
-  border-radius: 4px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
-}
-
 /* Policy Card */
 .policy-card {
   background-color: #ffffff;
@@ -59,30 +54,33 @@
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  
 }
 
+/* Policy Header */
 .policy-header {
-  display: flex;
+ display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
   border-bottom: 2px solid #e5e7eb;
 }
 
 .policy-header h2 {
-  margin: 0 0 0.5rem 0;
-  color: #1f2937;
-  font-size: 1.5rem;
+  margin: 0 0 0.25rem 0;
+  color: #000000;
+  font-size: 1.75rem;
+  font-weight: 600;
 }
 
 .policy-header p {
   margin: 0;
-  color: #6b7280;
+  color: #9ca3af;
+  font-size: 0.95rem;
 }
 
 .policy-status {
-  padding: 0.5rem 1rem;
+ padding: 0.5rem 1rem;
   border-radius: 20px;
   font-size: 0.875rem;
   font-weight: 600;
@@ -98,82 +96,221 @@
   background-color: #fee2e2;
 }
 
-/* Policy Info & Computation */
-.policy-info,
-.policy-computation,
-.vehicle-details {
-  display: grid;
-  gap: 2rem;
+/* Policy Info Section */
+.policy-info {
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
   margin-bottom: 1.5rem;
 }
 
-.policy-info,
-.vehicle-info,
-.coverage-tax {
+.policy-info h3 {
+  margin: 0 0 1rem 0;
+  color: #000000;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.policy-info > div {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.policy-info > div > div {
   background-color: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 1rem;
 }
 
-.policy-info h3,
-.policy-computation h3,
-.vehicle-details h3
- {
-
-  color: #374151;
+.policy-info strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 0.75rem;
 }
-.vehicle-info h4,
-.coverage-tax h4,
-.coverage-tax h5{
+
+.policy-info > div > div:not(strong) {
+  color: #000000;
+  font-size: 1.125rem;
+  font-weight: 400;
+  text-align: center;
+}
+
+/* Policy Computation */
+.policy-computation {
+  display: inline-block;
+  width: 48%;
+  margin-right: 2%;
+  vertical-align: top;
+  margin-bottom: 2rem;
+}
+
+.policy-computation h3 {
   margin: 0 0 1rem 0;
+  color: #000000;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
-
 
 .computation-card {
   background-color: #fef3c7;
   border: 1px solid #f59e0b;
   border-radius: 8px;
-  padding: 1rem;
-
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
   font-size: 0.875rem;
 }
 
-.computation-card hr {
-  margin: 0.5rem 0;
-  border: none;
-  border-top: 1px solid #f59e0b;
+.computation-card > div {
+  display: flex;
+  flex-direction: column;
 }
 
+.computation-card strong {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 0.25rem;
+}
+
+.computation-card > div:not(:has(strong)) {
+  color: #000000;
+}
+
+.computation-card hr {
+  display: none;
+}
+
+.computation-card > div:last-child {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid #fbbf24;
+  margin-top: 0.5rem;
+}
+
+.computation-card > div:last-child strong {
+  font-size: 1rem;
+  color: #000000;
+  margin: 0;
+}
+
+.computation-card > div:last-child span {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #059669;
+}
+
+/* Vehicle Details */
+.vehicle-details {
+  display: inline-block;
+  width: 48%;
+  vertical-align: top;
+  margin-bottom: 2rem;
+}
+
+.vehicle-details > h3 {
+  margin: 0 0 1rem 0;
+  color: #000000;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* Vehicle Info */
 .vehicle-info {
   background-color: #f0f9ff;
   border: 1px solid #0284c7;
   border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  padding: 1.5rem;
+  
+  
 }
 
+.vehicle-info h4 {
+  margin: 0 0 1.25rem 0;
+  color: #000000;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.vehicle-info > div {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  font-size: 0.875rem;
+}
+
+.vehicle-info strong {
+  font-weight: 600;
+  color: #000000;
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+}
+
+.vehicle-info > div > div {
+  color: #000000;
+}
+
+/* Coverage Tax Section */
 .coverage-tax {
-  background-color: #f0fdf4;
-  border: 1px solid #16a34a;
-  border-radius: 8px;
-  padding: 1rem;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+.coverage-tax > h3 {
+  margin: 0 0 1rem 0;
+  color: #000000;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
 .coverage-tax .grid-three {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
 }
 
-/* Vehicle & Calculation Debug */
-.vehicle-debug {
-  background-color: #f0f0f0;
-  padding: 0.5rem;
-  font-size: 0.75rem;
-  margin-bottom: 1rem;
+.coverage-tax .grid-three > div {
+  background-color: #f0fdf4;
+  border: 1px solid #16a34a;
+  border-radius: 12px;
+  padding: 1.5rem;
 }
 
+.coverage-tax h5 {
+  margin: 0 0 1rem 0;
+  color: #000000;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.coverage-tax .grid-three > div > div {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+  color: #000000;
+}
+
+.coverage-tax .grid-three > div > div span:first-child {
+  font-weight: 400;
+}
+
+.coverage-tax .grid-three > div > div span:last-child {
+  font-weight: 600;
+}
 /* No data boxes */
 .no-data {
   background-color: #f3f4f6;
@@ -215,24 +352,77 @@
 }
 
 .summary .grid div {
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: 700;
 }
 
-
+/* Spinner */
 .spinner {
   display: inline-block;
   width: 18px;
   height: 18px;
   margin-left: 8px;
   border: 2px solid #ccc;
-  border-top: 2px solid #555; 
+  border-top: 2px solid #555;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
-  vertical-align: middle; 
+  vertical-align: middle;
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  /* Stack Policy Computation and Vehicle Details on tablets */
+  .policy-computation,
+  .vehicle-details {
+    display: block;
+    width: 100%;
+    margin-right: 0;
+  }
+  
+  .policy-info > div {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .computation-card {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .coverage-tax .grid-three {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .InsuranceDetails-container {
+    padding: 1rem;
+  }
+
+  .policy-card {
+    padding: 1.5rem;
+  }
+
+  .policy-info > div {
+    grid-template-columns: 1fr;
+  }
+
+  .computation-card {
+    grid-template-columns: 1fr;
+  }
+
+  .vehicle-info > div {
+    grid-template-columns: 1fr;
+  }
+
+  .summary .grid {
+    grid-template-columns: 1fr;
+  }
 }
