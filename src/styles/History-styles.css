@@ -1,81 +1,103 @@
+/* Add this to the top of your main CSS file */
+body {
+  margin: 0;
+}
+
+/* --- The rest of your styles --- */
+
 .history-container {
-  padding: 20px;
+  padding: 1rem;
   font-family: sans-serif;
-  background-color: #f5f5f5;
+  background-color: #f5f5f5; /* Your red background */
   min-height: 100vh;
+  /* margin-top: 0;  <-- This is good to have but won't fix the body margin */
 }
 
 .history-container h2 {
-  margin-bottom: 20px;
+  margin-top: 0; /* Correct */
+  margin-bottom: 0.5rem;
   color: #333;
+  font-size: 40px;
+  /* You can remove the padding-top, it's not needed for this fix */
+  /* padding-top: 1px; */
+}
+
+/* Container for search and filter controls */
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  gap: 5px;
+}
+
+.transaction-text {
+  font-weight: 500;
+  margin-right: 1rem;
+  white-space: nowrap;
 }
 
 .search-container {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  gap: 10px;
+  flex-grow: 1;
+  
 }
-
-.search-container input {
-  flex: 1;
-  max-width: 400px;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background-color: #fff;
+.search-container input[type="text"] {
   outline: none;
-  font-size: 14px;
+  width: 800px;
+  font-size: 1rem;
+  padding: 0.5rem;
+  border-radius: 5px;
 }
 
-.search-container input:focus {
-  border-color: #4a90e2;
-  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+
+.company-filter {
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  padding: 0.5rem;
+  background-color: #fff;
+  cursor: pointer;
+  width: 220px; /* Increased width to fit longer company names */
 }
 
-.results-count {
-  font-size: 14px;
-  color: #666;
-  white-space: nowrap;
+
+/* Table styles */
+.history-table {
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden; /* Ensures child borders don't poke out */
 }
 
+/* Grid layout for header and rows */
 .history-grid {
   display: grid;
-  grid-template-columns: 1.2fr 1.2fr 1.5fr 1.2fr 1.2fr;
-  gap: 10px;
-  margin-bottom: 2px;
+  grid-template-columns: repeat(5, 1fr); /* 5 equal columns */
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #dee2e6;
+  align-items: center;
+}
+
+/* Remove bottom border from the last item */
+.history-table > .history-grid:last-child {
+  border-bottom: none;
 }
 
 .history-grid.header {
   font-weight: bold;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  color: #495057;
+  background-color: #f8f9fa; /* Slightly different background for header */
 }
 
-.history-grid.header div {
-  background-color: #d3d3d3;
-  padding: 12px 8px;
-  border-radius: 4px;
-}
-
-.history-grid:not(.header) {
-  background-color: #fff;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.history-grid:not(.header):hover {
-  background-color: #f9f9f9;
-}
-
-.history-grid:not(.header) div {
-  padding: 12px 8px;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 4px;
+.no-results {
+    padding: 2rem;
+    text-align: center;
+    color: #6c757d;
 }
 
 .penalty-badge {
@@ -114,4 +136,40 @@
 .no-results {
   color: #666;
   font-size: 16px;
+}
+
+
+/* Pagination styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+.pagination button {
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  padding: 0.5rem 1rem;
+  margin: 0 0.25rem;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 1rem;
+  color: #6c757d;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #e9ecef;
+}
+
+.pagination button.active {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
+
+.pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
