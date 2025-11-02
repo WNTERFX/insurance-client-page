@@ -1,26 +1,30 @@
 .main-area {
   display: flex;
-  flex-direction: column;
   height: 100vh;
-  font-family: Arial, sans-serif;
+  width: 100%;
+  background-color: #F2F5FA;
 }
 
 .body-area {
   display: flex;
   flex: 1;
-  height: calc(100vh - 72px);
+  height: 100vh; /* Changed from calc(100vh - 72px) */
+  overflow: hidden;
 }
 
 .sidebar {
-  width: 300px;
+  width: 250px; /* Match your sidebar width */
   background-color: #fff;
-  border-right: 1px solid #ccc;
-  padding: 1rem 0;
+  border-right: 1px solid #e5e5e5;
+  padding: 0; /* Remove padding - let sidebar component handle it */
+  flex-shrink: 0; /* Prevent sidebar from shrinking */
+  overflow-y: auto; /* Allow sidebar to scroll if needed */
 }
 
 .content-area {
   flex: 1;
-  background-color: #f3f3f3;
-  padding: 2rem;
+  background-color: #F2F5FA;
+  padding: 0; /* Remove padding - let individual pages handle it */
   overflow-y: auto;
+  overflow-x: hidden;
 }

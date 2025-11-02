@@ -1,32 +1,138 @@
-.sidebar {
-  width: 250px;
-  background-color: white;
-  border-right: 1px solid #ccc;
-  padding-top: 20px;
+.body-area {
+  display: flex;
+  width: 100%;
   height: 100%;
+}
+
+.sidebar {
+  width: 260px;
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.sidebar-header {
+  padding: 1.5rem 1.25rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-container-client {
+  flex-shrink: 0;
+}
+
+.header-logo-client {
+  width: 78px;
+  height: 78px;
+  object-fit: cover;
+  border-radius: 20%;
+  border: 2px solid #402158; /* purple border */
+  background-color: #402158;
+  padding: 3px; /* inner spacing inside border */
+  margin-left: 10px;
+}
+
+
+
+.company-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.company-Name {
+  font-size: 1.245rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.company-Subtitle {
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 0.75rem;
+  flex: 1;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  padding: 12px 20px;
-  color: #333;
+  gap: 0.875rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.25rem;
+  border-radius: 0.5rem;
   text-decoration: none;
-  transition: background-color 0.2s ease;
-  font-size: x-large;
+  color: #6b7280;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .menu-item:hover {
-  background-color: #f0f0f0;
+  background-color: #f3f4f6;
+  color: #374151;
 }
 
-.menu-icon {
-  margin-right: 12px;
+
+.menu-item.active {
+  background-color: #f5f3ff;
+  color: #8b5cf6;
+}
+
+.menu-item .menu-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.menu-item span {
+  font-size: 0.9375rem;
 }
 
 .menu-item-bottom {
   margin-top: auto;
-  margin-bottom: 10px;
 }
+
+.content-area {
+  flex: 1;
+  margin-left: 260px;
+  background-color: #F2F5FA;
+  overflow-y: auto;
+  min-height: 100vh;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .content-area {
+    margin-left: 0;
+  }
+  
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
+  }
+}
+

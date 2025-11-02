@@ -1,5 +1,3 @@
-/* sign-in-styles.css */
-
 /* Page */
 .SignIn-page {
   min-height: 100vh;
@@ -21,14 +19,14 @@
   overflow: hidden;
 }
 
-/* Header section */
+/* Header section - RESTORED GRADIENT */
 .SignIn-header {
   background: linear-gradient(90deg, #9f8eb1 0%, #673b92 48%, #402158 100%);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 5px 28px;
+  padding: 10px 28px;
 }
 
 .header-SignIn-left {
@@ -76,12 +74,13 @@
   margin-top: 0;
 }
 
+/* Input styling - RESTORED */
 .SignIn-form input {
   padding: 0.8rem;
   border: 1px solid #ccc;
-  border-radius: 12px;
+  border-radius: 12px; /* Restored */
   font-size: 0.95rem;
-  background-color: #f3f5ff;
+  background-color: #f3f5ff; /* Restored */
   outline: none;
   transition: all 0.3s ease;
   margin-bottom: 0.75rem;
@@ -94,30 +93,38 @@
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
 }
 
+.required-star {
+    color: red;
+}
 
+/* Terms and Privacy Policy */
+.terms-container {
+  display: flex;
+  align-items: center;
+  margin: 0.5rem 0;
+}
 
-/* Terms and Privacy Policy - single line */
+.terms-container input[type="checkbox"] {
+  width: auto;
+  margin: 0 10px 0 0;
+  accent-color: #673b92;
+}
+
 .terms-text {
-  text-align: center;
   font-size: 0.85rem;
   color: #666;
-  margin: 0.1rem 0 0.1rem 0;
   line-height: 1.5;
+  margin: 0;
 }
 
 .terms-text a {
-  color: #7c3aed;
-  text-decoration: none;
+  color: #000000;
+  text-decoration: underline;
   font-weight: 500;
   transition: all 0.3s ease;
 }
 
-.terms-text a:hover {
-  text-decoration: underline;
-  color: #5b21b6;
-}
-
-/* Sign In button */
+/* Sign In button - RESTORED GRADIENT */
 .SignIn-form button[type="submit"] {
   width: 100%;
   padding: 12px;
@@ -136,61 +143,41 @@
   filter: brightness(1.08);
 }
 
-.SignIn-form button[type="submit"]:active:not(:disabled) {
-  filter: brightness(0.98);
-}
-
 .SignIn-form button[type="submit"]:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-/* Sign-in Controls - centered below button */
-.signin-controls {
+/* Login prompt - Styled to match image */
+.login-prompt {
   text-align: center;
   margin-top: 1rem;
   font-size: 0.9rem;
 }
 
-.signin-controls p {
-  display: inline;
+.login-prompt p {
   margin: 0;
   color: #666;
   font-size: 0.9rem;
 }
 
-.signin-controls a {
-  display: inline;
+.login-prompt a {
   margin-left: 5px;
-  color: #7c3aed;
-  text-decoration: none;
-  font-weight: 500;
+  color: #673b92; /* Changed to purple */
+  text-decoration: none; /* Removed underline */
+  font-weight: 600;
   transition: all 0.3s ease;
 }
 
-.signin-controls a:hover {
-  text-decoration: underline;
-  color: #5b21b6;
-}
-
-/* Responsive */
-@media (max-width: 480px) {
-  .SignIn-box {
-    width: 100%;
-  }
-
-  .header-SignIn-logo {
-    width: 70px;
-  }
-
-  .SignIn-form {
-    padding: 1.5rem 1.5rem;
-  }
+.login-prompt a:hover {
+    text-decoration: underline;
 }
 
 /* Password wrapper */
 .password-wrapper-client {
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .password-wrapper-client input {
@@ -201,12 +188,30 @@
 .eye-icon-client {
   position: absolute;
   right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 38px; /* Adjusted for better vertical alignment */
   cursor: pointer;
   color: black;
   font-size: 1.1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .SignIn-box {
+    width: 100%;
+    margin: 20px;
+  }
+  .SignIn-form {
+    padding: 1.5rem;
+  }
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #bd0211;
+  border: 1px solid #f5c2c7;
+  padding: 10px 10px;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  margin-top: 1px;
 }

@@ -167,38 +167,66 @@ export const getRecentPolicyAndClient = async () => {
 
 // NEW: Fetch insurance partner statistics for chart (ALL ACTIVE POLICIES FROM ALL CLIENTS)
 
+
 export const fetchBestInsurancePartners = async (month, year) => {
   try {
-    // Create date range for the selected month and year
     const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 0); // Last day of the month
-
-    // Format dates for PostgreSQL (YYYY-MM-DD)
+    const endDate = new Date(year, month, 0);
+    
     const startDateStr = startDate.toISOString().split('T')[0];
     const endDateStr = endDate.toISOString().split('T')[0];
 
-    // Fetch all insurance partners with their active policy counts
-    const { data: partnersData, error } = await db
-      .from('insurance_Partners')
-      .select(`
-        id,
-        insurance_Name,
-        policy_Table!policy_table_partner_id_fkey (
-          id,
-          policy_is_active,
-          policy_inception
-        )
-      `);
+    console.log('Calling RPC with dates:', startDateStr, endDateStr);
+
+    const { data, error } = await db
+      .rpc('get_best_insurance_partners', {
+        p_start_date: startDateStr,
+        p_end_date: endDateStr
+      });
 
     if (error) {
-      console.error('Error fetching insurance partners:', error);
+      console.error('RPC Error:', error);
       throw error;
     }
 
-    // Process the data to count active policies within the date range
+    console.log('RPC Response:', data);
+
+    // Check if data is null or empty
+    if (!data || data.length === 0) {
+      console.log('No data returned from RPC');
+      return {
+        data: [],
+        totalPolicies: 0
+      };
+    }
+
+    // Group by partner
+    const partnersMap = new Map();
+    
+    data.forEach(row => {
+      if (!partnersMap.has(row.partner_id)) {
+        partnersMap.set(row.partner_id, {
+          id: row.partner_id,
+          name: row.insurance_name,
+          policies: []
+        });
+      }
+      
+      if (row.policy_id) {
+        partnersMap.get(row.partner_id).policies.push({
+          id: row.policy_id,
+          policy_is_active: row.policy_is_active,
+          policy_inception: row.policy_inception
+        });
+      }
+    });
+
+    const partnersData = Array.from(partnersMap.values());
+
+    // Process the data
     const processedData = partnersData.map(partner => {
-      // Filter policies that are active and have inception date in the selected month/year
-      const activePolicies = partner.policy_Table.filter(policy => {
+      // Filter policies that are active and within the date range
+      const activePolicies = partner.policies.filter(policy => {
         if (!policy.policy_is_active || !policy.policy_inception) return false;
         
         const inceptionDate = new Date(policy.policy_inception);
@@ -207,23 +235,32 @@ export const fetchBestInsurancePartners = async (month, year) => {
 
       return {
         id: partner.id,
-        name: partner.insurance_Name,
+        name: partner.name,
         policyCount: activePolicies.length
       };
     });
 
-    // Calculate total policies
-    const totalPolicies = processedData.reduce((sum, partner) => sum + partner.policyCount, 0);
+    // Filter out partners with no policies in the date range
+    const filteredData = processedData.filter(partner => partner.policyCount > 0);
 
-    // Calculate percentages and format data
-    const formattedData = processedData.map(partner => ({
+    // If no partners have policies in this range, return empty
+    if (filteredData.length === 0) {
+      console.log('No policies found within date range');
+      return {
+        data: [],
+        totalPolicies: 0
+      };
+    }
+
+    const totalPolicies = filteredData.reduce((sum, partner) => sum + partner.policyCount, 0);
+
+    const formattedData = filteredData.map(partner => ({
       id: partner.id,
       name: partner.name,
       policyCount: partner.policyCount,
       percentage: totalPolicies > 0 ? (partner.policyCount / totalPolicies) * 100 : 0
     }));
 
-    // Sort by policy count in descending order
     formattedData.sort((a, b) => b.policyCount - a.policyCount);
 
     return {

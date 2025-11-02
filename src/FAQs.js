@@ -1,56 +1,19 @@
-import "./styles/aboutUs-styles.css";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import { Home, Info, Phone, Mail, MapPin, Users, Handshake } from 'lucide-react';
-import React, { useState, useEffect, useRef } from "react";
+import "./styles/faqs-styles.css";
+import FAQss from "./images/FAQs.png";
 
-import ourAcency from "./images/OurAgency.png";
-import missionvission from "./images/mission-vision.png";
-
+// TopBar Logo
 import SilverstarLOGO from "./images/SilverstarLOGO.png";
 import fb from "./images/fb.png";
 
-export default function AboutUs() {
-  const [menuOpen, setMenuOpen] = useState(false);
+export default function FAQs() {
   const navigate = useNavigate();
   const location = useLocation();
-  const observerRef = useRef(null);
-
-  useEffect(() => {
-    // Select elements to animate
-    const elementsToAnimate = document.querySelectorAll(
-      '.hero-content-ourAcency h1, .hero-content-ourAcency h2, .hero-content-ourAcency p, ' +
-      '.corporate-tagline-section, ' +
-      '.mission-box h2, .mission-box p, .vision-box h2, .vision-box p'
-    );
-
-    const observerOptions = {
-      root: null,
-      rootMargin: '0px',
-      threshold: 0.1
-    };
-
-    observerRef.current = new IntersectionObserver((entries, observer) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, observerOptions);
-
-    // Observe all elements
-    elementsToAnimate.forEach(element => {
-      observerRef.current.observe(element);
-    });
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-    };
-  }, []);
-
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -68,15 +31,50 @@ export default function AboutUs() {
     return location.pathname === path;
   };
 
+  // Toggle FAQ items
+  const toggleFaq = (index) => {
+    setOpenFaqIndex(openFaqIndex === index ? null : index);
+  };
+
+  const faqItems = [
+    {
+      question: "What types of vehicles do you insure?",
+      answer: "Silverstar Insurance Agency Inc. provides insurance for four-wheel vehicles, motorcycles, big bikes, cargo trucks, and delivery vehicles."
+    },
+    {
+      question: "What are the requirements to apply for car insurance?",
+      answer: "You'll need to provide your vehicle's official receipt (OR), certificate of registration (CR), and a valid government ID. Some cases may require a photo of the vehicle for documentation."
+    },
+    {
+      question: "How can I get a quotation for my vehicle?",
+      answer: "Simply submit your vehicle details (brand, model, and year) to any of our agents or through our web app. A quotation with complete premium computations and charges will be generated for you."
+    },
+    {
+      question: "How do I pay for my insurance policy?",
+      answer: "Once you agree with the quotation, you can complete your payment through our secure online payment system or visit our office to settle in person."
+    },
+    {
+      question: "How long does it take to process my policy?",
+      answer: "Processing usually takes one to two business days after payment confirmation. You will receive your policy details through email or SMS notifications once it's approved."
+    },
+    {
+      question: "How do I file an insurance claim?",
+      answer: "To file a claim, contact your assigned agent or visit our office. You'll be guided through the steps and required documents to ensure quick and smooth processing."
+    },
+    {
+      question: "Can I renew my car insurance online?",
+      answer: "Yes. Renewal reminders are automatically sent before your policy expires. You can update, renew, and pay online using your client account on the Silverstar web app."
+    }
+  ];
+
   return (
-    <div className="landing-page-container">
-      {/* TopBar */}
+    <div className="FAQs-container">
+      {/* Header */}
       <header className="top-bar-container">
         <div className="logo-container">
           <img src={SilverstarLOGO} alt="Logo" className="logo" />
           <p className="company-name">Silverstar Insurance Agency</p>
         </div>
-
         <button
           className="hamburger"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -84,7 +82,6 @@ export default function AboutUs() {
         >
           ☰
         </button>
-
         <nav className={`nav-links ${menuOpen ? "active" : ""}`}>
           <Link
             to="/insurance-client-page"
@@ -132,46 +129,31 @@ export default function AboutUs() {
       </header>
 
       {/* Hero Section */}
-      <section id="home" className="ourAcency-page-hero" style={{ backgroundImage: `url(${ourAcency})` }}>
-        <div className="hero-overlay-ourAcency"></div>
-        <div className="hero-content-ourAcency">
-          <h1>Our Agency</h1>
-          <h2>Who We Are</h2>
-          <p>
-            Silverstar Insurance Agency, established in 2013, specializes in providing reliable car insurance solutions.
-            As a dedicated intermediary, we connect clients with top insurance providers, ensuring that you find the best coverage
-            tailored to your unique needs. Our commitment to exceptional customer service helps simplify the insurance process,
-            making it easier for you to protect your vehicle.
-          </p>
+      <section className="faqs-hero-section"  style={{ backgroundImage: `url(${FAQss})` }}>
+        <div className="hero-overlay-faqs"></div>
+        <div className="hero-content-faqs">
+          <h1>FAQs</h1>
+          <p>Your most commonly asked questions answered</p>
         </div>
       </section>
 
-      {/* Corporate Tagline Section */}
-      <section className="corporate-tagline-section">
-        <div className="corporate-tagline-container">
-          <h1>Corporate Tagline</h1>
-          <h2>Connecting You to the Coverage You Deserve.</h2>
-          <p>
-            At Silverstar Insurance Agency, our tagline embodies our commitment to being a trusted intermediary in
-            the car insurance landscape. We prioritize your protection by diligently working to match you with the best
-            insurance solutions available. Our goal is to simplify the insurance experience, ensuring that you receive the
-            coverage you need while receiving support every step of the way.
-          </p>
-        </div>
-      </section>
-
-      {/* Mission and Vision Section */}
-      <section className="mission-vision-section" style={{ backgroundImage: `url(${missionvission})` }}>
-        <div className="mission-visionoverlay"></div>
-        <div className="mission-visioncontent">
-          <div className="mission-box">
-            <h2>Our Mission</h2>
-            <p>To empower our clients with comprehensive insurance solutions and unparalleled support, ensuring peace of mind on the road.</p>
-          </div>
-          <div className="vision-box">
-            <h2>Our Vision</h2>
-            <p>To be the preferred car insurance agency, recognized for our commitment to client satisfaction and innovative insurance solutions.</p>
-          </div>
+      {/* FAQ Section */}
+      <section className="faq-section">
+        <h2>Frequently Asked Questions</h2>
+        <div className="faq-items">
+          {faqItems.map((item, index) => (
+            <div
+              className={`faq-item ${openFaqIndex === index ? 'open' : ''}`}
+              key={index}
+              onClick={() => toggleFaq(index)}
+            >
+              <h3>{item.question}</h3>
+              <span>{openFaqIndex === index ? '-' : '+'}</span>
+              <p className="faq-answer">
+                {item.answer}
+              </p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -199,7 +181,7 @@ export default function AboutUs() {
           <h4>CATEGORIES</h4>
           <a href="/insurance-client-page">Home</a>
           <a href="/insurance-client-page/Partners">Partners</a>
-          <a href="#faq">FAQs</a>
+          <a href="/insurance-client-page/FAQs">FAQs</a>
           <a href="/insurance-client-page/AboutUs">About Us</a>
         </div>
 

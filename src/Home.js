@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback , useRef } from 'react';
 import { useNavigate } from "react-router-dom";
 import './styles/Home-styles.css';
 import { BarChart } from '@mui/x-charts/BarChart';
@@ -8,6 +8,9 @@ import { fetchPayments } from './Actions/BalanceActions';
 import { createPayMongoCheckout } from './Actions/PaymongoActions';
 import { getTotalPenalty } from './Actions/PenaltyActions';
 import { FaRegFileAlt, FaClipboardCheck , FaCalendarAlt, FaChartBar  } from "react-icons/fa";
+import { getCurrentClient } from "./Actions/PolicyActions";
+import { logoutClient } from "./Actions/LoginActions";
+import { FaBell, FaSignOutAlt, FaUserCircle } from "react-icons/fa";
 
 // Color scheme for insurance partners
 const COLOR_SCHEME = [
@@ -21,6 +24,11 @@ const COLOR_SCHEME = [
 ];
 
 export default function Home() {
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [currentUser, setCurrentUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const dropdownRef = useRef(null);
+
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -40,11 +48,14 @@ export default function Home() {
   const [processingPayment, setProcessingPayment] = useState(null);
   const [penalties, setPenalties] = useState({});
 
-  // NEW: State for all upcoming payments
+  // State for all payments (including paid ones) - for calendar display
+  const [allPayments, setAllPayments] = useState([]);
+  
+  // State for upcoming payments (unpaid, today and future only)
   const [upcomingPayments, setUpcomingPayments] = useState([]);
   const [loadingUpcoming, setLoadingUpcoming] = useState(true);
 
-  // NEW: State for Best Insurance Chart
+  // State for Best Insurance Chart
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [chartData, setChartData] = useState([]);
@@ -53,6 +64,68 @@ export default function Home() {
 
   const months = getMonths();
   const years = getAvailableYears();
+
+    // Load current user data
+    useEffect(() => {
+      async function loadCurrentUser() {
+        try {
+          const client = await getCurrentClient();
+          if (client) {
+            setCurrentUser(client);
+          }
+        } catch (error) {
+          console.error("Error loading user:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+      loadCurrentUser();
+    }, []);
+
+      useEffect(() => {
+        function handleClickOutside(event) {
+          if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            setDropdownOpen(false);
+          }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+          document.removeEventListener("mousedown", handleClickOutside);
+        };
+      }, []);
+    
+      const handleLogout = async () => {
+        console.log("Logging out...");
+        const result = await logoutClient();
+       
+        if (result.success) {
+          navigate("/insurance-client-page/");
+        } else {
+          console.error("Failed to log out:", result.error);
+          alert("Logout failed. Please try again.");
+        }
+      };
+
+        // Display name logic
+  const displayName = () => {
+    if (loading) return "Loading...";
+    if (!currentUser) return "User";
+    
+    const prefix = currentUser.prefix || "";
+    const firstName = currentUser.first_Name || "";
+    const lastName = currentUser.last_Name || "";
+    
+    // Combine name parts
+    if (prefix && firstName) {
+      return `${prefix} ${firstName}`;
+    } else if (firstName) {
+      return firstName;
+    } else if (lastName) {
+      return lastName;
+    } else {
+      return "User";
+    }
+  };
 
   // --- Fetching Functions with useCallback for Memoization ---
   const fetchClaimData = useCallback(async () => {
@@ -112,17 +185,59 @@ export default function Home() {
     }
   }, [currentPaymentPolicyIndex]);
 
-  // NEW: Fetch all upcoming payments for the upcoming section
+  // NEW: Fetch ALL payments (paid and unpaid) for calendar display
+  const fetchAllPayments = useCallback(async () => {
+    try {
+      const policies = await fetchPoliciesWithComputation();
+      if (policies && policies.length > 0) {
+        const allPaymentsList = [];
+        
+        for (const policy of policies) {
+          const payments = await fetchPayments(policy.id);
+          // Get ALL payments (both paid and unpaid)
+          payments.forEach(payment => {
+            allPaymentsList.push({
+              policyNumber: policy.internal_id,
+              amount: payment.amount_to_be_paid,
+              date: payment.payment_date,
+              policyId: policy.id,
+              paymentId: payment.id,
+              isPaid: payment.is_paid
+            });
+          });
+        }
+        
+        allPaymentsList.sort((a, b) => new Date(a.date) - new Date(b.date));
+        setAllPayments(allPaymentsList);
+      } else {
+        setAllPayments([]);
+      }
+    } catch (error) {
+      console.error("Error loading all payments:", error);
+    }
+  }, []);
+
+  // MODIFIED: Fetch only FUTURE unpaid payments for upcoming section
   const fetchUpcomingPayments = useCallback(async () => {
     setLoadingUpcoming(true);
     try {
       const policies = await fetchPoliciesWithComputation();
       if (policies && policies.length > 0) {
         const allUpcoming = [];
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
         
         for (const policy of policies) {
           const payments = await fetchPayments(policy.id);
-          const pendingPayments = payments.filter(p => !p.is_paid);
+          const pendingPayments = payments.filter(p => {
+            if (p.is_paid) return false; // Skip paid payments
+            
+            const paymentDate = new Date(p.payment_date);
+            paymentDate.setHours(0, 0, 0, 0);
+            
+            // Only include today and future dates
+            return paymentDate >= today;
+          });
           
           pendingPayments.forEach(payment => {
             allUpcoming.push({
@@ -148,7 +263,7 @@ export default function Home() {
     }
   }, []);
 
-  // NEW: Fetch Best Insurance Chart Data
+  // Fetch Best Insurance Chart Data
   const loadChartData = useCallback(async () => {
     try {
       setLoadingChart(true);
@@ -184,6 +299,10 @@ export default function Home() {
   }, [fetchAllPoliciesForPaymentSection]);
 
   useEffect(() => {
+    fetchAllPayments();
+  }, [fetchAllPayments]);
+
+  useEffect(() => {
     fetchUpcomingPayments();
   }, [fetchUpcomingPayments]);
 
@@ -200,15 +319,51 @@ export default function Home() {
     return new Date(year, month, 1).getDay();
   };
 
-  // NEW: Check if a date has a payment due
-  const hasPaymentOnDate = (day, month, year) => {
-    return upcomingPayments.some(payment => {
+  // NEW: Check if a date has ANY payment (paid or unpaid) - for showing on calendar
+  const hasAnyPaymentOnDate = useCallback((day, month, year) => {
+    return allPayments.some(payment => {
       const paymentDate = new Date(payment.date);
       return paymentDate.getDate() === day &&
              paymentDate.getMonth() === month &&
              paymentDate.getFullYear() === year;
     });
-  };
+  }, [allPayments]);
+
+  // MODIFIED: Check if a date has an UNPAID payment
+ const hasPaymentOnDate = useCallback((day, month, year) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  return allPayments.some(payment => {
+    const paymentDate = new Date(payment.date);
+    const dueDate = new Date(paymentDate);
+    dueDate.setHours(0, 0, 0, 0);
+    
+    return paymentDate.getDate() === day &&
+           paymentDate.getMonth() === month &&
+           paymentDate.getFullYear() === year &&
+           !payment.isPaid && // Must be unpaid
+           dueDate >= today; // Must be today or future (not overdue)
+  });
+}, [allPayments]);
+
+  // MODIFIED: Check if a date has an overdue UNPAID payment
+const hasOverduePaymentOnDate = useCallback((day, month, year) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  return allPayments.some(payment => {
+    const paymentDate = new Date(payment.date);
+    const dueDate = new Date(paymentDate);
+    dueDate.setHours(0, 0, 0, 0);
+    
+    return paymentDate.getDate() === day &&
+           paymentDate.getMonth() === month &&
+           paymentDate.getFullYear() === year &&
+           !payment.isPaid && // Must be unpaid
+           dueDate < today; // Must be overdue
+  });
+}, [allPayments]);
 
   const renderCalendarDays = () => {
     const year = currentDate.getFullYear();
@@ -223,30 +378,96 @@ export default function Home() {
 
     const days = [];
 
-    for (let i = 0; i < firstDay; i++) {
-      days.push(<div key={`empty-${i}`} className="calendar-date empty"></div>);
+    // Get previous month's last days
+    const prevMonth = month === 0 ? 11 : month - 1;
+    const prevYear = month === 0 ? year - 1 : year;
+    const daysInPrevMonth = getDaysInMonth(prevYear, prevMonth);
+    
+    // Add previous month's trailing days
+    for (let i = firstDay - 1; i >= 0; i--) {
+      const day = daysInPrevMonth - i;
+      const hasAnyPayment = hasAnyPaymentOnDate(day, prevMonth, prevYear);
+      const hasDuePayment = hasPaymentOnDate(day, prevMonth, prevYear);
+      const hasOverduePayment = hasOverduePaymentOnDate(day, prevMonth, prevYear);
+      
+      let className = 'calendar-date empty other-month';
+      if (hasOverduePayment) {
+        className += ' overdue-payment';
+      } else if (hasDuePayment) {
+        className += ' has-payment';
+      } else if (hasAnyPayment) {
+        className += ' paid-payment';
+      }
+      
+      days.push(
+        <div 
+          key={`prev-${day}`} 
+          className={className}
+          onClick={() => navigate("/insurance-client-page/main-portal/Home/CalendarWrapper")}
+        >
+          {day}
+        </div>
+      );
     }
 
+    // Current month days
     for (let i = 1; i <= daysInMonth; i++) {
       const isCurrentDay = (i === todayDay && month === todayMonth && year === todayYear);
+      const hasAnyPayment = hasAnyPaymentOnDate(i, month, year);
       const hasDuePayment = hasPaymentOnDate(i, month, year);
+      const hasOverduePayment = hasOverduePaymentOnDate(i, month, year);
       
-      const className = `calendar-date ${isCurrentDay ? 'current-day' : ''} ${hasDuePayment ? 'has-payment' : ''}`;
-      
-      if (hasDuePayment) {
-        days.push(
-          <div 
-            key={i} 
-            className={className}
-            onClick={() => navigate("/insurance-client-page/main-portal/Balances")}
-          >
-            {i}
-          </div>
-        );
-      } else {
-        days.push(<div key={i} className={className}>{i}</div>);
+      let className = `calendar-date ${isCurrentDay ? 'current-day' : ''}`;
+      if (hasOverduePayment) {
+        className += ' overdue-payment';
+      } else if (hasDuePayment) {
+        className += ' has-payment';
+      } else if (hasAnyPayment) {
+        className += ' paid-payment';
       }
+      
+      days.push(
+        <div 
+          key={i} 
+          className={className}
+          onClick={() => navigate("/insurance-client-page/main-portal/Home/CalendarWrapper")}
+        >
+          {i}
+        </div>
+      );
     }
+
+    // Add next month's starting days
+    const totalCells = days.length;
+    const remainingCells = 42 - totalCells; // 6 rows * 7 days
+    const nextMonth = month === 11 ? 0 : month + 1;
+    const nextYear = month === 11 ? year + 1 : year;
+    
+    for (let i = 1; i <= remainingCells; i++) {
+      const hasAnyPayment = hasAnyPaymentOnDate(i, nextMonth, nextYear);
+      const hasDuePayment = hasPaymentOnDate(i, nextMonth, nextYear);
+      const hasOverduePayment = hasOverduePaymentOnDate(i, nextMonth, nextYear);
+      
+      let className = 'calendar-date empty other-month';
+      if (hasOverduePayment) {
+        className += ' overdue-payment';
+      } else if (hasDuePayment) {
+        className += ' has-payment';
+      } else if (hasAnyPayment) {
+        className += ' paid-payment';
+      }
+      
+      days.push(
+        <div 
+          key={`next-${i}`} 
+          className={className}
+          onClick={() => navigate("/insurance-client-page/main-portal/Home/CalendarWrapper")}
+        >
+          {i}
+        </div>
+      );
+    }
+
     return days;
   };
 
@@ -285,7 +506,7 @@ export default function Home() {
     return days > 0 ? days : 0;
   }
 
-  // NEW: Group upcoming payments by month
+  // Group upcoming payments by month
   const groupPaymentsByMonth = () => {
     const grouped = {};
     upcomingPayments.forEach(payment => {
@@ -377,7 +598,7 @@ export default function Home() {
 
     return {
       xAxisData: chartData.map(item => item.name),
-      seriesData: chartData.map(item => item.percentage), // Use percentage for bar height
+      seriesData: chartData.map(item => item.percentage),
       colors: chartData.map((_, index) => COLOR_SCHEME[index % COLOR_SCHEME.length])
     };
   };
@@ -409,10 +630,39 @@ export default function Home() {
 
   return (
     <div className="dashboard-containerHome">
-      <div className="headermessage">
-        <h1>Welcome back, {recentPolicy?.name || 'User'}</h1>
-        <p>Your insurance details dashboard is ready.</p>
+<header className="topbar-client">
+  <div className="header-content">
+    <div className="header-left">
+      <h1 className="page-title">Dashboard</h1>
+      <p className="page-subtitle">Your insurance details dashboard is ready.</p>
+    </div>
+    
+    <div className="header-right">
+      <button className="notification-btn">
+        <FaBell className="notification-icon" />
+      </button>
+      
+      <div className="user-dropdown" ref={dropdownRef}>
+        <button
+          className="user-dropdown-toggle"
+          onClick={() => setDropdownOpen(!dropdownOpen)}
+        >
+          <span className="user-name">{displayName()}</span>
+          <FaUserCircle className="user-avatar-icon" />
+        </button>
+        
+        {dropdownOpen && (
+          <div className="dropdown-menu">
+            <button className="dropdown-item logout-item" onClick={handleLogout}>
+              <FaSignOutAlt className="dropdown-icon" />
+              <span>Log out</span>
+            </button>
+          </div>
+        )}
       </div>
+    </div>
+  </div>
+</header>
 
       <div className="grid-layout_H">
         <div className="left-main-section">
@@ -778,3 +1028,4 @@ export default function Home() {
     </div>
   );
 }
+

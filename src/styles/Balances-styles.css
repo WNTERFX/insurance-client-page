@@ -1,7 +1,17 @@
-/* Balances-styles.css - Enhanced Version */
+/* Balances-styles.css - Enhanced Version with Header */
 
+/* Balances Container */
 .balances-container {
-  padding: 2rem;
+  background-color: #F2F5FA;
+  font-family: 'Inter', sans-serif;
+  max-width: 100%;
+  overflow-x: hidden;
+  padding-bottom: 30px;
+  min-height: 100vh;
+}
+
+.balances-content {
+  padding: 0 2rem 2rem 1rem;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -154,7 +164,7 @@
 /* Schedule Styles */
 .schedule-row {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 2fr 1fr 1fr;
   gap: 1rem;
   padding: 12px 0;
   border-bottom: 1px solid #e1e8ed;
@@ -300,6 +310,19 @@
   width: fit-content;
 }
 
+.disabled-badge {
+  font-size: 11px;
+  background: #95a5a6;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  width: fit-content;
+}
+
 /* Pay Now Button */
 .pay-now-btn {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -337,10 +360,17 @@
   }
 }
 
-.pay-now-btn:disabled {
-  opacity: 0.7;
+.pay-now-btn:disabled,
+.pay-now-btn.disabled-btn {
+  opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+  background: #95a5a6;
+}
+
+.pay-now-btn.disabled-btn:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 /* Button Spinner */
@@ -353,42 +383,7 @@
   animation: spin 0.8s linear infinite;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .balances-container {
-    padding: 1rem;
-  }
-
-  .policy-section {
-    padding: 1rem;
-  }
-
-  .pending-header,
-  .pending-info {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .schedule-row {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .date-col {
-    align-items: flex-start;
-  }
-
-  .pay-now-btn {
-    width: 100%;
-    min-width: unset;
-  }
-
-  .balances-row {
-    flex-direction: column;
-    gap: 16px;
-  }
-}
-
+/* Schedule Amount Column */
 .schedule-amount-col {
   display: flex;
   flex-direction: column;
@@ -420,23 +415,230 @@
   font-weight: 700;
 }
 
-/* Update schedule-row to accommodate the new structure */
-.schedule-row {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
-  gap: 1rem;
-  padding: 12px 0;
-  border-bottom: 1px solid #e1e8ed;
-  align-items: center;
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .header-content {
+    max-width: 100%;
+    padding: 1.25rem 1.5rem 2rem 1.5rem;
+  }
+
+  .balances-content {
+    padding: 0 1.5rem 2rem 1.5rem;
+  }
+
+  .balances-row {
+    gap: 20px;
+  }
+
+  .schedule-row {
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .pending-header,
+  .pending-info {
+    grid-template-columns: 1.5fr 1fr 120px;
+    gap: 10px;
+  }
+
+  .pay-now-btn {
+    min-width: 120px;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
 }
 
 @media (max-width: 768px) {
+  .header-content {
+    padding: 1rem 1rem 1.5rem 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .header-left {
+    width: 100%;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .balances-content {
+    padding: 0 1rem 1rem 1rem;
+  }
+
+  .policy-section {
+    padding: 1rem;
+    border-radius: 8px;
+  }
+
+  .policy-title {
+    font-size: 1.1rem;
+  }
+
+  .balances-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .card-header,
+  .card h4 {
+    font-size: 15px;
+    padding: 8px;
+  }
+
   .schedule-row {
     grid-template-columns: 1fr;
     gap: 8px;
+    padding: 10px 0;
   }
 
+  .schedule-amount-col,
   .schedule-status-col {
     align-items: flex-start;
+  }
+
+  .schedule-base-amount,
+  .base-amount {
+    font-size: 15px;
+  }
+
+  .schedule-penalty-text,
+  .penalty-amount {
+    font-size: 12px;
+  }
+
+  .pending-header,
+  .pending-info {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 10px 8px;
+  }
+
+  .pending-header {
+    display: none;
+  }
+
+  .pending-info {
+    border: 1px solid #e1e8ed;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .payment-amount-col,
+  .date-col {
+    align-items: flex-start;
+  }
+
+  .date-col {
+    margin-top: 6px;
+  }
+
+  .pay-now-btn {
+    width: 100%;
+    min-width: unset;
+    margin-top: 8px;
+  }
+
+  .schedule-total,
+  .schedule-penalties {
+    font-size: 15px;
+    padding: 10px;
+  }
+
+  .user-dropdown-toggle {
+    padding: 0.4rem 0.6rem;
+  }
+
+  .user-name {
+    font-size: 0.9rem;
+  }
+
+  .user-avatar-icon {
+    font-size: 1.75rem;
+  }
+
+  .notification-icon {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-content {
+    padding: 0.875rem 0.875rem 1.25rem 0.875rem;
+  }
+
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .balances-content {
+    padding: 0 0.875rem 0.875rem 0.875rem;
+  }
+
+  .policy-section {
+    padding: 0.875rem;
+  }
+
+  .policy-title {
+    font-size: 1rem;
+  }
+
+  .card {
+    padding: 12px;
+  }
+
+  .card-header,
+  .card h4 {
+    font-size: 14px;
+  }
+
+  .schedule-base-amount,
+  .base-amount {
+    font-size: 14px;
+  }
+
+  .schedule-total,
+  .schedule-penalties {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .pay-now-btn {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .user-name {
+    font-size: 0.85rem;
+  }
+
+  .user-avatar-icon {
+    font-size: 1.5rem;
+  }
+
+  .overdue-badge,
+  .disabled-badge {
+    font-size: 10px;
+    padding: 3px 6px;
   }
 }

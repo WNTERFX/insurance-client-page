@@ -6,47 +6,23 @@ import { db } from "../dbServer";
  */
 export async function getCurrentClient() {
   try {
-    console.log("🔍 Step 1: Getting authenticated user...");
     const { data: { user }, error } = await db.auth.getUser();
     
-    if (error) {
-      console.error("❌ Auth error:", error);
-      throw error;
-    }
-    
-    if (!user) {
-      console.error("❌ No user session found");
-      throw new Error("No active session found");
-    }
+    if (error) throw error;
+    if (!user) throw new Error("No active session found");
 
-    console.log("✅ Authenticated user found:");
-    console.log("  - Email:", user.email);
-    console.log("  - Auth ID:", user.id);
-
-    console.log("🔍 Step 2: Querying clients_Table...");
     const { data, error: clientError } = await db
       .from("clients_Table")
       .select("uid, first_Name, family_Name, email, auth_id")
       .eq("auth_id", user.id)
       .maybeSingle();
 
-    if (clientError) {
-      console.error("❌ Database error:", clientError);
-      throw clientError;
-    }
-    
-    if (!data) {
-      console.error("❌ No client record found for auth_id:", user.id);
-      throw new Error("Client record not found in database");
-    }
-
-    console.log("✅ Client record found:");
-    console.log("  - UID:", data.uid);
-    console.log("  - Name:", data.first_Name, data.family_Name);
+    if (clientError) throw clientError;
+    if (!data) throw new Error("Client record not found in database");
 
     return data;
   } catch (err) {
-    console.error("❌ getCurrentClient error:", err.message);
+    console.error("getCurrentClient error:", err.message);
     return null;
   }
 }
@@ -58,9 +34,6 @@ export async function fetchClientActivePolicies(clientUid) {
   if (!clientUid) return [];
 
   try {
-    // Fetch all policies that are marked as active (includes void policies)
-    // policy_is_active = true means the policy record is active (not deleted/archived)
-    // policy_status can be 'Active', 'Void', etc.
     const { data, error } = await db
       .from("policy_Table")
       .select(`
@@ -77,18 +50,17 @@ export async function fetchClientActivePolicies(clientUid) {
         voided_date
       `)
       .eq("client_id", clientUid)
-      .eq("policy_is_active", true)  // This means "not deleted/archived"
+      .eq("policy_is_active", true)
       .or("is_archived.is.null,is_archived.eq.false");
 
     if (error) {
-      console.error("❌ fetchClientActivePolicies error:", error.message);
+      console.error("fetchClientActivePolicies error:", error.message);
       return [];
     }
     
-    console.log("📋 Fetched policies (including void):", data);
     return data || [];
   } catch (err) {
-    console.error("❌ fetchClientActivePolicies unexpected:", err);
+    console.error("fetchClientActivePolicies error:", err);
     return [];
   }
 }
@@ -100,41 +72,68 @@ async function uploadFilesToStorage(files, clientAuthId, claimId) {
   if (!files || files.length === 0) return [];
 
   const uploadedPaths = [];
+  const failedFiles = [];
 
-  for (const file of files) {
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    
     try {
-      const timestamp = Date.now();
-      const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-      const fileName = `${timestamp}_${sanitizedFileName}`;
-      const filePath = `${clientAuthId}/${claimId}/${fileName}`;
+      if (!file || !file.name) {
+        failedFiles.push(`File ${i} (invalid)`);
+        continue;
+      }
 
-      console.log(`📤 Uploading file: ${file.name} to ${filePath}`);
+      const timestamp = Date.now();
+      const randomStr = Math.random().toString(36).substring(2, 8);
+      const sanitizedFileName = file.name
+        .replace(/[^a-zA-Z0-9.-]/g, '_')
+        .replace(/_{2,}/g, '_');
+      
+      const fileName = `${timestamp}_${randomStr}_${sanitizedFileName}`;
+      const filePath = `${clientAuthId}/${claimId}/${fileName}`;
 
       const { data, error } = await db.storage
         .from('claim-documents')
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false
+          upsert: false,
+          contentType: file.type
         });
 
       if (error) {
-        console.error(`❌ Failed to upload ${file.name}:`, error.message);
+        console.error(`Upload failed for ${file.name}:`, error.message);
+        failedFiles.push(file.name);
         continue;
       }
 
-      console.log(`✅ File uploaded successfully: ${data.path}`);
-      
+      if (!data || !data.path) {
+        failedFiles.push(file.name);
+        continue;
+      }
+
+      const { data: urlData } = db.storage
+        .from('claim-documents')
+        .getPublicUrl(data.path);
+
       uploadedPaths.push({
         path: data.path,
+        url: urlData?.publicUrl || null,
         name: file.name,
+        originalName: file.name,
         size: file.size,
         type: file.type,
         uploadedAt: new Date().toISOString()
       });
+
     } catch (err) {
-      console.error(`❌ Error uploading ${file.name}:`, err);
+      console.error(`Error uploading ${file.name}:`, err.message);
+      failedFiles.push(file.name);
       continue;
     }
+  }
+
+  if (failedFiles.length > 0) {
+    console.warn(`Failed to upload ${failedFiles.length} file(s):`, failedFiles);
   }
 
   return uploadedPaths;
@@ -147,100 +146,72 @@ export async function createClientClaim({
   policyId,
   clientName,
   typeOfIncident,
-  //phoneNumber,
- // locationOfIncident,
   incidentDate,
   claimDate,
   claimAmount,
-  //descriptionOfIncident,
   photos,
   documents,
 }) {
   try {
-    console.log("📝 Creating client claim for policy:", policyId);
-
-    // Validate required fields
     if (!policyId) throw new Error("Policy ID is required");
     if (!typeOfIncident) throw new Error("Type of incident is required");
-   //if (!phoneNumber) throw new Error("Phone number is required");
     if (!incidentDate) throw new Error("Incident date is required");
     if (!claimDate) throw new Error("Claim date is required");
 
-    // Get current client
     const client = await getCurrentClient();
     if (!client) throw new Error("Unable to get current client");
     if (!client.auth_id) throw new Error("Client auth_id not found");
 
-    console.log("✅ Client auth_id:", client.auth_id);
-
-    // Prepare claim data with explicit created_at
     const now = new Date().toISOString();
     const claimData = {
-      policy_id: policyId,
+      policy_id: parseInt(policyId),
       type_of_incident: typeOfIncident,
-      //phone_number: phoneNumber,
-      //location_of_incident: locationOfIncident || null,
       incident_date: incidentDate,
       claim_date: claimDate,
       estimate_amount: parseFloat(claimAmount) || 0,
-      //description_of_incident: descriptionOfIncident || null,
       documents: [],
       status: 'Pending',
       is_approved: false,
-      created_at: now  // Explicitly set the created_at timestamp
+      created_at: now
     };
 
-    console.log("📊 Claim data to insert:", claimData);
-
-    // Insert claim into database
     const { data: claimRecord, error } = await db
       .from("claims_Table")
       .insert([claimData])
       .select()
       .single();
 
-    if (error) {
-      console.error("❌ Failed to insert claim:", error);
-      throw new Error("Failed to insert claim: " + error.message);
-    }
+    if (error) throw new Error("Failed to insert claim: " + error.message);
 
-    console.log("✅ Claim created successfully with ID:", claimRecord.id);
-
-    // Upload files if any
     const allFiles = [...(photos || []), ...(documents || [])];
 
     if (allFiles.length > 0) {
-      console.log(`📤 Uploading ${allFiles.length} file(s)...`);
-      
-      try {
-        const uploadedFiles = await uploadFilesToStorage(
-          allFiles, 
-          client.auth_id, 
-          claimRecord.id
-        );
+      const uploadedFiles = await uploadFilesToStorage(
+        allFiles, 
+        client.auth_id, 
+        claimRecord.id
+      );
 
-        if (uploadedFiles.length > 0) {
-          console.log(`✅ ${uploadedFiles.length} file(s) uploaded`);
+      if (uploadedFiles.length > 0) {
+        const { data: updatedClaim, error: updateError } = await db
+          .from("claims_Table")
+          .update({ documents: uploadedFiles })
+          .eq("id", claimRecord.id)
+          .select()
+          .single();
 
-          const { error: updateError } = await db
-            .from("claims_Table")
-            .update({ documents: uploadedFiles })
-            .eq("id", claimRecord.id);
-
-          if (updateError) {
-            console.error("❌ Failed to update claim with documents:", updateError.message);
-          } else {
-            console.log(`✅ ${uploadedFiles.length} file(s) linked to claim`);
-          }
+        if (updateError) {
+          console.error("Failed to update claim with documents:", updateError);
+          return claimRecord;
         }
-      } catch (uploadErr) {
-        console.error("❌ Error during file upload:", uploadErr);
+        
+        return updatedClaim;
       }
     }
 
     return claimRecord;
   } catch (err) {
-    console.error("❌ createClientClaim error:", err.message);
+    console.error("createClientClaim error:", err.message);
     throw err;
   }
 }
@@ -312,14 +283,9 @@ export async function fetchClientClaims(clientUid) {
 
     if (claimsError) throw claimsError;
 
-    console.log("📋 Fetched claims:", claims?.length || 0);
-    if (claims?.length > 0) {
-      console.log("📅 First claim created_at:", claims[0].created_at);
-    }
-
     return claims || [];
   } catch (err) {
-    console.error("❌ fetchClientClaims error:", err);
+    console.error("fetchClientClaims error:", err);
     return [];
   }
 }
@@ -337,7 +303,7 @@ export async function getClaimDocumentUrls(documents) {
         .createSignedUrl(doc.path, 3600);
 
       if (error) {
-        console.error(`❌ Failed to get signed URL for ${doc.path}:`, error.message);
+        console.error(`Failed to get signed URL for ${doc.path}:`, error.message);
         return null;
       }
 
@@ -346,7 +312,7 @@ export async function getClaimDocumentUrls(documents) {
         url: data.signedUrl
       };
     } catch (err) {
-      console.error(`❌ Error getting signed URL:`, err);
+      console.error("Error getting signed URL:", err);
       return null;
     }
   });
@@ -367,8 +333,6 @@ export async function uploadAdditionalFiles(claimId, files) {
     if (!client) throw new Error("Unable to get current client");
     if (!client.auth_id) throw new Error("Client auth_id not found");
 
-    console.log(`📤 Uploading ${files.length} additional file(s)...`);
-
     const { data: existingClaim, error: claimError } = await db
       .from("claims_Table")
       .select("documents")
@@ -379,24 +343,32 @@ export async function uploadAdditionalFiles(claimId, files) {
 
     const existingDocs = existingClaim.documents || [];
     const uploadedFiles = await uploadFilesToStorage(files, client.auth_id, claimId);
+
+    if (uploadedFiles.length === 0) {
+      throw new Error("No files were uploaded successfully");
+    }
+
     const updatedDocs = [...existingDocs, ...uploadedFiles];
 
-    const { error: updateError } = await db
+    const { data: updatedClaim, error: updateError } = await db
       .from("claims_Table")
       .update({ documents: updatedDocs })
-      .eq("id", claimId);
+      .eq("id", claimId)
+      .select()
+      .single();
 
     if (updateError) throw updateError;
 
-    console.log(`✅ Successfully added ${uploadedFiles.length} file(s)`);
-
     return uploadedFiles;
   } catch (err) {
-    console.error("❌ uploadAdditionalFiles error:", err.message);
+    console.error("uploadAdditionalFiles error:", err.message);
     throw err;
   }
 }
 
+/**
+ * Fetch voided policies for client
+ */
 export async function fetchClientVoidedPolicies(clientId) {
   try {
     const { data, error } = await db
@@ -407,14 +379,13 @@ export async function fetchClientVoidedPolicies(clientId) {
       .order("voided_date", { ascending: false });
 
     if (error) {
-      console.error("❌ Error fetching voided policies:", error);
+      console.error("Error fetching voided policies:", error);
       return [];
     }
 
-    console.log(`✅ Fetched ${data?.length || 0} voided policies`);
     return data || [];
   } catch (err) {
-    console.error("❌ fetchClientVoidedPolicies error:", err);
+    console.error("fetchClientVoidedPolicies error:", err);
     return [];
   }
 }

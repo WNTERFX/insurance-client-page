@@ -1,3 +1,4 @@
+// ClientDeliveryCreationController.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -7,11 +8,13 @@ import {
   fetchClientDeliveries,
 } from "../Actions/ClientDeliveryActions";
 import ClientDeliveryCreationForm from "../ClientForms/ClientDeliveryCreationForm";
+import { db } from "../dbServer";
 
 export default function ClientDeliveryCreationController({ onCancel, onDeliveryCreated }) {
   const navigate = useNavigate();
   const [policies, setPolicies] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [clientAddress, setClientAddress] = useState("");
 
   const [formData, setFormData] = useState({
     policyId: "",
@@ -26,6 +29,19 @@ export default function ClientDeliveryCreationController({ onCancel, onDeliveryC
       try {
         const client = await getCurrentClient();
         if (!client) return;
+
+        // Fetch client address from clients_Table in Supabase
+        const { data: clientData, error: clientError } = await db
+          .from('clients_Table')
+          .select('address')
+          .eq('uid', client.uid)
+          .single();
+
+        if (clientError) {
+          console.error("Error fetching client address:", clientError);
+        } else if (mounted && clientData) {
+          setClientAddress(clientData.address || "");
+        }
 
         const [activePolicies, deliveries] = await Promise.all([
           fetchClientActivePolicies(client.uid),
@@ -97,6 +113,7 @@ export default function ClientDeliveryCreationController({ onCancel, onDeliveryC
       onChange={handleChange}
       onSubmit={handleSubmit}
       onCancel={onCancel || (() => navigate("/appinsurance/ClientArea/Delivery"))}
+      clientAddress={clientAddress}
     />
   );
 }

@@ -62,6 +62,8 @@
   font-weight: 500;
   color: #1a1a1a;
   gap: 8px;
+  position: relative;
+  margin-bottom: 0;
 }
 
 .form-grid_ label .label-text {
@@ -71,6 +73,23 @@
 .form-grid_ label .label-text .required {
   color: red;
   margin-left: 2px;
+}
+
+.form-grid_ select{
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background-color: white;
+  transition: border-color 0.2s;
+  cursor: pointer;
+}
+
+.form-grid_  input:focus,
+.form-grid_  select:focus {
+  outline: none;
+  border-color: #4a5568;
 }
 
 .form-grid_ input {
@@ -88,6 +107,18 @@
   border-color: #4a5568;
 }
 
+/* Error message styling for form-grid */
+.form-grid_ label small {
+  position: absolute;
+  bottom: -18px;
+  left: 0;
+  color: #dc3545;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 1;
+}
+
 /* Vehicle Information Section */
 .form-group {
   display: grid;
@@ -102,6 +133,8 @@
   font-weight: 500;
   color: #1a1a1a;
   gap: 8px;
+  position: relative;
+  margin-bottom: 0;
 }
 
 .form-group label .label-text {
@@ -140,6 +173,18 @@
   border-color: #4a5568;
 }
 
+/* Error message styling for form-group */
+.form-group label small {
+  position: absolute;
+  bottom: -18px;
+  left: 0;
+  color: #dc3545;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 1;
+}
+
 /* AON Section - positioned next to seater field */
 .checkbox-group_ {
   display: flex;
@@ -164,15 +209,18 @@
   cursor: pointer;
   margin: 0;
   flex-shrink: 0;
+  accent-color: #2563eb;
+  appearance: checkbox;
+  -webkit-appearance: checkbox;
+  -moz-appearance: checkbox;
 }
 
 /* Data Privacy Consent Section */
 .aon-section_ {
-
   padding: 10px;
   margin-bottom: 20px;
   border-radius: 6px;
-
+  position: relative;
 }
 
 .aon-disclaimer {
@@ -192,13 +240,23 @@
   margin-top: 2px;
   flex-shrink: 0;
   border: 1px solid #d1d5db;
+  accent-color: #2563eb;
 }
 
 .aon-disclaimer span {
   flex: 1;
 }
 
-/* Info Box */
+/* Error message for data privacy */
+.aon-section_ small {
+  position: absolute;
+  bottom: -20px;
+  left: 10px;
+  color: #dc3545;
+  font-size: 12px;
+  font-weight: 500;
+}
+
 /* Info Box */
 .info-box {
     background-color: #e6f7ff;
@@ -249,17 +307,6 @@
   background-color: #333;
 }
 
-/* Required asterisk styling */
-label::after {
-  content: '';
-}
-
-/* Add red asterisk to labels with * in text */
-.form-grid_ label:has(input)::before,
-.form-group label:has(input)::before {
-  content: '';
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .insurance-quote-container {
@@ -273,5 +320,91 @@ label::after {
 
   .insurance-quote-container h1 {
     font-size: 24px;
+  }
+}
+
+/* Error state for inputs */
+input.error,
+select.error {
+  border-color: #dc3545 !important;
+  background-color: #fff5f5;
+}
+
+input.error:focus,
+select.error:focus {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Header with Cancel Button */
+.quote-header-with-cancel {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 20px;
+}
+
+.quote-header-text {
+  flex: 1;
+}
+
+.quote-header-text h1 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.quote-header-text p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.cancel-quote-button {
+  padding: 10px 24px;
+  background-color: white;
+  color: #dc2626;
+  border: 2px solid #dc2626;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+  min-width: 100px;
+}
+
+.cancel-quote-button:hover {
+  background-color: #dc2626;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+}
+
+.cancel-quote-button:active {
+  transform: translateY(0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .quote-header-with-cancel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cancel-quote-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .quote-header-text h1 {
+    font-size: 22px;
+  }
+
+  .cancel-quote-button {
+    padding: 12px 20px;
   }
 }

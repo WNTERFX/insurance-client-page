@@ -1,5 +1,5 @@
 import "./styles/contact-styles.css";
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import { Home, Info, Phone, Mail, MapPin, Users, Handshake } from 'lucide-react';
 import React, { useState, useEffect, useRef } from "react";
@@ -7,22 +7,27 @@ import React, { useState, useEffect, useRef } from "react";
 // TopBar Logo
 import SilverstarLOGO from "./images/SilverstarLOGO.png";
 import getInTouchWithUs from "./images/getInTouchWithUs.png";
+import fb from "./images/fb.png";
 
 export default function Contact() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
 
-    // Scroll to top when component mounts
-    useEffect(() => {
-      window.scrollTo(0, 0);
-    }, []);
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
-      // Function to handle navigation link clicks and scroll to top
+  // Function to handle navigation link clicks and scroll to top
   const handleNavClick = () => {
     setMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-
+  // Function to check if a nav link is active
+  const isActiveLink = (path) => {
+    return location.pathname === path;
+  };
 
   return (
     <div className="landing-page-container">
@@ -45,11 +50,48 @@ export default function Contact() {
 
         {/* Nav Links */}
         <nav className={`nav-links ${menuOpen ? "active" : ""}`}>
-          <Link to="/insurance-client-page" className="nav-link" onClick={handleNavClick}>Home</Link>
-          <Link to="/insurance-client-page/Partners" className="nav-link" onClick={handleNavClick}>Partners</Link>
-          <Link to="/insurance-client-page/AboutUs" className="nav-link" onClick={handleNavClick}>About Us</Link>
-          <Link to="/insurance-client-page/Contact" className="nav-link" onClick={handleNavClick}>Contact </Link>
-          <Link to="/insurance-client-page/login" className="login-button" onClick={handleNavClick}>Log in</Link>
+          <Link
+            to="/insurance-client-page"
+            className={`nav-link ${isActiveLink('/insurance-client-page') ? 'active' : ''}`}
+            onClick={handleNavClick}
+          >
+            Home
+          </Link>
+          <Link
+            to="/insurance-client-page/Partners"
+            className={`nav-link ${isActiveLink('/insurance-client-page/Partners') ? 'active' : ''}`}
+            onClick={handleNavClick}
+          >
+            Partners
+          </Link>
+          <Link
+            to="/insurance-client-page/FAQs"
+            className={`nav-link ${isActiveLink('/insurance-client-page/FAQs') ? 'active' : ''}`}
+            onClick={handleNavClick}
+          >
+            FAQs
+          </Link>
+          <Link
+            to="/insurance-client-page/AboutUs"
+            className={`nav-link ${isActiveLink('/insurance-client-page/AboutUs') ? 'active' : ''}`}
+            onClick={handleNavClick}
+          >
+            About Us
+          </Link>
+          <Link
+            to="/insurance-client-page/Contact"
+            className={`nav-link ${isActiveLink('/insurance-client-page/Contact') ? 'active' : ''}`}
+            onClick={handleNavClick}
+          >
+            Contact
+          </Link>
+          <Link
+            to="/insurance-client-page/login"
+            className="login-button"
+            onClick={handleNavClick}
+          >
+            Log in
+          </Link>
         </nav>
       </header>
 
@@ -119,26 +161,70 @@ export default function Contact() {
 
       {/* Footer */}
       <footer id="about" className="footer">
+        {/* Column 1: Company Info */}
         <div className="footer-column">
-          <h4>NAVIGATION</h4>
-          <a href="#home"><Home />Home</a>
-          <a href="#partners"><Handshake />Partners</a>
-          <a href="#about"><Info />About Us</a>
-          <Link to="/contact-us"><Phone />Contacts</Link>
+          <h4>Silverstar Insurance Agency Inc.</h4>
+          <p>
+            At Silverstar, we deliver car insurance with quality, protection, and
+            service you can trust.
+          </p>
+          <a
+            href="https://www.facebook.com/profile.php/?id=61576375235366"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footer-social-link"
+          >
+            <img src={fb} alt="Facebook Page" className="facebook-icon" />
+          </a>
         </div>
 
+        {/* Column 2: Categories */}
         <div className="footer-column">
-          <h4>CONTACT US</h4>
-          <p><MapPin />Shorthorn St, Project 8, Quezon City, Metro Manila</p>
-          <p><Phone />0927 408 8876</p>
-          <p><Mail />sia-mktg@gmail.com</p>
+          <h4>CATEGORIES</h4>
+          <a href="/insurance-client-page">Home</a>
+          <a href="/insurance-client-page/Partners">Partners</a>
+          <a href="#faq">FAQs</a>
+          <a href="/insurance-client-page/AboutUs">About Us</a>
         </div>
 
+        {/* Column 3: Reach Us */}
+        <div className="footer-column">
+          <h4>REACH US</h4>
+          <p>
+            <strong>Address:</strong> Room 210 2nd floor shorthorn street bahay toro
+            project 8 quezon city
+          </p>
+          <p>
+            <strong>Phone number:</strong> +63 2 7406 8176
+          </p>
+          <p>
+            <strong>Email:</strong> aira.mktg2@gmail.com
+          </p>
+          <p>
+            <strong>Office Hours:</strong> Monday - Saturday 8AM - 5PM
+          </p>
+        </div>
+
+        {/* Column 4: About Us */}
         <div className="footer-column">
           <h4>ABOUT US</h4>
           <p>
-            Silverstar Insurance Agency Inc. is a leading insurance provider dedicated to offering comprehensive and reliable coverage solutions. We pride ourselves on exceptional customer service and tailored policies that meet individual needs.
+            Silverstar Insurance Agency Inc. is a trusted insurance provider
+            established in 2013 and based in Project 8, Quezon City. The company
+            offers reliable vehicle insurance services for cars, motorcycles, and
+            cargo trucks, focusing on transparency, accuracy, and customer care to
+            ensure every client's peace of mind.
           </p>
+        </div>
+
+        {/* --- This creates the horizontal line and the bottom row --- */}
+        <div className="footer-bottom">
+          <hr className="footer-divider" />
+          <div className="footer-bottom-content">
+            <p>© 2025 Silverstar Insurance Agency Inc.</p>
+            <a href="#TermsandCondiiton">Terms and Condition</a>
+            <a href="#Privacy Policy">Privacy Policy</a>
+          </div>
         </div>
       </footer>
     </div>
