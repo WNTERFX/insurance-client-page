@@ -1,29 +1,45 @@
-/* Background covers full screen */
-.policy-delivery-page {
+/* Container */
+.policy-delivery-container {
+  background-color: #F2F5FA;
+  font-family: 'Inter', sans-serif;
+  max-width: 100%;
+  overflow-x: hidden;
+  padding-bottom: 30px;
   min-height: 100vh;
-  background: linear-gradient(180deg, #ede4f9 0%, #e2d9fa 100%);
-  padding: 3rem 5rem;
-  font-family: "Inter", sans-serif;
 }
 
-/* Header section */
+
+
+/* Content Wrapper */
+.delivery-content-wrapper {
+  padding: 0 2rem;
+}
+
+/* Header section - ALIGNED */
 .policy-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 2rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e5e7eb;
 }
 
-.policy-header h1 {
-  font-size: 2rem;
-  color: #1e1e1e;
-  margin-bottom: 0.4rem;
+.active-deliveries {
+  flex: 1;
 }
 
-.policy-header p {
-  color: #555;
-  font-size: 1rem;
-  margin-bottom: 2rem;
+.active-deliveries h4 {
+  font-size: 1.25rem;
+  color: #111827;
+  font-weight: 700;
+  margin: 0 0 0.25rem 0;
+}
+
+.active-deliveries p {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
 }
 
 .schedule-btn {
@@ -40,6 +56,7 @@
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(91, 59, 161, 0.3);
   transition: all 0.25s ease;
+  white-space: nowrap;
 }
 
 .schedule-btn:hover {
@@ -47,20 +64,255 @@
   transform: scale(1.03);
 }
 
-/* Subheader section */
-.active-deliveries {
-  margin-bottom: 1.5rem;
+.btn-icon {
+  font-size: 1rem;
 }
 
-.active-deliveries h4 {
-  font-size: 1.15rem;
-  color: #222;
+
+.loading-message {
+  font-size: 1.1rem;
+  color: #6b7280;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.no-delivery-text {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #6b7280;
+  padding: 3rem;
+  background: #ffffff;
+  border: 2px dashed #e5e7eb;
+  border-radius: 12px;
+  margin-top: 1rem;
+}
+
+/* Delivery List */
+.delivery-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+/* Delivery Card - Matching the image */
+.delivery-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.delivery-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Delivery Header */
+.delivery-header {
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 1rem;
+}
+
+.delivery-header h3 {
+  font-size: 1.1rem;
   font-weight: 600;
-  margin-bottom: 0.3rem;
+  color: #111827;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
-.active-deliveries p {
+.policy-num {
+  font-weight: 700;
+  color: #000000;
+}
+
+.status {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status-badge.scheduled {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.status-badge.delivered {
+  background: #c8f2cd;
+  color: #226b35;
+}
+
+/* Delivery Info Section */
+.delivery-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.delivery-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.delivery-info-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.delivery-info-label svg {
+  font-size: 1rem;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.delivery-info-value {
   font-size: 0.95rem;
-  color: #777;
+  color: #374151;
+  margin: 0;
+  padding-left: 1.5rem;
+  line-height: 1.5;
 }
 
+/* Address takes full width */
+.delivery-info-item.address-full {
+  grid-column: 1 / -1;
+}
+
+/* Modal Styles */
+.delivery-creation-modal-overlay-client {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 1rem;
+}
+
+.delivery-creation-modal-content-client {
+  background: white;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .delivery-content-wrapper {
+    padding: 0 1.5rem;
+  }
+  
+  .header-content {
+    padding: 1rem 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .delivery-content-wrapper {
+    padding: 0 1rem;
+  }
+
+  .header-content {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .policy-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .schedule-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .delivery-card {
+    padding: 1.25rem;
+  }
+
+  .delivery-info {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .delivery-info-value {
+    padding-left: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .header-right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .user-name {
+    display: none;
+  }
+  
+  .delivery-content-wrapper {
+    padding: 0 0.5rem;
+  }
+  
+  .delivery-card {
+    padding: 1rem;
+  }
+  
+  .delivery-header h3 {
+    font-size: 1rem;
+  }
+  
+  .delivery-info-label,
+  .delivery-info-value {
+    font-size: 0.85rem;
+  }
+}

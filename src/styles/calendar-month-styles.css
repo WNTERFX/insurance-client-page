@@ -1,0 +1,590 @@
+/* Calendar Full Page Container */
+.calendar-full-page {
+  background-color: #F2F5FA;
+  font-family: 'Inter', sans-serif;
+  max-width: 100%;
+  overflow-x: hidden;
+  padding-bottom: 30px;
+  min-height: 100vh;
+}
+
+/* Calendar Container */
+.calendar-full-container {
+  padding: 0 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* Calendar Navigation */
+.calendar-full-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.today-btn {
+  background-color: white;
+  border: 2px solid #007bff;
+  color: #007bff;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.today-btn:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.nav-btn-full {
+  background: white;
+  border: 2px solid #007bff;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #007bff;
+  padding: 8px 20px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+
+.nav-btn-full:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Calendar Grid */
+.calendar-full-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background-color: #ddd;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.calendar-full-day-header {
+  text-align: center;
+  font-weight: bold;
+  color: #333;
+  font-size: 1em;
+  padding: 15px 0;
+  background-color: #f8f9fa;
+}
+
+.calendar-full-date {
+  min-height: 130px;
+  background-color: white;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: background-color 0.2s ease;
+}
+
+.calendar-full-date.empty {
+  background-color: #fafafa;
+}
+
+.calendar-full-date.current-day {
+  background-color: #e7f3ff;
+}
+
+.date-number-full {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* Bold text for dates with payments */
+.calendar-full-date:has(.payment-card-full) .date-number-full {
+  font-weight: bold;
+}
+
+/* Red and bold for overdue dates */
+.calendar-full-date:has(.payment-card-full.overdue) .date-number-full {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.calendar-full-date.current-day .date-number-full {
+  color: #007bff;
+  font-weight: bold;
+  font-size: 1.2em;
+  text-align: left;
+  width: 100%;
+}
+
+/* Payment List */
+.payment-list-full {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-grow: 1;
+}
+
+/* Payment card wrapper */
+.payment-card-full-wrapper {
+  cursor: pointer;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  margin: 0;
+}
+
+.payment-card-full-wrapper:hover {
+  background-color: white;
+  border: 1px solid #5c8ff6;
+  padding: 0;
+  margin: 0;
+}
+
+/* Payment card background */
+.payment-card-full {
+  background-color: #f3f5f9;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 0.85em;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.payment-card-full:hover {
+  box-shadow: none;
+  transform: none;
+}
+
+.payment-card-full-wrapper:hover .payment-card-full {
+  background-color: white;
+  border: none;
+}
+
+.payment-card-full.overdue {
+  background-color: #f3f5f9;
+  border-color: #e0e0e0;
+}
+
+.payment-card-full.upcoming {
+  background-color: #f3f5f9;
+}
+
+.payment-info-full {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.payment-row-calendar {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.4;
+}
+
+.payment-label-full {
+  font-weight: 700;
+  color: #000;
+  font-size: 0.9em;
+}
+
+.payment-date-full {
+  font-weight: 400;
+  color: #333;
+  font-size: 0.95em;
+}
+
+.payment-date-full.overdue-text {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.payment-amount-full {
+  display: none;
+}
+
+.payment-policy-full {
+  color: #000000;
+  font-size: 0.95em;
+  margin-top: 2px;
+}
+
+/* Other month days (previous/next month) */
+.calendar-full-date.other-month {
+  background-color: #fafafa;
+  opacity: 0.5;
+}
+
+.calendar-full-date.other-month .date-number-full {
+  color: #999;
+}
+
+/* Dates with payments should be clickable */
+.calendar-full-date.has-payment {
+  cursor: default;
+}
+
+/* Current day circle styling */
+.date-number-full.current-day-circle {
+  background-color: #007bff;
+  color: white;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  font-weight: bold;
+}
+
+/* Overdue text styling - RED */
+.overdue-text {
+  color: #dc3545 !important;
+  font-weight: bold;
+}
+
+/* Loading spinner */
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ========== RESPONSIVE DESIGN ========== */
+
+/* Tablets and smaller laptops (769px - 1024px) */
+@media (max-width: 1024px) {
+  .calendar-full-container {
+    padding: 0 1.5rem;
+  }
+
+  .calendar-full-navigation {
+    margin-bottom: 1.5rem;
+  }
+
+  .today-btn {
+    padding: 8px 20px;
+    font-size: 15px;
+  }
+
+  .nav-btn-full {
+    padding: 6px 16px;
+    font-size: 1.4em;
+  }
+
+  .calendar-full-date {
+    min-height: 110px;
+    padding: 10px;
+  }
+
+  .date-number-full {
+    font-size: 1em;
+  }
+
+  .payment-card-full {
+    font-size: 0.8em;
+    padding: 8px;
+  }
+
+  .payment-label-full {
+    font-size: 0.85em;
+  }
+
+  .payment-date-full,
+  .payment-policy-full {
+    font-size: 0.9em;
+  }
+}
+
+/* Tablets portrait (481px - 768px) */
+@media (max-width: 768px) {
+  .calendar-full-container {
+    padding: 0 1rem;
+  }
+
+  .calendar-full-navigation {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+    margin-bottom: 1.5rem;
+  }
+
+  .today-btn {
+    width: 100%;
+    padding: 10px 16px;
+    font-size: 15px;
+  }
+
+  .nav-buttons {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .nav-btn-full {
+    flex: 1;
+    padding: 8px 16px;
+    font-size: 1.3em;
+  }
+
+  /* Switch to list view */
+  .calendar-full-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+  }
+
+  /* Hide day headers on mobile */
+  .calendar-full-day-header {
+    display: none;
+  }
+
+  /* Date styling for list view */
+  .calendar-full-date {
+    min-height: auto;
+    padding: 0;
+    background-color: transparent;
+    border: none;
+    margin-bottom: 20px;
+  }
+
+  .calendar-full-date.empty {
+    display: none;
+  }
+
+  .calendar-full-date.other-month {
+    display: none;
+  }
+
+  /* Date number as header */
+  .date-number-full {
+    font-size: 1.3em;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 12px;
+    padding-left: 0;
+    background-color: transparent;
+    text-align: left;
+  }
+
+  .calendar-full-date.current-day .date-number-full {
+    color: #000;
+    font-size: 1.3em;
+  }
+
+  /* Only show dates that have payments */
+  .calendar-full-date:not(:has(.payment-card-full)) {
+    display: none;
+  }
+
+  /* Payment cards with full border */
+  .payment-card-full-wrapper {
+    padding: 0;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    margin-left: 0;
+    margin-right: 0;
+    background-color: transparent;
+    transition: all 0.2s ease;
+  }
+
+  .payment-card-full-wrapper:hover {
+    background-color: white;
+    border: 1px solid #5c8ff6;
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .payment-card-full {
+    background-color: #f3f5f9;
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-size: 0.9em;
+    border: none;
+    transition: all 0.2s ease;
+  }
+
+  .payment-card-full-wrapper:hover .payment-card-full {
+    background-color: white;
+  }
+
+  .payment-list-full {
+    gap: 0;
+  }
+
+  .payment-label-full {
+    font-size: 0.75em;
+    color: #666;
+    font-weight: 400;
+    margin-bottom: 2px;
+  }
+
+  .payment-date-full,
+  .payment-policy-full {
+    font-size: 1em;
+    font-weight: 600;
+    color: #000;
+  }
+
+  .payment-info-full {
+    gap: 6px;
+  }
+
+  /* Overdue styling for list view */
+  .payment-card-full-wrapper:has(.overdue-text) {
+    border-color: #dc3545;
+  }
+
+  .date-number-full.current-day-circle {
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    background-color: transparent;
+    color: #000;
+    display: block;
+    margin: 0;
+  }
+}
+
+/* Mobile devices (up to 480px) */
+@media (max-width: 480px) {
+  .calendar-full-container {
+    padding: 0 0.75rem;
+  }
+
+  .calendar-full-navigation {
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+
+  .today-btn {
+    width: 100%;
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  .nav-buttons {
+    gap: 8px;
+  }
+
+  .nav-btn-full {
+    padding: 6px 14px;
+    font-size: 1.2em;
+  }
+
+  .date-number-full {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+  }
+
+  .payment-card-full {
+    padding: 10px 12px;
+    font-size: 0.85em;
+  }
+
+  .payment-label-full {
+    font-size: 0.7em;
+  }
+
+  .payment-date-full,
+  .payment-policy-full {
+    font-size: 0.95em;
+  }
+}
+
+/* Extra small devices (up to 360px) */
+@media (max-width: 360px) {
+  .calendar-full-container {
+    padding: 0 0.5rem;
+  }
+
+  .calendar-full-navigation {
+    margin-bottom: 0.75rem;
+  }
+
+  .today-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .nav-btn-full {
+    padding: 5px 12px;
+    font-size: 1.1em;
+  }
+
+  .date-number-full {
+    font-size: 1.1em;
+    margin-bottom: 8px;
+  }
+
+  .payment-card-full {
+    padding: 8px 10px;
+    font-size: 0.8em;
+  }
+
+  .payment-label-full {
+    font-size: 0.65em;
+  }
+
+  .payment-date-full,
+  .payment-policy-full {
+    font-size: 0.9em;
+  }
+}
+
+/* Touch device improvements */
+@media (hover: none) and (pointer: coarse) {
+  .today-btn,
+  .nav-btn-full {
+    min-height: 44px;
+  }
+
+  /* Keep default styles on touch devices - no hover effect */
+  .payment-card-full-wrapper:hover {
+    background-color: transparent;
+    border: 1px solid #e0e0e0;
+    box-shadow: none;
+  }
+
+  .payment-card-full-wrapper:hover .payment-card-full {
+    background-color: #f3f5f9;
+  }
+
+  .today-btn:hover {
+    background-color: white;
+    color: #007bff;
+  }
+
+  .nav-btn-full:hover {
+    background-color: white;
+    color: #007bff;
+  }
+}
+
+/* Landscape orientation for phones */
+@media (max-height: 600px) and (orientation: landscape) {
+  .calendar-full-navigation {
+    margin-bottom: 1rem;
+  }
+}

@@ -16,6 +16,14 @@ export default function QuoteInfo(){
   const [quotationNumber, setQuotationNumber] = useState('');
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
+  // Redirect if no form data
+  useEffect(() => {
+    if (!formData.firstName || !calculationData.totalPremium) {
+      console.warn('No form data found, redirecting to CreateQuote');
+      navigate('/insurance-client-page/CreateQuote');
+    }
+  }, [formData, calculationData, navigate]);
+
   // Generate quotation number on mount
   useEffect(() => {
     (async () => {
@@ -25,10 +33,21 @@ export default function QuoteInfo(){
   }, []);
 
   const handleBack = () => {
-    navigate(-1);
+    // Navigate back to CreateQuote with form data retained
+    navigate("/insurance-client-page/CreateQuote", {
+      state: {
+        formData: formData
+      }
+    });
   };
 
-  const handleDownloadPDF = async () => {
+  const handleDownloadPDF = async (e) => {
+    // Prevent any default behavior
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     if (isGeneratingPDF) return;
     
     setIsGeneratingPDF(true);
@@ -37,15 +56,21 @@ export default function QuoteInfo(){
       const result = await handleGenerateQuotePDF(formData, calculationData);
       
       if (result.success) {
-        console.log(" PDF generated successfully:", result.fileName);
-        // PDF is automatically downloaded by jsPDF
+        console.log("✅ PDF generated successfully:", result.fileName);
+        
+        // After successful PDF generation, navigate to CreateQuote with empty fields
+        setTimeout(() => {
+          navigate("/insurance-client-page/CreateQuote", {
+            replace: true // This replaces the current history entry
+          });
+        }, 500); // Small delay to ensure PDF download starts
       } else {
         alert("Failed to generate PDF: " + result.error);
+        setIsGeneratingPDF(false);
       }
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("Failed to generate PDF. Please try again.");
-    } finally {
       setIsGeneratingPDF(false);
     }
   };
@@ -60,10 +85,36 @@ export default function QuoteInfo(){
     }).format(amount || 0);
   };
 
-  // Format percentage helper
-  const formatPercentage = (value) => {
-    return `${value || 0}%`;
+  // Calculate amount from percentage and round to nearest whole number
+  const calculateFromPercentage = (percentage, baseAmount) => {
+    const result = (percentage / 100) * baseAmount;
+    return Math.round(result); // Round to nearest whole number
   };
+
+  // Get full name
+  const getFullName = () => {
+    return `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || '-';
+  };
+
+  // Get Make Model
+  const getMakeModel = () => {
+    return `${formData.make || ''} ${formData.model || ''}`.trim() || '-';
+  };
+
+  // Calculate tax amounts based on basic premium (rounded to 2 decimals)
+  const basicPremiumAmount = calculationData.basicPremium || 0;
+  const localGovTaxAmount = calculateFromPercentage(
+    calculationData.localGovTax || 0, 
+    basicPremiumAmount
+  );
+  const vatAmount = calculateFromPercentage(
+    calculationData.vatTax || 0, 
+    basicPremiumAmount
+  );
+  const docuStampAmount = calculateFromPercentage(
+    calculationData.docuStamp || 0, 
+    basicPremiumAmount
+  );
 
   return (
     <div className="quote-info-page">
@@ -102,13 +153,23 @@ export default function QuoteInfo(){
           {/* Current Insurance Information */}
           <section className="info-section">
             <h2>Current Insurance Information</h2>
-            <p className="section-description">Enter the registered owner's information</p>
+            <p className="section-description">Registered owner and vehicle information</p>
             
             <div className="info-box">
               <div className="info-grid">
                 <div className="info-item">
-                  <label>First Name, Last Name (Registered owner)</label>
-                  <span className="info-value">{formData.ownerName || '-'}</span>
+                  <label>First Name (Registered owner)</label>
+                  <span className="info-value">{formData.firstName || '-'}</span>
+                </div>
+                
+                <div className="info-item">
+                  <label>Last Name (Registered owner)</label>
+                  <span className="info-value">{formData.lastName || '-'}</span>
+                </div>
+                
+                <div className="info-item">
+                  <label>Address</label>
+                  <span className="info-value">{formData.address || '-'}</span>
                 </div>
                 
                 <div className="info-item">
@@ -117,8 +178,23 @@ export default function QuoteInfo(){
                 </div>
                 
                 <div className="info-item">
-                  <label>Vehicle Name</label>
-                  <span className="info-value">{formData.vehicleName || '-'}</span>
+                  <label>Email</label>
+                  <span className="info-value">{formData.email || '-'}</span>
+                </div>
+                
+                <div className="info-item">
+                  <label>Insurance Partner</label>
+                  <span className="info-value">{formData.partnerName || '-'}</span>
+                </div>
+                
+                <div className="info-item">
+                  <label>Make</label>
+                  <span className="info-value">{formData.make || '-'}</span>
+                </div>
+                
+                <div className="info-item">
+                  <label>Model</label>
+                  <span className="info-value">{formData.model || '-'}</span>
                 </div>
                 
                 <div className="info-item">
@@ -132,25 +208,15 @@ export default function QuoteInfo(){
                 </div>
                 
                 <div className="info-item">
-                  <label>Address</label>
-                  <span className="info-value">{formData.address || '-'}</span>
-                </div>
-                
-                <div className="info-item">
-                  <label>Email</label>
-                  <span className="info-value">{formData.email || '-'}</span>
+                  <label>Original Value of Vehicle</label>
+                  <span className="info-value">
+                    {formData.originalValue ? formatCurrency(parseFloat(formData.originalValue)) : '-'}
+                  </span>
                 </div>
                 
                 <div className="info-item">
                   <label>Vehicle Year</label>
                   <span className="info-value">{formData.vehicleYear || '-'}</span>
-                </div>
-                
-                <div className="info-item">
-                  <label>Original Value of Vehicle</label>
-                  <span className="info-value">
-                    {formData.originalValue ? formatCurrency(parseFloat(formData.originalValue)) : '-'}
-                  </span>
                 </div>
               </div>
             </div>
@@ -207,17 +273,17 @@ export default function QuoteInfo(){
               
               <div className="calc-row">
                 <span className="calc-label">Local Government Tax:</span>
-                <span className="calc-value">{formatPercentage(calculationData.localGovTax)}</span>
+                <span className="calc-value">{formatCurrency(localGovTaxAmount)}</span>
               </div>
               
               <div className="calc-row">
                 <span className="calc-label">VAT:</span>
-                <span className="calc-value">{formatPercentage(calculationData.vatTax)}</span>
+                <span className="calc-value">{formatCurrency(vatAmount)}</span>
               </div>
               
               <div className="calc-row">
                 <span className="calc-label">Documentary Stamp:</span>
-                <span className="calc-value">{formatPercentage(calculationData.docuStamp)}</span>
+                <span className="calc-value">{formatCurrency(docuStampAmount)}</span>
               </div>
               
               {formData.withAON && (
@@ -243,6 +309,7 @@ export default function QuoteInfo(){
           {/* PDF Download Button */}
           <div className="download-section">
             <button 
+              type="button"
               className="download-button"
               onClick={handleDownloadPDF}
               disabled={isGeneratingPDF}

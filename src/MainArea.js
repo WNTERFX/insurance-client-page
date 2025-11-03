@@ -6,7 +6,7 @@ export default function MainArea()
 {
     return(
        <div className="main-area">
-      <Topbar_client />
+    {/*  <Topbar_client />*/}
       <div className="body-area">
         <Sidebar />
         <div className="content-area">

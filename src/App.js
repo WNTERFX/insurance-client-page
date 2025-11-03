@@ -29,6 +29,9 @@ import AboutUs from './AboutUs';
 import Contact from './Contact';
 import CreateQuote from './CreateQuote';
 import QuoteInfo from './QuoteInfo';
+import FAQs from './FAQs';
+
+import CalendarWrapper from './ClientForms/CalendarWrapper';
 
 function App() {
   return (
@@ -47,13 +50,16 @@ function App() {
   <Route path="/insurance-client-page/Contact" element={<Contact />} />
   <Route path="/insurance-client-page/CreateQuote" element={<CreateQuote />} />
   <Route path="/insurance-client-page/QuoteInfo" element={<QuoteInfo />} />
+  <Route path="/insurance-client-page/FAQs" element={<FAQs />} />
+  
 
-
+   
   {/* Protected routes */}
   <Route element={<InvalidAuthRoute />}>
 
     <Route path="/insurance-client-page/main-portal" element={<MainArea />}>
       <Route path="Home" element={<Home />} />
+      <Route path="Home/CalendarWrapper" element={<CalendarWrapper />} />
       <Route path="InsuranceDetails" element={<InsuranceDetails />} />
       <Route path="DueDates" element={<DueDates />} />
       <Route path="Balances" element={<Balances />} />

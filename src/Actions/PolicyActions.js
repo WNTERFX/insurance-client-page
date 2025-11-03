@@ -66,8 +66,10 @@ export async function fetchPoliciesWithComputation() {
           vehicle_name,
           plate_num,
           vin_num,
+          vehicle_maker,
           vehicle_year,
           vehicle_type_id,
+          engine_serial_no,
           calculation_Table:vehicle_type_id (
             id,
             vat_Tax,

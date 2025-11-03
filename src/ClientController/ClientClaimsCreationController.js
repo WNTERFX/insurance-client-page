@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     getCurrentClient,
     fetchClientActivePolicies,
-    fetchClientVoidedPolicies, // NEW: Add this import
+    fetchClientVoidedPolicies,
     createClientClaim,
 } from '../Actions/ClaimsActions';
 import { enrichPoliciesWithClaimData, validateNewClaim } from '../Actions/claimsValidation';
@@ -240,6 +240,11 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
     const validateForm = () => {
         const newErrors = {};
 
+        // Validate incident types
+        if (incidentTypes.length === 0) {
+            newErrors.incidentTypes = true;
+        }
+        
         if (!selectPolicy) {
             newErrors.selectPolicy = true;
         }
@@ -255,7 +260,7 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
 
         setErrors(newErrors);
         
-        // Validate incident types
+        // Show alert for incident types
         if (incidentTypes.length === 0) {
             setAlertModal({
                 isOpen: true,

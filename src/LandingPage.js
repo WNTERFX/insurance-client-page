@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import "./styles/landing-page-styles.css";
 import CreateQuote from "./CreateQuote";
 import { useNavigate } from "react-router-dom";
@@ -29,6 +29,7 @@ import reliableProtectionIcon from "./images/reliable-protection.png";
 import SilverstarLOGO from "./images/SilverstarLOGO.png";
 
 import { Home, Info, Phone, Mail, MapPin, Users, Handshake } from 'lucide-react';
+import fb from "./images/fb.png";
 
 
 export default function LandingPage() {
@@ -37,9 +38,10 @@ export default function LandingPage() {
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
   const observerRef = useRef(null);
-  const faqAnswerRefs = useRef([]); 
+  const faqAnswerRefs = useRef([]);
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -96,13 +98,13 @@ export default function LandingPage() {
 
     // Observe the partner logos container specifically
     if (partnerLogosContainer) {
-        observerRef.current.observe(partnerLogosContainer);
+      observerRef.current.observe(partnerLogosContainer);
     }
 
     // Also observe the top bar (if it has an animation)
     const topBar = document.querySelector('.top-bar-container');
     if (topBar) {
-        observerRef.current.observe(topBar);
+      observerRef.current.observe(topBar);
     }
 
 
@@ -149,31 +151,36 @@ export default function LandingPage() {
   ];
 
   const companyPartners = [
-      { name: "Standard Insurance", logo: standard, url: "https://www.standard-insurance.com/" },
-      { name: "Mercantile Insurance", logo: mercantile, url: "https://www.mercantile.ph/" },
-      { name: "Cocogen Insurance", logo: cocogen, url: "https://www.cocogen.com/" },
-      { name: "Stronghold Insurance", logo: stronghold, url: "https://strongholdinsurance.com.ph/" },
-      { name: "Philbritish Insurance", logo: philbritish, url: "https://www.philbritish.com/" },
-      { name: "Alpha Insurance", logo: AlphaInsurance, url: "https://alphainsurance.com.ph/" },
-      { name: "Liberty Insurance", logo: Liberty, url: "https://www.libertyinsurance.com.ph/" },
+    { name: "Standard Insurance", logo: standard, url: "https://www.standard-insurance.com/" },
+    { name: "Mercantile Insurance", logo: mercantile, url: "https://www.mercantile.ph/" },
+    { name: "Cocogen Insurance", logo: cocogen, url: "https://www.cocogen.com/" },
+    { name: "Stronghold Insurance", logo: stronghold, url: "https://strongholdinsurance.com.ph/" },
+    { name: "Philbritish Insurance", logo: philbritish, url: "https://www.philbritish.com/" },
+    { name: "Alpha Insurance", logo: AlphaInsurance, url: "https://alphainsurance.com.ph/" },
+    { name: "Liberty Insurance", logo: Liberty, url: "https://www.libertyinsurance.com.ph/" },
   ];
 
   const renderPartnerLogo = (partner, index) => (
-      <a
-          key={index}
-          href={partner.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={`${partner.name} - opens in new tab`}
-      >
-          <img src={partner.logo} alt={`${partner.name} Logo`} />
-      </a>
+    <a
+      key={index}
+      href={partner.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`${partner.name} - opens in new tab`}
+    >
+      <img src={partner.logo} alt={`${partner.name} Logo`} />
+    </a>
   );
 
   // Function to handle navigation link clicks and scroll to top
   const handleNavClick = () => {
     setMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Function to check if a nav link is active
+  const isActiveLink = (path) => {
+    return location.pathname === path;
   };
 
   return (
@@ -191,11 +198,48 @@ export default function LandingPage() {
           ☰
         </button>
         <nav className={`nav-links ${menuOpen ? "active" : ""}`}>
-          <Link to="/insurance-client-page" className="nav-link" onClick={handleNavClick}>Home</Link>
-          <Link to="/insurance-client-page/Partners" className="nav-link" onClick={handleNavClick}>Partners</Link>
-          <Link to="/insurance-client-page/AboutUs" className="nav-link" onClick={handleNavClick}>About Us</Link>
-          <Link to="/insurance-client-page/Contact" className="nav-link" onClick={handleNavClick}>Contact </Link>
-          <Link to="/insurance-client-page/login" className="login-button" onClick={handleNavClick}>Log in</Link>
+          <Link
+            to="/insurance-client-page"
+            className={`nav-link ${isActiveLink('/insurance-client-page') ? 'active' : ''}`}
+            onClick={handleNavClick}
+          >
+            Home
+          </Link>
+          <Link
+            to="/insurance-client-page/Partners"
+            className={`nav-link ${isActiveLink('/insurance-client-page/Partners') ? 'active' : ''}`}
+            onClick={handleNavClick}
+          >
+            Partners
+          </Link>
+          <Link
+            to="/insurance-client-page/FAQs"
+            className={`nav-link ${isActiveLink('/insurance-client-page/FAQs') ? 'active' : ''}`}
+            onClick={handleNavClick}
+          >
+            FAQs 
+          </Link>
+          <Link
+            to="/insurance-client-page/AboutUs"
+            className={`nav-link ${isActiveLink('/insurance-client-page/AboutUs') ? 'active' : ''}`}
+            onClick={handleNavClick}
+          >
+            About Us
+          </Link>
+          <Link
+            to="/insurance-client-page/Contact"
+            className={`nav-link ${isActiveLink('/insurance-client-page/Contact') ? 'active' : ''}`}
+            onClick={handleNavClick}
+          >
+            Contact
+          </Link>
+          <Link
+            to="/insurance-client-page/login"
+            className="login-button"
+            onClick={handleNavClick}
+          >
+            Log in
+          </Link>
         </nav>
       </header>
 
@@ -210,9 +254,9 @@ export default function LandingPage() {
             Get instant quotes, manage your policy, and file <br /> claims with
             ease.
           </p>
-          <button className="quote-btn"  onClick={() =>
-              navigate("/insurance-client-page/CreateQuote")
-            }>
+          <button className="quote-btn" onClick={() =>
+            navigate("/insurance-client-page/CreateQuote")
+          }>
             GET A QUOTE
           </button>
         </div>
@@ -257,15 +301,15 @@ export default function LandingPage() {
 
       {/* Company Partners Section */}
       <section className="company-partners-section" style={{ backgroundImage: `url(${carBlur})` }}>
-          <h2 className="animate-on-scroll">COMPANY PARTNERS</h2>
-          <div className="partners-logos-container">
-              <div className="partners-logo-row">
-                  {companyPartners.slice(0, 4).map(renderPartnerLogo)}
-              </div>
-              <div className="partners-logo-row">
-                  {companyPartners.slice(4).map(renderPartnerLogo)}
-              </div>
+        <h2 className="animate-on-scroll">COMPANY PARTNERS</h2>
+        <div className="partners-logos-container">
+          <div className="partners-logo-row">
+            {companyPartners.slice(0, 4).map(renderPartnerLogo)}
           </div>
+          <div className="partners-logo-row">
+            {companyPartners.slice(4).map(renderPartnerLogo)}
+          </div>
+        </div>
       </section>
 
       {/* How It Works Section */}
@@ -321,28 +365,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Frequently Asked Questions Section */}
-      <section id="faq" className="faq-section">
-        <h2>Frequently Asked Questions</h2>
-        <div className="faq-items">
-          {faqItems.map((item, index) => (
-            <div
-              className={`faq-item ${openFaqIndex === index ? 'open' : ''}`}
-              key={index}
-              onClick={() => toggleFaq(index)}
-            >
-              <h3>{item.question}</h3>
-              <span>{openFaqIndex === index ? '-' : '+'}</span>
-              <p
-                className="faq-answer"
-                ref={el => (faqAnswerRefs.current[index] = el)}
-              >
-                {item.answer}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
+
 
       {/* Your Insurance Journey Starts Here Section */}
       <section className="insurance-journey-section" style={{ backgroundImage: `url(${InsuranceJourney})` }}>
@@ -356,26 +379,70 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer id="about" className="footer">
+        {/* Column 1: Company Info */}
         <div className="footer-column">
-          <h4>NAVIGATION</h4>
-          <a href="#home"><Home />Home</a>
-          <a href="#partners"><Handshake />Partners</a>
-          <a href="#about"><Info />About Us</a>
-          <Link to="/contact-us"><Phone />Contacts</Link>
+          <h4>Silverstar Insurance Agency Inc.</h4>
+          <p>
+            At Silverstar, we deliver car insurance with quality, protection, and
+            service you can trust.
+          </p>
+          <a
+            href="https://www.facebook.com/profile.php/?id=61576375235366"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footer-social-link"
+          >
+            <img src={fb} alt="Facebook Page" className="facebook-icon" />
+          </a>
         </div>
 
+        {/* Column 2: Categories */}
         <div className="footer-column">
-          <h4>CONTACT US</h4>
-          <p><MapPin />Shorthorn St, Project 8, Quezon City, Metro Manila</p>
-          <p><Phone />0927 408 8876</p>
-          <p><Mail />sia-mktg@gmail.com</p>
+          <h4>CATEGORIES</h4>
+          <a href="/insurance-client-page">Home</a>
+          <a href="/insurance-client-page/Partners">Partners</a>
+          <a href="#faq">FAQs</a>
+          <a href="/insurance-client-page/AboutUs">About Us</a>
         </div>
 
+        {/* Column 3: Reach Us */}
+        <div className="footer-column">
+          <h4>REACH US</h4>
+          <p>
+            <strong>Address:</strong> Room 210 2nd floor shorthorn street bahay toro
+            project 8 quezon city
+          </p>
+          <p>
+            <strong>Phone number:</strong> +63 2 7406 8176
+          </p>
+          <p>
+            <strong>Email:</strong> aira.mktg2@gmail.com
+          </p>
+          <p>
+            <strong>Office Hours:</strong> Monday - Saturday 8AM - 5PM
+          </p>
+        </div>
+
+        {/* Column 4: About Us */}
         <div className="footer-column">
           <h4>ABOUT US</h4>
           <p>
-            Silverstar Insurance Agency Inc. is a leading insurance provider dedicated to offering comprehensive and reliable coverage solutions. We pride ourselves on exceptional customer service and tailored policies that meet individual needs.
+            Silverstar Insurance Agency Inc. is a trusted insurance provider
+            established in 2013 and based in Project 8, Quezon City. The company
+            offers reliable vehicle insurance services for cars, motorcycles, and
+            cargo trucks, focusing on transparency, accuracy, and customer care to
+            ensure every client's peace of mind.
           </p>
+        </div>
+
+        {/* --- This creates the horizontal line and the bottom row --- */}
+        <div className="footer-bottom">
+          <hr className="footer-divider" />
+          <div className="footer-bottom-content">
+            <p>© 2025 Silverstar Insurance Agency Inc.</p>
+            <a href="#TermsandCondiiton">Terms and Condition</a>
+            <a href="#Privacy Policy">Privacy Policy</a>
+          </div>
         </div>
       </footer>
 

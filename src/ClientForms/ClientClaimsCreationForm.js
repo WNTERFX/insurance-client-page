@@ -1,19 +1,13 @@
 // src/ClientForms/ClientClaimsCreationForm.jsx
 import React, { useRef, useEffect } from 'react';
-import { Camera, FileText, Trash2, X } from 'lucide-react';
+import { Camera, FileText, Trash2 } from 'lucide-react';
 import "../styles/claims-creation-styles-client.css";
 
 export default function ClientClaimsCreationForm({
-    incidentTypes, // Changed from incidentType to incidentTypes (array)
-    setIncidentTypes, // Changed setter
+    incidentTypes,
+    setIncidentTypes,
     selectPolicy,
     setSelectPolicy,
-    description,
-    setDescription,
-    contactNumber,
-    setContactNumber,
-    incidentLocation,
-    setIncidentLocation,
     incidentDate,
     setIncidentDate,
     claimDate,
@@ -37,6 +31,12 @@ export default function ClientClaimsCreationForm({
     const documentInputRef = useRef(null);
 
     // Clear errors when fields are filled
+    useEffect(() => {
+        if (incidentTypes.length > 0 && errors.incidentTypes) {
+            setErrors(prev => ({ ...prev, incidentTypes: false }));
+        }
+    }, [incidentTypes, errors.incidentTypes, setErrors]);
+
     useEffect(() => {
         if (selectPolicy && errors.selectPolicy) {
             setErrors(prev => ({ ...prev, selectPolicy: false }));
@@ -77,15 +77,10 @@ export default function ClientClaimsCreationForm({
         }).format(amount || 0);
     };
 
-    // Handle incident type checkbox toggle
     const handleIncidentTypeToggle = (type) => {
-        if (incidentTypes.includes(type)) {
-            // Remove if already selected
-            setIncidentTypes(incidentTypes.filter(t => t !== type));
-        } else {
-            // Add if not selected
-            setIncidentTypes([...incidentTypes, type]);
-        }
+        setIncidentTypes(prev =>
+            prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
+        );
     };
 
     return (
@@ -96,22 +91,25 @@ export default function ClientClaimsCreationForm({
             <form onSubmit={handleSubmit}>
                 <div className="form-section main-claim-details-section">
                     <div className="form-group-row-claim-info">
-                        <div className="form-group type-of-claim-comprehensive">
+                        <div className="form-group-claims type-of-claim-comprehensive">
                             <label className="label-heading">Type of Claim: Comprehensive</label>
                         </div>
-
-                        <div className="form-group claimable-amount-display">
+                        <div className="form-group-claims claimable-amount-display">
                             <label className="label-heading">Claimable Amount:
-                            <span className={`claimable-amount-value ${selectedPolicyClaimableAmount <= 0 ? 'zero' : ''}`}>
-                                {formatCurrency(selectedPolicyClaimableAmount)}
-                            </span>
+                                <span className={`claimable-amount-value ${selectedPolicyClaimableAmount <= 0 ? 'zero' : ''}`}>
+                                    {formatCurrency(selectedPolicyClaimableAmount)}
+                                </span>
                             </label>
                         </div>
                     </div>
 
-                    <div className="form-row">
-                        <div className="form-group type-of-incident-group">
-                            <label className="label-heading">Type of Incident:</label>
+                    {/* A SINGLE GRID CONTAINER FOR PERFECT ALIGNMENT */}
+                    <div className="form-row-claims-aligned">
+                        {/* ITEM 1 - Row 1, Col 1 */}
+                        <div className="form-group-claims type-of-incident-group">
+                            <label className="label-heading">
+                                Type of Incident <span style={{ color: 'red' }}>*</span>:
+                            </label>
                             <label className="checkbox-container">
                                 <input
                                     type="checkbox"
@@ -130,10 +128,18 @@ export default function ClientClaimsCreationForm({
                                 />
                                 Third-party
                             </label>
+                            {errors.incidentTypes && incidentTypes.length === 0 && (
+                                <small style={{ color: 'red', display: 'block', marginTop: '5px' }}>
+                                    Type of Incident is required
+                                </small>
+                            )}
                         </div>
 
-                        <div className="form-group">
-                            <label className="label-heading">Policy *:</label>
+                        {/* ITEM 2 - Row 1, Col 2 */}
+                        <div className="form-group-claims">
+                            <label className="label-heading">
+                                Policy <span style={{ color: 'red' }}>*</span>:
+                            </label>
                             <select
                                 value={selectPolicy}
                                 onChange={(e) => setSelectPolicy(e.target.value)}
@@ -147,26 +153,35 @@ export default function ClientClaimsCreationForm({
                                 {policies.map((policy) => {
                                     const isDisabled = !policy.canCreateClaim;
                                     return (
-                                        <option 
-                                            key={policy.id} 
+                                        <option
+                                            key={policy.id}
                                             value={policy.id}
                                             disabled={isDisabled}
                                             style={isDisabled ? { color: '#999', fontStyle: 'italic' } : {}}
                                         >
-                                            Policy #{policy.internal_id || policy.id} 
+                                            Policy #{policy.internal_id || policy.id}
                                             {isDisabled && ` - ${policy.claimValidationReason}`}
                                         </option>
                                     );
                                 })}
                             </select>
+                            {errors.selectPolicy && !selectPolicy && (
+                                <small style={{ color: 'red', display: 'block', marginTop: '5px' }}>
+                                    Policy is required
+                                </small>
+                            )}
                             {selectPolicy && policies.find(p => p.id === parseInt(selectPolicy))?.claimValidationReason && (
                                 <small style={{ color: '#dc3545', display: 'block', marginTop: '5px' }}>
                                     {policies.find(p => p.id === parseInt(selectPolicy))?.claimValidationReason}
                                 </small>
                             )}
                         </div>
-                             <div className="form-group date-input-wrapper">
-                            <label className="label-heading">Incident Date *:</label>
+
+                        {/* ITEM 3 - Row 1, Col 3 */}
+                        <div className="form-group-claims">
+                            <label className="label-heading">
+                                Incident Date <span style={{ color: 'red' }}>*</span>:
+                            </label>
                             <input
                                 type="date"
                                 value={incidentDate}
@@ -174,46 +189,38 @@ export default function ClientClaimsCreationForm({
                                 style={errors.incidentDate ? { borderColor: '#dc3545', boxShadow: '0 0 0 2px rgba(220, 53, 69, 0.2)' } : {}}
                                 disabled={loading}
                             />
-                        </div>
-                    </div>
-                     <div className="form-row">
-                        {/*<div className="form-group">
-                            <label className="label-heading">Location of Incident:</label>
-                            <textarea
-                                placeholder="Enter location of incident"
-                                value={incidentLocation}
-                                onChange={(e) => setIncidentLocation(e.target.value)}
-                                className="location-textarea"
-                                disabled={loading}
-                            ></textarea>
-                        </div>
-                         <div className="form-group">
-                            <label className="label-heading">Phone Number: (Optional)</label>
-                            <input
-                                type="tel"
-                                placeholder="Enter phone number"
-                                value={contactNumber}
-                                onChange={(e) => setContactNumber(e.target.value)}
-                                style={errors.contactNumber ? { borderColor: '#dc3545', boxShadow: '0 0 0 2px rgba(220, 53, 69, 0.2)' } : {}}
-                                disabled={loading}
-                            />
-                        </div>*/}
-                       <div className="form-group right-column-inputs">
-                            <div className="input-pair">
-                                <label className="label-heading">Estimate Damage Amount *:</label>
-                                <input
-                                    type="number"
-                                    placeholder="Enter amount"
-                                    value={estimatedDamage}
-                                    onChange={(e) => setEstimatedDamage(e.target.value)}
-                                    style={errors.estimatedDamage ? { borderColor: '#dc3545', boxShadow: '0 0 0 2px rgba(220, 53, 69, 0.2)' } : {}}
-                                    disabled={loading}
-                                />
-                            </div>
+                            {errors.incidentDate && !incidentDate && (
+                                <small style={{ color: 'red', display: 'block', marginTop: '5px' }}>
+                                    Incident Date is required
+                                </small>
+                            )}
                         </div>
 
-                        <div className="form-group date-input-wrapper">
-                            <label className="label-heading">Claim Date *:</label>
+                        {/* ITEM 4 - Row 2, Col 1 */}
+                        <div className="form-group-claims">
+                            <label className="label-heading">
+                                Estimate Damage Amount <span style={{ color: 'red' }}>*</span>:
+                            </label>
+                            <input
+                                type="number"
+                                placeholder="Enter amount"
+                                value={estimatedDamage}
+                                onChange={(e) => setEstimatedDamage(e.target.value)}
+                                style={errors.estimatedDamage ? { borderColor: '#dc3545', boxShadow: '0 0 0 2px rgba(220, 53, 69, 0.2)' } : {}}
+                                disabled={loading}
+                            />
+                            {errors.estimatedDamage && !estimatedDamage && (
+                                <small style={{ color: 'red', display: 'block', marginTop: '5px' }}>
+                                    Estimate Damage Amount is required
+                                </small>
+                            )}
+                        </div>
+
+                        {/* ITEM 5 - Row 2, Col 2 */}
+                        <div className="form-group-claims">
+                            <label className="label-heading">
+                                Claim Date <span style={{ color: 'red' }}>*</span>:
+                            </label>
                             <input
                                 type="date"
                                 value={claimDate}
@@ -221,30 +228,14 @@ export default function ClientClaimsCreationForm({
                                 style={errors.claimDate ? { borderColor: '#dc3545', boxShadow: '0 0 0 2px rgba(220, 53, 69, 0.2)' } : {}}
                                 disabled={loading}
                             />
+                            {errors.claimDate && !claimDate && (
+                                <small style={{ color: 'red', display: 'block', marginTop: '5px' }}>
+                                    Claim Date is required
+                                </small>
+                            )}
                         </div>
-
-                         <div className="form-group date-input-wrapper">
-    
-                        </div>
-                    </div>    
-                                <div className="form-row">
-                       {/* <div className="form-group description-incident-group">
-                            <label className="label-heading">Description of Incident:</label>
-                            <textarea
-                                placeholder="Describe the incident in detail..."
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                className="description-textarea"
-                                disabled={loading}
-                            ></textarea>
-                        </div>*/}
-
- 
                     </div>
-
                 </div>
-
-                
 
                 <div className="form-section supporting-documents-section">
                     <h2 className="section-title-heading">Supporting Documents:</h2>
@@ -308,8 +299,8 @@ export default function ClientClaimsCreationForm({
                                         >
                                             <Trash2 size={14} />
                                         </button>
-                                        <img 
-                                            src={URL.createObjectURL(file)} 
+                                        <img
+                                            src={URL.createObjectURL(file)}
                                             alt={file.name}
                                             className="photo-preview-img"
                                         />
@@ -350,17 +341,17 @@ export default function ClientClaimsCreationForm({
                 </div>
 
                 <div className="form-actions">
-                    <button 
-                        type="button" 
-                        className="cancel-button" 
+                    <button
+                        type="button"
+                        className="cancel-button"
                         onClick={() => window.history.back()}
                         disabled={loading}
                     >
                         Cancel
                     </button>
-                    <button 
-                        type="submit" 
-                        className="submit-button" 
+                    <button
+                        type="submit"
+                        className="submit-button"
                         disabled={loading}
                     >
                         {loading ? (

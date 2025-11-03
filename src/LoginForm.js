@@ -124,7 +124,7 @@ export default function LoginForm() {
           {/* Login Controls */}
           <div className="login-controls">
             <p>Don’t have an account?</p>
-            <a href="#" type="button" onClick={() => navigate("/insurance-client-page/signin")}>
+            <a href="/insurance-client-page/signin" type="button" >
               Sign In
             </a>
           </div>

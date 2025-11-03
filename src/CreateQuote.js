@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./styles/CreateQuote-styles.css";
 import SilverstarLOGO from "./images/SilverstarLOGO.png";
+import CustomAlertModal from "./ClientForms/CustomAlertModal";
 import { getComputationValue, fetchVehicleDetails } from "./Actions/VehicleTypeActions";
+import { fetchPartners } from "./Actions/PartnersActions";
 import {
   ComputationActionsVehicleValue,
   ComputatationRate,
@@ -13,31 +15,53 @@ import {
 
 export default function CreateQuote() {
   const navigate = useNavigate();
-  
-  // Form state
+  const location = useLocation();
+
+  // Get retained form data if navigating back from QuoteInfo
+  const retainedFormData = location.state?.formData || null;
+
+  // Form state - initialize with retained data if available
   const [formData, setFormData] = useState({
-    ownerName: '',
-    address: '',
-    contactNumber: '',
-    email: '',
-    vehicleType: '',
-    vehicleName: '',
-    plateNumber: '',
-    originalValue: '',
-    vehicleYear: '',
-    withAON: false,
-    dataPrivacyConsent: false
+    firstName: retainedFormData?.firstName || '',
+    lastName: retainedFormData?.lastName || '',
+    address: retainedFormData?.address || '',
+    contactNumber: retainedFormData?.contactNumber || '',
+    email: retainedFormData?.email || '',
+    selectedPartner: retainedFormData?.selectedPartner || '',
+    partnerName: retainedFormData?.partnerName || '',
+    vehicleType: retainedFormData?.vehicleType || '',
+    make: retainedFormData?.make || '',
+    model: retainedFormData?.model || '',
+    plateNumber: retainedFormData?.plateNumber || '',
+    originalValue: retainedFormData?.originalValue || '',
+    vehicleYear: retainedFormData?.vehicleYear || '',
+    withAON: retainedFormData?.withAON || false,
+    dataPrivacyConsent: retainedFormData?.dataPrivacyConsent || false
+  });
+
+  // Validation errors state
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+
+  // Alert modal state
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    title: '',
+    message: ''
   });
 
   // Vehicle types and details
   const [vehicleTypes, setVehicleTypes] = useState([]);
   const [vehicleDetails, setVehicleDetails] = useState(null);
+  const [partners, setPartners] = useState([]);
 
-  // Load vehicle types on mount
+  // Load vehicle types and partners on mount
   useEffect(() => {
     (async () => {
       const types = await getComputationValue();
+      const partnersList = await fetchPartners();
       setVehicleTypes(types || []);
+      setPartners(partnersList || []);
     })();
   }, []);
 
@@ -47,30 +71,197 @@ export default function CreateQuote() {
       setVehicleDetails(null);
       return;
     }
-    
+
     (async () => {
       const details = await fetchVehicleDetails(formData.vehicleType);
       setVehicleDetails(details || null);
     })();
   }, [formData.vehicleType]);
 
+  // Validation functions
+  const validateField = (name, value) => {
+    switch (name) {
+      case 'firstName':
+        if (!value || !value.trim()) return 'First name is required';
+        if (!/^[a-zA-Z\s.]+$/.test(value)) return 'First name is invalid';
+        return '';
+
+      case 'lastName':
+        if (!value || !value.trim()) return 'Last name is required';
+        if (!/^[a-zA-Z\s.]+$/.test(value)) return 'Last name is invalid';
+        return '';
+
+      case 'address':
+        if (!value || !value.trim()) return 'Address is required';
+        return '';
+
+      case 'contactNumber':
+        if (!value) return 'Contact Number is required';
+        if (!/^\d{11}$/.test(value)) return 'Contact Number must be exactly 11 digits';
+        return '';
+
+      case 'email':
+        if (!value) return 'Email is required';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Invalid email format';
+        return '';
+
+      case 'selectedPartner':
+        if (!value) return 'Insurance Partner is required';
+        return '';
+
+      case 'make':
+        if (!value || !value.trim()) return 'Make is required';
+        return '';
+
+      case 'model':
+        if (!value || !value.trim()) return 'Model is required';
+        return '';
+
+      case 'plateNumber':
+        if (!value || !value.trim()) return 'Plate Number is required';
+        return '';
+
+      case 'vehicleType':
+        if (!value) return 'Vehicle Type is required';
+        return '';
+
+      case 'originalValue':
+        if (!value) return 'Original Value is required';
+        if (parseFloat(value) <= 0) return 'Original Value must be greater than 0';
+        return '';
+
+      case 'vehicleYear':
+        if (!value) return 'Vehicle Year is required';
+        return '';
+
+      case 'dataPrivacyConsent':
+        if (!value) return 'required';
+        return '';
+
+      default:
+        return '';
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+
+    const error = validateField(name, formData[name]);
+    setErrors(prev => ({ ...prev, [name]: error }));
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+
+    // If changing partner selection, also store the partner name
+    if (name === 'selectedPartner') {
+      if (value) {
+        const partner = partners.find(p => String(p.id) === String(value));
+        setFormData(prev => ({
+          ...prev,
+          selectedPartner: value,
+          partnerName: partner ? partner.insurance_Name : ''
+        }));
+      } else {
+        setFormData(prev => ({
+          ...prev,
+          selectedPartner: '',
+          partnerName: ''
+        }));
+      }
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value
+      }));
+    }
+
+    // Clear error when user starts typing
+    if (touched[name]) {
+      const error = validateField(name, type === 'checkbox' ? checked : value);
+      setErrors(prev => ({ ...prev, [name]: error }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    const requiredFields = [
+      'firstName', 'lastName', 'address', 'contactNumber', 'email',
+      'selectedPartner', 'make', 'model', 'plateNumber',
+      'vehicleType', 'originalValue', 'vehicleYear', 'dataPrivacyConsent'
+    ];
+
+    requiredFields.forEach(field => {
+      const error = validateField(field, formData[field]);
+      if (error) {
+        newErrors[field] = error;
+      }
+    });
+
+    setErrors(newErrors);
+    setTouched(
+      requiredFields.reduce((acc, field) => ({ ...acc, [field]: true }), {})
+    );
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleCancel = () => {
+    // Reset form to initial state
+    setFormData({
+      firstName: '',
+      lastName: '',
+      address: '',
+      contactNumber: '',
+      email: '',
+      selectedPartner: '',
+      partnerName: '',
+      vehicleType: '',
+      make: '',
+      model: '',
+      plateNumber: '',
+      originalValue: '',
+      vehicleYear: '',
+      withAON: false,
+      dataPrivacyConsent: false
+    });
+    setErrors({});
+    setTouched({});
+
+    // Navigate to home page
+    navigate("/insurance-client-page");
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Validate required fields
-    if (!formData.ownerName || !formData.contactNumber || !formData.email || 
-        !formData.vehicleName || !formData.plateNumber || !formData.vehicleType ||
-        !formData.originalValue || !formData.vehicleYear || !formData.dataPrivacyConsent) {
-      alert('Please fill in all required fields and accept the data privacy consent');
+
+    // Validate all fields
+    if (!validateForm()) {
+      setAlertModal({
+        isOpen: true,
+        title: 'Alert',
+        message: 'Please fill in all required fields correctly'
+      });
       return;
+    }
+
+    // Verify partner name is set
+    let partnerName = formData.partnerName;
+    if (!partnerName) {
+      const selectedPartnerObj = partners.find(p => p.id.toString() === formData.selectedPartner.toString());
+
+      if (!selectedPartnerObj) {
+        console.error('Partner not found!');
+        setAlertModal({
+          isOpen: true,
+          title: 'Error',
+          message: 'Error: Selected insurance partner not found. Please try selecting the partner again.'
+        });
+        return;
+      }
+
+      partnerName = selectedPartnerObj.insurance_Name;
     }
 
     // Calculate all values
@@ -126,7 +317,10 @@ export default function CreateQuote() {
     // Navigate to QuoteInfo with form data and calculations
     navigate("/insurance-client-page/QuoteInfo", {
       state: {
-        formData,
+        formData: {
+          ...formData,
+          partnerName
+        },
         calculationData
       }
     });
@@ -152,28 +346,62 @@ export default function CreateQuote() {
       {/* Quote Form Section */}
       <div className="quote-container">
         <div className="insurance-quote-container">
-          <h1>Get Your Vehicle Insurance Quote</h1>
-          <p>Fill in the details below to receive a personalized quotation</p>
+          {/* Updated Header with Cancel Button */}
+          <div className="quote-header-with-cancel">
+            <div className="quote-header-text">
+              <h1>Get Your Vehicle Insurance Quote</h1>
+              <p>Fill in the details below to receive a personalized quotation</p>
+            </div>
+            <button
+              type="button"
+              className="cancel-quote-button"
+              onClick={handleCancel}
+            >
+              Cancel
+            </button>
+          </div>
 
           <form onSubmit={handleSubmit}>
             {/* Registered Owner Details */}
             <section className="form-section_">
               <h2>Registered Owner Details</h2>
               <p className="section-des_">Enter the registered owner's information</p>
-              
-              <div className="form-grid_"> 
+
+              <div className="form-grid_">
                 <label>
                   <span className="label-text">
-                    First Name, Last Name (Registered owner)
+                    First Name (Registered owner)
                     <span className="required">*</span>
                   </span>
                   <input
                     type="text"
-                    name="ownerName"
-                    value={formData.ownerName}
+                    name="firstName"
+                    value={formData.firstName}
                     onChange={handleChange}
-                    required
+                    onBlur={handleBlur}
+                    style={{ borderColor: touched.firstName && errors.firstName ? 'red' : '' }}
                   />
+                  {touched.firstName && errors.firstName && (
+                    <small style={{ color: 'red' }}>{errors.firstName}</small>
+                  )}
+                </label>
+
+                <label>
+                  <span className="label-text">
+                    Last Name (Registered owner)
+                    <span className="required">*</span>
+                  </span>
+                  <input
+                    type="text"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    style={{ borderColor: touched.lastName && errors.lastName ? 'red' : '' }}
+                  />
+                  {touched.lastName && errors.lastName && (
+                    <small style={{ color: 'red' }}>{errors.lastName}</small>
+                  )}
                 </label>
 
                 <label>
@@ -186,8 +414,12 @@ export default function CreateQuote() {
                     name="address"
                     value={formData.address}
                     onChange={handleChange}
-                    required
+                    onBlur={handleBlur}
+                    style={{ borderColor: touched.address && errors.address ? 'red' : '' }}
                   />
+                  {touched.address && errors.address && (
+                    <small style={{ color: 'red' }}>{errors.address}</small>
+                  )}
                 </label>
 
                 <label>
@@ -196,12 +428,17 @@ export default function CreateQuote() {
                     <span className="required">*</span>
                   </span>
                   <input
-                    type="tel"
+                    type="text"
                     name="contactNumber"
                     value={formData.contactNumber}
                     onChange={handleChange}
-                    required
+                    onBlur={handleBlur}
+                    maxLength="11"
+                    style={{ borderColor: touched.contactNumber && errors.contactNumber ? 'red' : '' }}
                   />
+                  {touched.contactNumber && errors.contactNumber && (
+                    <small style={{ color: 'red' }}>{errors.contactNumber}</small>
+                  )}
                 </label>
 
                 <label>
@@ -214,8 +451,36 @@ export default function CreateQuote() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    required
+                    onBlur={handleBlur}
+                    style={{ borderColor: touched.email && errors.email ? 'red' : '' }}
                   />
+                  {touched.email && errors.email && (
+                    <small style={{ color: 'red' }}>{errors.email}</small>
+                  )}
+                </label>
+
+                <label>
+                  <span className="label-text">
+                    Insurance Partner
+                    <span className="required">*</span>
+                  </span>
+                  <select
+                    name="selectedPartner"
+                    value={formData.selectedPartner}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    style={{ borderColor: touched.selectedPartner && errors.selectedPartner ? 'red' : '' }}
+                  >
+                    <option value="">Select Insurance Partner</option>
+                    {partners.map((partner) => (
+                      <option key={partner.id} value={partner.id}>
+                        {partner.insurance_Name}
+                      </option>
+                    ))}
+                  </select>
+                  {touched.selectedPartner && errors.selectedPartner && (
+                    <small style={{ color: 'red' }}>{errors.selectedPartner}</small>
+                  )}
                 </label>
               </div>
             </section>
@@ -224,22 +489,46 @@ export default function CreateQuote() {
             <section className="form-section_">
               <h2>Vehicle Information</h2>
               <p className="section-des_">Enter your vehicle specifications</p>
-              
+
               <div className="form-group">
                 <label>
                   <span className="label-text">
-                    Vehicle Name
+                    Make
                     <span className="required">*</span>
                   </span>
                   <input
                     type="text"
-                    name="vehicleName"
-                    value={formData.vehicleName}
+                    name="make"
+                    value={formData.make}
                     onChange={handleChange}
-                    required
+                    onBlur={handleBlur}
+                    placeholder="e.g., Toyota, Honda, Ford"
+                    style={{ borderColor: touched.make && errors.make ? 'red' : '' }}
                   />
+                  {touched.make && errors.make && (
+                    <small style={{ color: 'red' }}>{errors.make}</small>
+                  )}
                 </label>
-              
+
+                <label>
+                  <span className="label-text">
+                    Model
+                    <span className="required">*</span>
+                  </span>
+                  <input
+                    type="text"
+                    name="model"
+                    value={formData.model}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    placeholder="e.g., Camry, Civic, Mustang"
+                    style={{ borderColor: touched.model && errors.model ? 'red' : '' }}
+                  />
+                  {touched.model && errors.model && (
+                    <small style={{ color: 'red' }}>{errors.model}</small>
+                  )}
+                </label>
+
                 <label>
                   <span className="label-text">
                     Plate Number
@@ -250,8 +539,12 @@ export default function CreateQuote() {
                     name="plateNumber"
                     value={formData.plateNumber}
                     onChange={handleChange}
-                    required
+                    onBlur={handleBlur}
+                    style={{ borderColor: touched.plateNumber && errors.plateNumber ? 'red' : '' }}
                   />
+                  {touched.plateNumber && errors.plateNumber && (
+                    <small style={{ color: 'red' }}>{errors.plateNumber}</small>
+                  )}
                 </label>
 
                 <label>
@@ -263,7 +556,8 @@ export default function CreateQuote() {
                     name="vehicleType"
                     value={formData.vehicleType}
                     onChange={handleChange}
-                    required
+                    onBlur={handleBlur}
+                    style={{ borderColor: touched.vehicleType && errors.vehicleType ? 'red' : '' }}
                   >
                     <option value="">Select Vehicle Type</option>
                     {vehicleTypes.map((type) => (
@@ -272,8 +566,11 @@ export default function CreateQuote() {
                       </option>
                     ))}
                   </select>
+                  {touched.vehicleType && errors.vehicleType && (
+                    <small style={{ color: 'red' }}>{errors.vehicleType}</small>
+                  )}
                 </label>
-                
+
                 <label>
                   <span className="label-text">
                     Original Value of Vehicle
@@ -284,10 +581,14 @@ export default function CreateQuote() {
                     name="originalValue"
                     value={formData.originalValue}
                     onChange={handleChange}
-                    required
+                    onBlur={handleBlur}
                     min="0"
                     step="0.01"
+                    style={{ borderColor: touched.originalValue && errors.originalValue ? 'red' : '' }}
                   />
+                  {touched.originalValue && errors.originalValue && (
+                    <small style={{ color: 'red' }}>{errors.originalValue}</small>
+                  )}
                 </label>
 
                 <label>
@@ -299,13 +600,17 @@ export default function CreateQuote() {
                     name="vehicleYear"
                     value={formData.vehicleYear}
                     onChange={handleChange}
-                    required
+                    onBlur={handleBlur}
+                    style={{ borderColor: touched.vehicleYear && errors.vehicleYear ? 'red' : '' }}
                   >
                     <option value="">Select Year</option>
                     {Array.from({ length: 11 }, (_, i) => 2025 - i).map(year => (
                       <option key={year} value={year}>{year}</option>
                     ))}
                   </select>
+                  {touched.vehicleYear && errors.vehicleYear && (
+                    <small style={{ color: 'red' }}>{errors.vehicleYear}</small>
+                  )}
                 </label>
 
                 {/* AON Checkbox */}
@@ -323,18 +628,24 @@ export default function CreateQuote() {
 
             {/* Data Privacy Consent */}
             <section className="aon-section_">
-              <label className="aon-disclaimer">
+              <label
+                className="aon-disclaimer"
+                style={{
+                  color: touched.dataPrivacyConsent && errors.dataPrivacyConsent ? 'red' : 'inherit'
+                }}
+              >
                 <input
                   type="checkbox"
                   name="dataPrivacyConsent"
                   checked={formData.dataPrivacyConsent}
                   onChange={handleChange}
-                  required
+                  onBlur={handleBlur}
                 />
                 <span>
-                  In compliance with the Data Privacy Act (DPA) of 2012, and its Implementing Rules and Regulations (IRR) effective September 9, 2016,
-                  I allow Standard Insurance to collect, store and process my information to provide me certain services declared in relation to the
-                  insurance policy/ies I am purchasing.
+                  In compliance with the Data Privacy Act (DPA) of 2012 and its Implementing Rules and Regulations (IRR) effective September 9, 2016,
+                  I hereby authorize Silverstar Insurance Agency Inc. to collect, store, and process my personal information for the purpose of generating
+                  and providing an insurance quotation. This includes using my data to assess eligibility, compute premiums, and communicate relevant offers or
+                  follow-ups related to the quotation request.
                 </span>
               </label>
             </section>
@@ -359,6 +670,14 @@ export default function CreateQuote() {
           </form>
         </div>
       </div>
+
+      {/* Custom Alert Modal */}
+      <CustomAlertModal
+        isOpen={alertModal.isOpen}
+        onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
+        title={alertModal.title}
+        message={alertModal.message}
+      />
     </div>
   );
 }
