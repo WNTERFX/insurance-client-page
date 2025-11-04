@@ -1,34 +1,48 @@
+// [!code focus:22]
 import { db } from "../dbServer";
 
 export async function signInClient({ policyInternalId, email, password }) {
   try {
-    const response = await fetch(
-      'https://ezmvecxqcjnrspmjfgkk.supabase.co/functions/v1/sign-in-client',
+    const { data: result, error: invokeError } = await db.functions.invoke(
+      'sign-in-client', 
       {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV6bXZlY3hxY2pucnNwbWpmZ2trIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ1MjUzMzMsImV4cCI6MjA3MDEwMTMzM30.M0ZsDxmJRc7EFe3uzRFmy69TymcsdwMbV54jkay29tI`
-        },
-        body: JSON.stringify({
+        body: {
           policyInternalId,
           email,
           password
-        })
+        }
       }
     );
 
-    const result = await response.json();
+    // This part is only for 2xx (successful) responses
+    if (invokeError) {
+      throw invokeError; // This jumps to the catch block
+    }
 
     if (result.success) {
-      // Store the session in Supabase auth
       await db.auth.setSession(result.session);
       return result;
     } else {
-      return { success: false, error: result.error };
+      // This is for 2xx responses that are *logical* errors
+      // e.g., { success: false, error: "Policy not found" }
+      // We'll treat it as an error to be safe.
+      return result;
     }
+
   } catch (error) {
     console.error("Sign in error:", error);
+
+    // [!code focus:10]
+    // THIS IS THE FIX
+    // When the function returns a 403 or 500, the *real* JSON
+    // response is nested inside the 'context' of the error.
+    if (error.context && typeof error.context.json === 'function') {
+      // It's a structured function error (like our 403)
+      const functionError = await error.context.json();
+      return functionError; // This returns { success: false, requiresVerification: true, ... }
+    }
+    
+    // It's a different kind of error (e.g., network)
     return { success: false, error: error.message };
   }
 }

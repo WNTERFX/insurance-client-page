@@ -215,3 +215,13 @@
   font-size: 0.9rem;
   margin-top: 1px;
 }
+
+.info-message {
+  padding: 10px;
+  background-color: #e6f7ff; /* Light blue */
+  border: 1px solid #91d5ff;
+  color: #0056b3;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  text-align: center;
+}

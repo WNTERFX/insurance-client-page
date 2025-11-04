@@ -19,6 +19,7 @@ import MainArea from './MainArea';
 import { SignInForm } from './SignInForm';
 import InvalidAuthRoute from './AdminApp/ControllerAdmin/InvalidAuthRoute';
 import ResetPasswordForm from "./ResetPasswordForm";
+import { EmailVerified } from './EmailVerified'
 
 import PaymentSuccess from './PaymentSuccess';
 import PaymentFailure from './PaymentFailure';
@@ -41,6 +42,7 @@ function App() {
   <Route path="/insurance-client-page/signin" element={<SignInForm />} />
   <Route path="/insurance-client-page/login" element={<LoginForm />} />
   <Route path="/insurance-client-page/reset-password" element={<ResetPasswordForm />} />
+  <Route path="/insurance-client-page/email-verified" element={<EmailVerified />} />
   
   <Route path="/insurance-client-page/main-portal/payment/success" element={<PaymentSuccess />} />
   <Route path="/insurance-client-page/main-portal/payment/failure" element={<PaymentFailure />} />
