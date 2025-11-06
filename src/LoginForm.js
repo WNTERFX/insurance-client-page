@@ -124,8 +124,8 @@ export default function LoginForm() {
           {/* Login Controls */}
           <div className="login-controls">
             <p>Don’t have an account?</p>
-            <a href="/insurance-client-page/signin" type="button" >
-              Sign In
+            <a href="/insurance-client-page/signup" type="button" >
+              Sign Up
             </a>
           </div>
         </form>

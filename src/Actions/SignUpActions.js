@@ -1,7 +1,7 @@
 // [!code focus:22]
 import { db } from "../dbServer";
 
-export async function signInClient({ policyInternalId, email, password }) {
+export async function signUpClient({ policyInternalId, email, password }) {
   try {
     const { data: result, error: invokeError } = await db.functions.invoke(
       'sign-in-client', 

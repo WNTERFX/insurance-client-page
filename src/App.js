@@ -16,7 +16,7 @@ import Quotation from './Quotation';
 import Payment from './Payment';
 import AccountSettings from './AccountSettings';
 import MainArea from './MainArea';
-import { SignInForm } from './SignInForm';
+import { SignUpForm } from './SignUpForm';
 import InvalidAuthRoute from './AdminApp/ControllerAdmin/InvalidAuthRoute';
 import ResetPasswordForm from "./ResetPasswordForm";
 import { EmailVerified } from './EmailVerified'
@@ -39,7 +39,7 @@ function App() {
     
   <Routes>
   <Route path="/insurance-client-page" element={<LandingPage />} />
-  <Route path="/insurance-client-page/signin" element={<SignInForm />} />
+  <Route path="/insurance-client-page/signup" element={<SignUpForm />} />
   <Route path="/insurance-client-page/login" element={<LoginForm />} />
   <Route path="/insurance-client-page/reset-password" element={<ResetPasswordForm />} />
   <Route path="/insurance-client-page/email-verified" element={<EmailVerified />} />

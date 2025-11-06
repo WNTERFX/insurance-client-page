@@ -1,23 +1,22 @@
-import "./styles/sign-in-styles.css";
+import "./styles/sign-in-styles.css"; // You might want to rename this to sign-up-styles.css
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { signInClient } from "./Actions/SignInActions";
+// 1. RENAME: Import from your "Sign Up" action file
+import { signUpClient } from "./Actions/SignUpActions"; 
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-// [!code focus]
-import { db } from "./dbServer"; // 1. Import your Supabase client
+// 2. REMOVED: `db` client is no longer needed here
 
-export function SignInForm() {
+export function SignUpForm() {
   const navigate = useNavigate();
   const [policyId, setPolicyId] = useState("");
   const [email, setEmail] = useState("");
+  // 3. ADDED: "Confirm Email" state
+  const [confirmEmail, setConfirmEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(false);
   
-  // [!code focus:3]
-  // 2. Replace errorMessage with a new 'message' state
   const [message, setMessage] = useState({ text: "", type: "error" });
-  
   const [loading, setLoading] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
@@ -25,15 +24,20 @@ export function SignInForm() {
   const togglePasswordVisibility = () => setPasswordVisible(!passwordVisible);
   const toggleConfirmPasswordVisibility = () => setConfirmPasswordVisible(!confirmPasswordVisible);
 
-  const handleSignIn = async (e) => {
+  // 4. RENAME: handleSignUp
+  const handleSignUp = async (e) => {
     e.preventDefault();
-    // [!code focus]
-    setMessage({ text: "", type: "error" }); // reset message
+    setMessage({ text: "", type: "error" }); 
 
-    // [!code focus:17]
-    // 3. Update all validation to use the new message state
-    if (!policyId || !email || !password || !confirmPassword) {
+    // --- Validation Checks ---
+    if (!policyId || !email || !confirmEmail || !password || !confirmPassword) {
       setMessage({ text: "Please fill in all required fields.", type: "error" });
+      return;
+    }
+    
+    // 5. ADDED: "Confirm Email" check
+    if (email !== confirmEmail) {
+      setMessage({ text: "Emails do not match. Please check and try again.", type: "error" });
       return;
     }
 
@@ -53,42 +57,40 @@ export function SignInForm() {
     }
 
     setLoading(true);
-    const result = await signInClient({
+    // 6. RENAME: Call your "Sign Up" function
+    const result = await signUpClient({
       policyInternalId: policyId,
       email,
       password,
     });
     setLoading(false);
 
-    // [!code focus:25]
-    // 4. THIS IS THE MAIN FIX
+    // 7. FIXED: This is the new, simpler logic
     if (!result.success) {
-      // Check for the special verification error
+      // Check if it's the "Account Created" success message
       if (result.requiresVerification) {
         
-        // Show a loading message
-        setMessage({ text: "Please verify your email. We are resending the link now...", type: "info" });
-        
-        // Call the client-side resend function
-        const { error: resendError } = await db.auth.resend({
-          type: 'signup',
-          email: email
+        // JUST show the message from the Edge Function.
+        // The email was already sent!
+        setMessage({ 
+          text: result.message, // "Account created successfully! Please check your email..."
+          type: "info" // Use 'info' for success
         });
-
-        if (resendError) {
-          setMessage({ text: `Could not resend link: ${resendError.message}`, type: "error" });
-        } else {
-          // Tell the user to check their spam folder!
-          setMessage({ text: "We've just sent you a new confirmation link. Please check your inbox and spam folder.", type: "info" });
-        }
+        
+        // We do NOT navigate. The user should read this message.
 
       } else {
-        // This is a real sign-in error (e.g., "Invalid Policy ID")
-        setMessage({ text: "Sign In failed: " + (result.message || result.error || "Unknown error"), type: "error" });
+        // This is a REAL error (e.g., "Invalid Policy ID", "Account already exists")
+        setMessage({ 
+          text: "Sign Up failed: " + (result.message || result.error || "Unknown error"), 
+          type: "error" 
+        });
       }
       return;
     }
-
+    
+    // This line should technically not be reached if your function always
+    // returns `requiresVerification`, but it's here as a fallback.
     navigate("/insurance-client-page/login");
   };
 
@@ -107,10 +109,9 @@ export function SignInForm() {
           />
         </div>
 
-        <form className="SignIn-form" onSubmit={handleSignIn}>
+        {/* 8. RENAME: form handler */}
+        <form className="SignIn-form" onSubmit={handleSignUp}>
           
-          {/* [!code focus:4] */}
-          {/* 5. Update the JSX to show the new message state */}
           {message.text && (
             <div className={message.type === 'error' ? 'error-message' : 'info-message'}>
               {message.text}
@@ -133,6 +134,15 @@ export function SignInForm() {
             required
           />
 
+          {/* 9. ADDED: "Confirm Email" field */}
+          <label>Confirm Email <span className="required-star">*</span></label>
+          <input
+            type="email"
+            value={confirmEmail}
+            onChange={(e) => setConfirmEmail(e.target.value)}
+            required
+          />
+
           <div className="password-wrapper-client">
             <label>Password <span className="required-star">*</span></label>
             <input
@@ -147,7 +157,6 @@ export function SignInForm() {
           </div>
 
           <div className="password-wrapper-client">
-            {/* This label seems wrong, it should be "Confirm password" */}
             <label>Confirm password <span className="required-star">*</span></label>
             <input
               type={confirmPasswordVisible ? "text" : "password"}
@@ -172,8 +181,9 @@ export function SignInForm() {
             </label>
           </div>
 
+          {/* 10. RENAME: button text */}
           <button type="submit" disabled={loading}>
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? "Creating Account..." : "Create Account"}
           </button>
 
           <div className="login-prompt">
