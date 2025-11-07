@@ -83,6 +83,13 @@ export default function ClientClaimsCreationForm({
         );
     };
 
+    function todayISO() {
+        const d = new Date();
+        // make it local-timezone safe to avoid off-by-one
+        const offsetMs = d.getTimezoneOffset() * 60 * 1000;
+        return new Date(d.getTime() - offsetMs).toISOString().slice(0, 10);
+    }
+
     return (
         <div className="claims-container">
             <h1 className="form-header">File New Claims</h1>
@@ -224,15 +231,13 @@ export default function ClientClaimsCreationForm({
                             <input
                                 type="date"
                                 value={claimDate}
-                                onChange={(e) => setClaimDate(e.target.value)}
+                                readOnly
+                                // keep the error glow if you ever need it
                                 style={errors.claimDate ? { borderColor: '#dc3545', boxShadow: '0 0 0 2px rgba(220, 53, 69, 0.2)' } : {}}
-                                disabled={loading}
                             />
-                            {errors.claimDate && !claimDate && (
-                                <small style={{ color: 'red', display: 'block', marginTop: '5px' }}>
-                                    Claim Date is required
-                                </small>
-                            )}
+                            <small style={{ color: '#6c757d', display: 'block', marginTop: 5 }}>
+                                Auto-filled as today’s date
+                            </small>
                         </div>
                     </div>
                 </div>

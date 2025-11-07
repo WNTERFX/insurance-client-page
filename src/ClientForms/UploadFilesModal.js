@@ -1,17 +1,31 @@
 import React, { useState, useRef } from 'react';
 import { X, Camera, FileText, Trash2 } from 'lucide-react';
+import CustomAlertModal from '../ClientForms/CustomAlertModal';
+import '../styles/upload-files-modal-styles.css';
 
-export default function UploadFilesModal({ 
-  isOpen, 
-  onClose, 
-  claimData, 
-  onUploadComplete 
+export default function UploadFilesModal({
+  isOpen,
+  onClose,
+  claimData,
+  onUploadComplete,
 }) {
   const [photos, setPhotos] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [deleteType, setDeleteType] = useState('');
+
+  // Custom alert modal state
+  const [alertModal, setAlertModal] = useState({
+    isOpen: false,
+    title: 'Alert',
+    message: ''
+  });
+
+  const openAlert = (message, title = 'Alert') =>
+    setAlertModal({ isOpen: true, title, message });
+  const closeAlert = () =>
+    setAlertModal({ isOpen: false, title: 'Alert', message: '' });
 
   const photoInputRef = useRef(null);
   const documentInputRef = useRef(null);
@@ -24,15 +38,18 @@ export default function UploadFilesModal({
 
     const filesArray = Array.from(files);
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    const invalidFiles = filesArray.filter(file => !validTypes.includes(file.type));
+    const invalidFiles = filesArray.filter((file) => !validTypes.includes(file.type));
 
     if (invalidFiles.length > 0) {
-      alert(`Invalid file type(s). Please upload only images (JPG, PNG, GIF, WebP)`);
+      openAlert(
+        `Invalid file type(s): ${invalidFiles.map(f => f.name).join(', ')}\n\nPlease upload only images (JPG, PNG, GIF, WebP)`,
+        'Invalid File Type'
+      );
       event.target.value = null;
       return;
     }
 
-    setPhotos(prev => [...prev, ...filesArray]);
+    setPhotos((prev) => [...prev, ...filesArray]);
     event.target.value = null;
   };
 
@@ -44,17 +61,20 @@ export default function UploadFilesModal({
     const validTypes = [
       'application/pdf',
       'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     ];
-    const invalidFiles = filesArray.filter(file => !validTypes.includes(file.type));
+    const invalidFiles = filesArray.filter((file) => !validTypes.includes(file.type));
 
     if (invalidFiles.length > 0) {
-      alert(`Invalid file type(s). Please upload only PDFs or Word documents`);
+      openAlert(
+        `Invalid file type(s): ${invalidFiles.map(f => f.name).join(', ')}\n\nPlease upload only PDFs or Word documents (.pdf, .doc, .docx)`,
+        'Invalid File Type'
+      );
       event.target.value = null;
       return;
     }
 
-    setDocuments(prev => [...prev, ...filesArray]);
+    setDocuments((prev) => [...prev, ...filesArray]);
     event.target.value = null;
   };
 
@@ -70,13 +90,13 @@ export default function UploadFilesModal({
 
   const confirmDelete = () => {
     if (deleteType === 'photo') {
-      setPhotos(prev => prev.filter((_, i) => i !== deleteConfirm.index));
+      setPhotos((prev) => prev.filter((_, i) => i !== deleteConfirm.index));
       console.log(`Photo deleted: ${deleteConfirm.file.name}`);
     } else if (deleteType === 'document') {
-      setDocuments(prev => prev.filter((_, i) => i !== deleteConfirm.index));
+      setDocuments((prev) => prev.filter((_, i) => i !== deleteConfirm.index));
       console.log(`Document deleted: ${deleteConfirm.file.name}`);
     }
-    
+
     setDeleteConfirm(null);
     setDeleteType('');
   };
@@ -86,210 +106,126 @@ export default function UploadFilesModal({
     setDeleteType('');
   };
 
-  const handleSubmit = async () => {
-    if (photos.length === 0 && documents.length === 0) {
-      alert('Please select at least one file to upload');
-      return;
-    }
+const handleSubmit = async () => {
+  if (photos.length === 0 && documents.length === 0) {
+    openAlert('Please select at least one file to upload.', 'No Files Selected');
+    return;
+  }
 
-    setUploading(true);
-    try {
-      console.log("🚀 Starting upload process...");
-      await onUploadComplete(claimData.id, photos, documents);
-      
-      // Reset form
-      setPhotos([]);
-      setDocuments([]);
-      
-      console.log("✅ Upload complete!");
-    } catch (error) {
-      console.error('❌ Upload error:', error);
-      // Don't show alert here, parent handles it
-    } finally {
-      setUploading(false);
-    }
-  };
+  setUploading(true);
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-PH", {
-      style: "currency",
-      currency: "PHP",
-    }).format(amount || 0);
-  };
+  // Temporarily silence any window.alert fired inside onUploadComplete
+  const originalAlert = window.alert;
+  window.alert = () => {};
+
+  try {
+    await onUploadComplete(claimData.id, photos, documents);
+
+    // Success: stay silent (no popups)
+    setPhotos([]);
+    setDocuments([]);
+
+    // Optionally close modal or show a non-blocking toast if you have one
+    // onClose?.();
+    // showToast('Files uploaded');
+  } catch (error) {
+    // Show your custom alert on error
+    console.error('Upload error:', error);
+    openAlert(`Failed to upload files.\n\n${error?.message || error}`, 'Upload Error');
+  } finally {
+    // Restore alert for the rest of the app
+    window.alert = originalAlert;
+    setUploading(false);
+  }
+};
+
+  const formatCurrency = (amount) =>
+    new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount || 0);
 
   const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-CA");
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-CA');
   };
 
   return (
-    <div 
-      className="modal-overlay" 
-      onClick={onClose}
-      style={{ zIndex: 10000 }}
-    >
-      <div 
-        className="upload-modal-content" 
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          maxWidth: '1200px',
-          width: '90%',
-          maxHeight: '90vh',
-          overflow: 'auto',
-          background: 'white',
-          borderRadius: '16px',
-          padding: '32px',
-          position: 'relative'
-        }}
-      >
+    <div className="ufm modal-overlay" onClick={onClose}>
+      <div className="ufm upload-modal-content" onClick={(e) => e.stopPropagation()}>
         {/* Close Button */}
-        <button 
-          onClick={onClose}
-          style={{
-            position: 'absolute',
-            top: '20px',
-            right: '20px',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '8px'
-          }}
-        >
+        <button className="ufm close-btn" onClick={onClose} aria-label="Close">
           <X size={28} />
         </button>
 
         {/* Header */}
-        <h2 style={{ fontSize: '28px', marginBottom: '8px' }}>Claims</h2>
-        <p style={{ color: '#666', marginBottom: '32px' }}>
-          Submit a insurance claim with all required details
-        </p>
+        <h2 className="ufm title">Claims</h2>
+        <p className="ufm subtitle">Submit an insurance claim with all required details</p>
 
         {/* Information Cards */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: '1fr 1fr', 
-          gap: '24px',
-          marginBottom: '32px'
-        }}>
+        <div className="ufm grid-two">
           {/* Client Information */}
-          <div style={{
-            border: '2px solid #e0e0e0',
-            borderRadius: '12px',
-            padding: '24px'
-          }}>
-            <h3 style={{ fontSize: '20px', marginBottom: '20px' }}>Client Information</h3>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div className="ufm card">
+            <h3 className="ufm card-title">Client Information</h3>
+            <div className="ufm grid-two tight">
               <div>
-                <p style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>Name:</p>
-                <p style={{ fontSize: '16px', fontWeight: '500' }}>
-                  {claimData.policy_Table?.clients_Table?.first_Name || "N/A"}{" "}
-                  {claimData.policy_Table?.clients_Table?.family_Name || ""}
+                <p className="ufm label-upload-files">Name:</p>
+                <p className="ufm value-upload-files">
+                  {claimData.policy_Table?.clients_Table?.first_Name || 'N/A'}{' '}
+                  {claimData.policy_Table?.clients_Table?.family_Name || ''}
                 </p>
               </div>
-              
               <div>
-                <p style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>Partner Company:</p>
-                <p style={{ fontSize: '16px', fontWeight: '500' }}>
-                  {claimData.policy_Table?.insurance_Partners?.insurance_Name || "N/A"}
+                <p className="ufm label-upload-files">Partner Company:</p>
+                <p className="ufm value-upload-files">
+                  {claimData.policy_Table?.insurance_Partners?.insurance_Name || 'N/A'}
                 </p>
               </div>
-              
               <div>
-                <p style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>Contact Number:</p>
-                <p style={{ fontSize: '16px', fontWeight: '500' }}>
-                  {claimData.phone_number || "N/A"}
+                <p className="ufm label-upload-files">Contact Number:</p>
+                <p className="ufm value-upload-files">
+                  {claimData.policy_Table?.clients_Table?.phone_Number || ''}
                 </p>
               </div>
-              
               <div>
-                <p style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>Estimate Amount:</p>
-                <p style={{ fontSize: '16px', fontWeight: '500' }}>
-                  {formatCurrency(claimData.estimate_amount)}
-                </p>
-              </div>
-              
-              <div style={{ gridColumn: '1 / -1' }}>
-                <p style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>Location:</p>
-                <p style={{ fontSize: '16px', fontWeight: '500' }}>
-                  {claimData.location_of_incident || "N/A"}
-                </p>
+                <p className="ufm label-upload-files">Estimate Amount:</p>
+                <p className="ufm value-upload-files">{formatCurrency(claimData.estimate_amount)}</p>
               </div>
             </div>
           </div>
 
-          {/* Vehicle Information */}
-          <div style={{
-            border: '2px solid #e0e0e0',
-            borderRadius: '12px',
-            padding: '24px'
-          }}>
-            <h3 style={{ fontSize: '20px', marginBottom: '20px' }}>Vehicle Information</h3>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          {/* Vehicle/Claim Information */}
+          <div className="ufm card">
+            <h3 className="ufm card-title">Vehicle Information</h3>
+            <div className="ufm grid-two">
               <div>
-                <p style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>Type of Claim:</p>
-                <p style={{ fontSize: '16px', fontWeight: '500' }}>
-                  {claimData.policy_Table?.policy_type || "N/A"}
-                </p>
+                <p className="ufm label-upload-files">Type of Claim:</p>
+                <p className="ufm value-upload-files">{claimData.policy_Table?.policy_type || 'N/A'}</p>
               </div>
-              
               <div>
-                <p style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>Type of Incident:</p>
-                <p style={{ fontSize: '16px', fontWeight: '500' }}>
-                  {claimData.type_of_incident || "N/A"}
-                </p>
+                <p className="ufm label-upload-files">Type of Incident:</p>
+                <p className="ufm value-upload-files">{claimData.type_of_incident || 'N/A'}</p>
               </div>
-              
               <div>
-                <p style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>Incident Date:</p>
-                <p style={{ fontSize: '16px', fontWeight: '500' }}>
-                  {formatDate(claimData.incident_date)}
-                </p>
+                <p className="ufm label-upload-files">Incident Date:</p>
+                <p className="ufm value-upload-files">{formatDate(claimData.incident_date)}</p>
               </div>
-              
               <div>
-                <p style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>Claim Date:</p>
-                <p style={{ fontSize: '16px', fontWeight: '500' }}>
-                  {formatDate(claimData.claim_date)}
-                </p>
-              </div>
-              
-              <div style={{ gridColumn: '1 / -1' }}>
-                <p style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>Description:</p>
-                <p style={{ fontSize: '16px', fontWeight: '500' }}>
-                  {claimData.description_of_incident || "No description provided"}
-                </p>
+                <p className="ufm label-upload-files">Claim Date:</p>
+                <p className="ufm value-upload-files">{formatDate(claimData.claim_date)}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Supporting Documents */}
-        <div style={{ marginBottom: '24px' }}>
-          <h3 style={{ fontSize: '20px', marginBottom: '16px' }}>Supporting Documents:</h3>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-            {/* Upload Photos Box */}
+        {/* Upload Boxes */}
+        <div className="ufm block-gap">
+          <h3 className="ufm section-title">Supporting Documents:</h3>
+          <div className="ufm grid-two">
+            {/* Upload Photos */}
             <div
+              className="ufm upload-box"
+              role="button"
+              tabIndex={0}
               onClick={() => photoInputRef.current?.click()}
-              style={{
-                border: '2px dashed #ccc',
-                borderRadius: '12px',
-                padding: '40px',
-                textAlign: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                background: '#fafafa'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = '#4a90e2';
-                e.currentTarget.style.background = '#f0f7ff';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = '#ccc';
-                e.currentTarget.style.background = '#fafafa';
-              }}
+              onKeyDown={(e) => (e.key === 'Enter' ? photoInputRef.current?.click() : null)}
             >
               <input
                 ref={photoInputRef}
@@ -297,40 +233,21 @@ export default function UploadFilesModal({
                 accept="image/*"
                 multiple
                 onChange={handlePhotoUpload}
-                style={{ display: 'none' }}
+                className="ufm hidden-input"
               />
-              <Camera size={48} color="#888" style={{ marginBottom: '12px' }} />
-              <p style={{ fontSize: '18px', fontWeight: '500', marginBottom: '8px' }}>
-                Upload photos
-              </p>
-              <p style={{ fontSize: '14px', color: '#666' }}>
-                Take a photo of vehicle damage, accident scene
-              </p>
-              <p style={{ fontSize: '12px', color: '#999', marginTop: '8px' }}>
-                (Hold Ctrl/Cmd to select multiple)
-              </p>
+              <Camera size={48} className="ufm icon-muted" />
+              <p className="ufm upload-title">Upload Photos</p>
+              <p className="ufm upload-help">Take a photo of vehicle damage, accident scene</p>
+              <p className="ufm upload-small">(Hold Ctrl/Cmd to select multiple)</p>
             </div>
 
-            {/* Upload Documents Box */}
+            {/* Upload Documents */}
             <div
+              className="ufm upload-box"
+              role="button"
+              tabIndex={0}
               onClick={() => documentInputRef.current?.click()}
-              style={{
-                border: '2px dashed #ccc',
-                borderRadius: '12px',
-                padding: '40px',
-                textAlign: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                background: '#fafafa'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = '#4a90e2';
-                e.currentTarget.style.background = '#f0f7ff';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = '#ccc';
-                e.currentTarget.style.background = '#fafafa';
-              }}
+              onKeyDown={(e) => (e.key === 'Enter' ? documentInputRef.current?.click() : null)}
             >
               <input
                 ref={documentInputRef}
@@ -338,85 +255,39 @@ export default function UploadFilesModal({
                 accept=".pdf,.doc,.docx"
                 multiple
                 onChange={handleDocumentUpload}
-                style={{ display: 'none' }}
+                className="ufm hidden-input"
               />
-              <FileText size={48} color="#888" style={{ marginBottom: '12px' }} />
-              <p style={{ fontSize: '18px', fontWeight: '500', marginBottom: '8px' }}>
-                Upload Documents
-              </p>
-              <p style={{ fontSize: '14px', color: '#666' }}>
-                Police report, repair estimates, receipts
-              </p>
-              <p style={{ fontSize: '12px', color: '#999', marginTop: '8px' }}>
-                (Hold Ctrl/Cmd to select multiple)
-              </p>
+              <FileText size={48} className="ufm icon-muted" />
+              <p className="ufm upload-title">Upload Documents</p>
+              <p className="ufm upload-help">Police report, repair estimates, receipts</p>
+              <p className="ufm upload-small">(Hold Ctrl/Cmd to select multiple)</p>
             </div>
           </div>
         </div>
 
-        {/* Uploaded Files Preview */}
+        {/* Previews */}
         {(photos.length > 0 || documents.length > 0) && (
-          <div style={{ marginBottom: '24px' }}>
+          <div className="ufm block-gap">
             {photos.length > 0 && (
-              <div style={{ marginBottom: '20px' }}>
-                <h4 style={{ fontSize: '16px', marginBottom: '12px' }}>
-                  Uploaded Photos: ({photos.length})
-                </h4>
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', 
-                  gap: '12px' 
-                }}>
+              <div className="ufm section-stack">
+                <h4 className="ufm section-subtitle">Uploaded Photos: ({photos.length})</h4>
+                <div className="ufm preview-grid">
                   {photos.map((file, index) => (
-                    <div 
-                      key={index}
-                      style={{
-                        position: 'relative',
-                        border: '1px solid #e0e0e0',
-                        borderRadius: '8px',
-                        padding: '8px',
-                        background: '#fafafa'
-                      }}
-                    >
+                    <div className="ufm photo-card" key={`${file.name}-${index}`}>
                       <button
+                        className="ufm remove-chip"
                         onClick={() => handleDeletePhoto(index)}
-                        style={{
-                          position: 'absolute',
-                          top: '4px',
-                          right: '4px',
-                          background: 'rgba(220, 53, 69, 0.9)',
-                          border: 'none',
-                          borderRadius: '50%',
-                          width: '24px',
-                          height: '24px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          color: 'white',
-                          zIndex: 2
-                        }}
                         title="Remove photo"
+                        aria-label={`Remove ${file.name}`}
                       >
                         <Trash2 size={14} />
                       </button>
-                      <img 
-                        src={URL.createObjectURL(file)} 
+                      <img
+                        src={URL.createObjectURL(file)}
                         alt={file.name}
-                        style={{
-                          width: '100%',
-                          height: '100px',
-                          objectFit: 'cover',
-                          borderRadius: '4px',
-                          marginBottom: '8px'
-                        }}
+                        className="ufm photo-img"
                       />
-                      <p style={{ 
-                        fontSize: '12px', 
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }}>
+                      <p className="ufm file-name" title={file.name}>
                         {file.name}
                       </p>
                     </div>
@@ -426,58 +297,23 @@ export default function UploadFilesModal({
             )}
 
             {documents.length > 0 && (
-              <div>
-                <h4 style={{ fontSize: '16px', marginBottom: '12px' }}>
-                  Uploaded Documents: ({documents.length})
-                </h4>
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', 
-                  gap: '12px' 
-                }}>
+              <div className="ufm section-stack">
+                <h4 className="ufm section-subtitle">Uploaded Documents: ({documents.length})</h4>
+                <div className="ufm doc-grid">
                   {documents.map((file, index) => (
-                    <div 
-                      key={index}
-                      style={{
-                        position: 'relative',
-                        border: '1px solid #e0e0e0',
-                        borderRadius: '8px',
-                        padding: '12px',
-                        background: '#fafafa',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px'
-                      }}
-                    >
-                      <FileText size={32} color="#4a90e2" />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ 
-                          fontSize: '14px',
-                          fontWeight: '500',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap'
-                        }}>
+                    <div className="ufm doc-card" key={`${file.name}-${index}`}>
+                      <FileText size={32} className="ufm icon-primary" />
+                      <div className="ufm doc-meta">
+                        <p className="ufm doc-name" title={file.name}>
                           {file.name}
                         </p>
-                        <p style={{ fontSize: '12px', color: '#666' }}>
-                          {(file.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
+                        <p className="ufm doc-size">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                       </div>
                       <button
+                        className="ufm remove-btn"
                         onClick={() => handleDeleteDocument(index)}
-                        style={{
-                          background: 'rgba(220, 53, 69, 0.1)',
-                          border: 'none',
-                          borderRadius: '4px',
-                          padding: '8px',
-                          cursor: 'pointer',
-                          color: '#dc3545',
-                          transition: 'all 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(220, 53, 69, 0.2)'}
-                        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(220, 53, 69, 0.1)'}
                         title="Remove document"
+                        aria-label={`Remove ${file.name}`}
                       >
                         <Trash2 size={16} />
                       </button>
@@ -489,46 +325,15 @@ export default function UploadFilesModal({
           </div>
         )}
 
-        {/* Action Buttons */}
-        <div style={{ 
-          display: 'flex', 
-          gap: '12px', 
-          justifyContent: 'flex-end',
-          paddingTop: '20px',
-          borderTop: '1px solid #e0e0e0'
-        }}>
-          <button
-            onClick={onClose}
-            disabled={uploading}
-            style={{
-              padding: '12px 24px',
-              border: '1px solid #ccc',
-              background: 'white',
-              borderRadius: '8px',
-              fontSize: '16px',
-              cursor: uploading ? 'not-allowed' : 'pointer',
-              opacity: uploading ? 0.6 : 1
-            }}
-          >
+        {/* Actions */}
+        <div className="ufm action-bar">
+          <button className="ufm btn btn-outline" onClick={onClose} disabled={uploading}>
             Cancel
           </button>
           <button
+            className="ufm btn btn-primary"
             onClick={handleSubmit}
             disabled={uploading || (photos.length === 0 && documents.length === 0)}
-            style={{
-              padding: '12px 24px',
-              border: 'none',
-              background: (uploading || (photos.length === 0 && documents.length === 0)) 
-                ? '#ccc' 
-                : '#dc3545',
-              color: 'white',
-              borderRadius: '8px',
-              fontSize: '16px',
-              cursor: (uploading || (photos.length === 0 && documents.length === 0)) 
-                ? 'not-allowed' 
-                : 'pointer',
-              fontWeight: '500'
-            }}
           >
             {uploading ? 'Uploading...' : 'Submit'}
           </button>
@@ -537,101 +342,29 @@ export default function UploadFilesModal({
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div 
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.6)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 10001
-          }}
-          onClick={cancelDelete}
-        >
-          <div 
-            style={{
-              background: 'white',
-              borderRadius: '12px',
-              padding: '24px',
-              width: '90%',
-              maxWidth: '400px',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 style={{ 
-              margin: '0 0 16px 0', 
-              fontSize: '1.3em', 
-              color: '#333',
-              fontWeight: 600 
-            }}>
-              Confirm
-            </h3>
-            <p style={{ 
-              margin: '0 0 24px 0', 
-              fontSize: '1em', 
-              color: '#666',
-              lineHeight: 1.5 
-            }}>
-              Are you sure you want to remove this attachment?
-            </p>
-            <div style={{ 
-              display: 'flex', 
-              gap: '12px', 
-              justifyContent: 'flex-end' 
-            }}>
-              <button
-                onClick={cancelDelete}
-                style={{
-                  padding: '10px 24px',
-                  background: '#f0f0f0',
-                  color: '#333',
-                  border: '1px solid #ccc',
-                  borderRadius: '6px',
-                  fontSize: '0.95em',
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#e0e0e0'}
-                onMouseLeave={(e) => e.currentTarget.style.background = '#f0f0f0'}
-              >
+        <div className="ufm confirm-overlay" onClick={cancelDelete}>
+          <div className="ufm confirm-card" onClick={(e) => e.stopPropagation()}>
+            <h3 className="ufm confirm-title">Confirm</h3>
+            <p className="ufm confirm-text">Are you sure you want to remove this attachment?</p>
+            <div className="ufm confirm-actions">
+              <button className="ufm btn btn-muted" onClick={cancelDelete}>
                 Cancel
               </button>
-              <button
-                onClick={confirmDelete}
-                style={{
-                  padding: '10px 24px',
-                  background: '#dc3545',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '0.95em',
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#c82333';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(220, 53, 69, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#dc3545';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
+              <button className="ufm btn btn-danger" onClick={confirmDelete}>
                 OK
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Custom Alert Modal (replaces window.alert) */}
+      <CustomAlertModal
+        isOpen={alertModal.isOpen}
+        onClose={closeAlert}
+        title={alertModal.title}
+        message={alertModal.message}
+      />
     </div>
   );
 }

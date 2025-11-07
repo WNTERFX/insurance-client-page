@@ -13,7 +13,7 @@ export async function getCurrentClient() {
 
     const { data, error: clientError } = await db
       .from("clients_Table")
-      .select("uid, first_Name, family_Name, email, auth_id")
+      .select("uid, first_Name, family_Name, email, phone_Number, auth_id")
       .eq("auth_id", user.id)
       .maybeSingle();
 

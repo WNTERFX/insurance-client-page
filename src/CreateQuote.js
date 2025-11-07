@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./styles/CreateQuote-styles.css";
-import SilverstarLOGO from "./images/SilverstarLOGO.png";
+import SilverstarLOGO from "./images/SilverStar.png";
 import CustomAlertModal from "./ClientForms/CustomAlertModal";
 import { getComputationValue, fetchVehicleDetails } from "./Actions/VehicleTypeActions";
 import { fetchPartners } from "./Actions/PartnersActions";
@@ -95,10 +95,22 @@ export default function CreateQuote() {
         if (!value || !value.trim()) return 'Address is required';
         return '';
 
-      case 'contactNumber':
+      case 'contactNumber': {
         if (!value) return 'Contact Number is required';
-        if (!/^\d{11}$/.test(value)) return 'Contact Number must be exactly 11 digits';
+
+        // normalize: drop spaces, hyphens, parentheses
+        const raw = String(value).trim();
+        const digitsOnly = raw.replace(/\D/g, '');
+
+        // Accept: 09XXXXXXXXX (11 digits) or +639XXXXXXXXX / 639XXXXXXXXX
+        const isValid =
+          PHONE_REGEX.test(raw) || /^639\d{9}$/.test(digitsOnly);
+
+        if (!isValid) {
+          return 'Enter a valid PH mobile (e.g., 09123456789 or +639123456789)';
+        }
         return '';
+      }
 
       case 'email':
         if (!value) return 'Email is required';
@@ -326,14 +338,26 @@ export default function CreateQuote() {
     });
   };
 
+  // Allowed PH mobile formats: 09123456789 or +639123456789
+  const PHONE_REGEX = /^(?:\+?63|0)9\d{9}$/;
+
+  const VEHICLE_MAKES = [
+    "Toyota", "Mitsubishi", "Honda", "Ford", "Nissan", "Hyundai", "Isuzu", "Suzuki",
+    "Subaru", "Geely", "Yamaha", "Kawasaki", "KTM", "DUCATI", "CFMOTO"
+  ];
+
   return (
     <div className="create-quote-page">
       {/* Header */}
       <header className="top-bar-container">
-        <div className="logo-container">
-          <img src={SilverstarLOGO} alt="Logo" className="logo" />
-          <p className="company-name">Silverstar Insurance Agency</p>
-        </div>
+          <Link
+            to="/insurance-client-page"
+            className="logo-container"
+            aria-label="Go to Home — Silverstar Insurance Agency"
+          >
+            <img src={SilverstarLOGO} alt="Silverstar Insurance — Home" className="logo" />
+
+          </Link>
         <nav className="nav-links">
           <Link to="/insurance-client-page" className="nav-link">Home</Link>
           <Link to="/insurance-client-page/Partners" className="nav-link">Partners</Link>
@@ -428,12 +452,15 @@ export default function CreateQuote() {
                     <span className="required">*</span>
                   </span>
                   <input
-                    type="text"
+                    type="tel"
                     name="contactNumber"
                     value={formData.contactNumber}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    maxLength="11"
+                    inputMode="numeric"
+                    pattern="^(?:\+?63|0)9\d{9}$"
+                    placeholder="e.g., 09123456789 or +639123456789"
+                    maxLength="14"
                     style={{ borderColor: touched.contactNumber && errors.contactNumber ? 'red' : '' }}
                   />
                   {touched.contactNumber && errors.contactNumber && (
@@ -496,15 +523,18 @@ export default function CreateQuote() {
                     Make
                     <span className="required">*</span>
                   </span>
-                  <input
-                    type="text"
+                  <select
                     name="make"
                     value={formData.make}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    placeholder="e.g., Toyota, Honda, Ford"
                     style={{ borderColor: touched.make && errors.make ? 'red' : '' }}
-                  />
+                  >
+                    <option value="">Select Make</option>
+                    {VEHICLE_MAKES.map((m) => (
+                      <option key={m} value={m}>{m}</option>
+                    ))}
+                  </select>
                   {touched.make && errors.make && (
                     <small style={{ color: 'red' }}>{errors.make}</small>
                   )}

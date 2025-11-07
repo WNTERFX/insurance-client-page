@@ -19,7 +19,11 @@ body, html {
   padding: 0 2rem;
 }
 
-
+.history-table .history-grid.header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
 
 /* --- Loading Spinner --- */
 .loading-spinner-container {

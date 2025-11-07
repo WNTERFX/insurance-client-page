@@ -324,14 +324,36 @@
 }
 
 .claims-container .cancel-button {
-    background-color: #6c757d;
-    color: white;
+   padding: 10px 24px;
+  background: #F3F4F6;               /* light gray */
+  color: #111827;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+.claims-container .cancel-button:hover {
+ background: #e5e7eb;
 }
 
+
+
 .claims-container .submit-button {
-    background-color: #0d6efd;
-    color: white;
+   padding: 10px 24px;
+  background: #1249BF;               /* primary blue like screenshot */
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
+
+.claims-container .submit-button:hover {
+  background: #3972ee;
+}
+
 
 .claims-container .submit-button:disabled,
 .claims-container .cancel-button:disabled {
