@@ -69,9 +69,7 @@
   line-height: 1;
 }
 
-.error-banner button:hover {
-  color: #a11;
-}
+.error-banner button:hover { color: #a11; }
 
 .no-data-message {
   text-align: center;
@@ -99,11 +97,7 @@
   border-bottom: 2px solid #ecf0f1;
 }
 
-.policy-balance {
-  color: #666;
-  margin: 0 0 1rem 0;
-  font-weight: 500;
-}
+.policy-balance { color: #666; margin: 0 0 1rem 0; font-weight: 500; }
 
 .total-balance {
   text-align: right;
@@ -115,14 +109,12 @@
 /* Layout */
 .balances-row {
   display: flex;
-  gap: 24px;
+  gap: 32px; /* widened gap between the two cards */
   margin-top: 20px;
 }
 
 @media (max-width: 968px) {
-  .balances-row {
-    flex-direction: column;
-  }
+  .balances-row { flex-direction: column; }
 }
 
 /* Card Styles */
@@ -133,12 +125,23 @@
   border: 1px solid #e1e8ed;
 }
 
-.schedule-card {
-  flex: 2;
+.schedule-card { flex: 2; }
+.pending-card  { flex: 1; }
+
+.pending-card .pending-info .payment-amount-col {
+  transform: translateX(40px);   /* ← adjust this value to taste (e.g., 8–16px) */
 }
 
-.pending-card {
-  flex: 1;
+/* header label ("Amount") */
+.pending-card .pending-header > span:nth-child(2) {
+  display: inline-block;         /* needed so transform applies */
+  transform: translateX(40px);   /* match the body shift */
+}
+
+/* (optional) only slightly increase column gap too */
+.pending-card .pending-header,
+.pending-card .pending-info {
+  column-gap: 5px !important;   /* was 16px; bump if you want more space */
 }
 
 .card-header {
@@ -164,16 +167,14 @@
 /* Schedule Styles */
 .schedule-row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr; /* Date | Amount | Status */
   gap: 1rem;
   padding: 12px 0;
   border-bottom: 1px solid #e1e8ed;
   align-items: center;
 }
 
-.schedule-row:last-of-type {
-  border-bottom: none;
-}
+.schedule-row:last-of-type { border-bottom: none; }
 
 .paid-status {
   color: #27ae60;
@@ -188,81 +189,63 @@
 }
 
 .schedule-total {
-  display: flex;
-  justify-content: space-between;
-  background: #3498db;
-  color: white;
-  padding: 10px 12px;
-  border-radius: 6px;
-  margin-top: 10px;
-  font-weight: 700;
-  font-size: 16px;
+  display: flex; justify-content: space-between;
+  background: #3498db; color: white;
+  padding: 10px 12px; border-radius: 6px;
+  margin-top: 10px; font-weight: 700; font-size: 16px;
 }
 
 .schedule-penalties {
-  display: flex;
-  justify-content: space-between;
-  background: #e74c3c;
-  color: white;
-  padding: 10px 12px;
-  border-radius: 6px;
-  margin-top: 8px;
-  font-weight: 700;
-  font-size: 16px;
+  display: flex; justify-content: space-between;
+  background: #e74c3c; color: white;
+  padding: 10px 12px; border-radius: 6px;
+  margin-top: 8px; font-weight: 700; font-size: 16px;
 }
 
-.penalty-text {
-  color: white;
-}
+.penalty-text { color: white; }
 
-.no-payments {
-  color: #95a5a6;
-  font-style: italic;
-  padding: 1.5rem;
-  text-align: center;
-}
-
-.no-pending {
-  color: #95a5a6;
-  font-style: italic;
-  padding: 1.5rem;
-  text-align: center;
+.no-payments, .no-pending {
+  color: #95a5a6; font-style: italic;
+  padding: 1.5rem; text-align: center;
 }
 
 /* Pending Payments */
-.pending-header {
+.pending-header,
+.pending-info {
   display: grid;
-  grid-template-columns: 2fr 1.5fr 130px;
-  gap: 12px;
-  padding: 12px 10px;
+  /* Date | Amount | Action */
+  grid-template-columns: 2fr minmax(200px, 1.4fr) 140px;
+  column-gap: 24px;     /* horizontal gap */
+  gap: 16px;            /* keeps row-gap consistent too */
+  padding: 14px 12px;
+  align-items: center;
+ 
+  
+}
+
+.pending-header {
   font-weight: 700;
   border-bottom: 2px solid #e1e8ed;
   margin-bottom: 8px;
   color: #2c3e50;
 }
 
-.red-text {
-  color: #e74c3c;
-}
-
 .pending-info {
-  display: grid;
-  grid-template-columns: 2fr 1.5fr 130px;
-  gap: 12px;
-  padding: 14px 10px;
   border-bottom: 1px solid #ecf0f1;
-  align-items: center;
 }
 
-.pending-info:last-child {
-  border-bottom: none;
-}
+.pending-info:last-child { border-bottom: none; }
+
+
+
+.red-text { color: #e74c3c; }
 
 /* Payment Amount Column */
 .payment-amount-col {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  row-gap: 6px;
+  min-width: 200px; /* ensures the amount area won't be cramped */
 }
 
 .base-amount {
@@ -292,12 +275,10 @@
   align-items: flex-start;
 }
 
-.overdue-date {
-  color: #e74c3c !important;
-  font-weight: 600;
-}
+.overdue-date { color: #e74c3c !important; font-weight: 600; }
 
-.overdue-badge {
+.overdue-badge,
+.disabled-badge {
   font-size: 11px;
   background: #e74c3c;
   color: white;
@@ -310,35 +291,17 @@
   width: fit-content;
 }
 
-.disabled-badge {
-  font-size: 11px;
-  background: #95a5a6;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  display: inline-block;
-  width: fit-content;
-}
+.disabled-badge { background: #95a5a6; }
 
 /* Pay Now Button */
 .pay-now-btn {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
+  color: white; border: none;
+  padding: 10px 18px; border-radius: 8px;
+  cursor: pointer; font-size: 14px; font-weight: 600;
   transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-width: 130px;
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; min-width: 140px; /* matches 3rd grid column */
 }
 
 .pay-now-btn:hover:not(:disabled) {
@@ -352,68 +315,43 @@
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 0 8px rgba(231, 76, 60, 0);
-  }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+  50%      { box-shadow: 0 0 0 8px rgba(231, 76, 60, 0); }
 }
 
 .pay-now-btn:disabled,
 .pay-now-btn.disabled-btn {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-  background: #95a5a6;
+  opacity: 0.5; cursor: not-allowed;
+  transform: none; background: #95a5a6;
 }
 
-.pay-now-btn.disabled-btn:hover {
-  transform: none;
-  box-shadow: none;
-}
+.pay-now-btn.disabled-btn:hover { transform: none; box-shadow: none; }
 
 /* Button Spinner */
 .btn-spinner {
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white; border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 
 /* Schedule Amount Column */
 .schedule-amount-col {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+  display: flex; flex-direction: column; gap: 3px;
 }
 
-.schedule-base-amount {
-  font-weight: 600;
-  color: #2c3e50;
-}
+.schedule-base-amount { font-weight: 600; color: #2c3e50; }
 
 .schedule-penalty-text {
-  font-size: 0.85em;
-  color: #e74c3c;
-  font-weight: 500;
+  font-size: 0.85em; color: #e74c3c; font-weight: 500;
 }
 
 /* Schedule Status Column */
 .schedule-status-col {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  align-items: flex-end;
+  display: flex; flex-direction: column; gap: 3px; align-items: flex-end;
 }
 
-.schedule-total-text {
-  font-size: 0.9em;
-  color: #2c3e50;
-  font-weight: 700;
-}
+.schedule-total-text { font-size: 0.9em; color: #2c3e50; font-weight: 700; }
 
 /* Responsive Design */
 @media (max-width: 1024px) {
@@ -422,13 +360,8 @@
     padding: 1.25rem 1.5rem 2rem 1.5rem;
   }
 
-  .balances-content {
-    padding: 0 1.5rem 2rem 1.5rem;
-  }
-
-  .balances-row {
-    gap: 20px;
-  }
+  .balances-content { padding: 0 1.5rem 2rem 1.5rem; }
+  .balances-row { gap: 20px; }
 
   .schedule-row {
     grid-template-columns: 1.5fr 1fr 1fr;
@@ -437,15 +370,12 @@
 
   .pending-header,
   .pending-info {
-    grid-template-columns: 1.5fr 1fr 120px;
-    gap: 10px;
+    grid-template-columns: 1.5fr minmax(180px, 1fr) 120px;
+    column-gap: 12px;
+    gap: 12px;
   }
 
-  .pay-now-btn {
-    min-width: 120px;
-    padding: 10px 14px;
-    font-size: 13px;
-  }
+  .pay-now-btn { min-width: 120px; padding: 10px 14px; font-size: 13px; }
 }
 
 @media (max-width: 768px) {
@@ -456,189 +386,75 @@
     gap: 1rem;
   }
 
-  .header-left {
-    width: 100%;
-  }
+  .header-left, .header-right { width: 100%; }
+  .header-right { justify-content: space-between; }
 
-  .header-right {
-    width: 100%;
-    justify-content: space-between;
-  }
+  .page-title { font-size: 1.5rem; }
+  .page-subtitle { font-size: 0.8rem; }
 
-  .page-title {
-    font-size: 1.5rem;
-  }
+  .balances-content { padding: 0 1rem 1rem 1rem; }
 
-  .page-subtitle {
-    font-size: 0.8rem;
-  }
+  .policy-section { padding: 1rem; border-radius: 8px; }
+  .policy-title   { font-size: 1.1rem; }
 
-  .balances-content {
-    padding: 0 1rem 1rem 1rem;
-  }
-
-  .policy-section {
-    padding: 1rem;
-    border-radius: 8px;
-  }
-
-  .policy-title {
-    font-size: 1.1rem;
-  }
-
-  .balances-row {
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .card {
-    padding: 16px;
-  }
-
-  .card-header,
-  .card h4 {
-    font-size: 15px;
-    padding: 8px;
-  }
+  .balances-row { flex-direction: column; gap: 16px; }
+  .card { padding: 16px; }
+  .card-header, .card h4 { font-size: 15px; padding: 8px; }
 
   .schedule-row {
     grid-template-columns: 1fr;
-    gap: 8px;
-    padding: 10px 0;
+    gap: 8px; padding: 10px 0;
   }
 
-  .schedule-amount-col,
-  .schedule-status-col {
-    align-items: flex-start;
-  }
+  .schedule-amount-col, .schedule-status-col { align-items: flex-start; }
 
-  .schedule-base-amount,
-  .base-amount {
-    font-size: 15px;
-  }
+  .schedule-base-amount, .base-amount { font-size: 15px; }
+  .schedule-penalty-text, .penalty-amount { font-size: 12px; }
 
-  .schedule-penalty-text,
-  .penalty-amount {
-    font-size: 12px;
-  }
-
-  .pending-header,
-  .pending-info {
+  .pending-header, .pending-info {
     grid-template-columns: 1fr;
-    gap: 10px;
-    padding: 10px 8px;
+    gap: 10px; padding: 10px 8px;
   }
 
-  .pending-header {
-    display: none;
-  }
+  .pending-header { display: none; }
 
   .pending-info {
-    border: 1px solid #e1e8ed;
-    border-radius: 8px;
-    padding: 12px;
-    margin-bottom: 12px;
+    border: 1px solid #e1e8ed; border-radius: 8px;
+    padding: 12px; margin-bottom: 12px;
   }
 
-  .payment-amount-col,
-  .date-col {
-    align-items: flex-start;
-  }
+  .payment-amount-col, .date-col { align-items: flex-start; }
+  .date-col { margin-top: 6px; }
 
-  .date-col {
-    margin-top: 6px;
-  }
+  .pay-now-btn { width: 100%; min-width: unset; margin-top: 8px; }
 
-  .pay-now-btn {
-    width: 100%;
-    min-width: unset;
-    margin-top: 8px;
-  }
+  .schedule-total, .schedule-penalties { font-size: 15px; padding: 10px; }
 
-  .schedule-total,
-  .schedule-penalties {
-    font-size: 15px;
-    padding: 10px;
-  }
-
-  .user-dropdown-toggle {
-    padding: 0.4rem 0.6rem;
-  }
-
-  .user-name {
-    font-size: 0.9rem;
-  }
-
-  .user-avatar-icon {
-    font-size: 1.75rem;
-  }
-
-  .notification-icon {
-    font-size: 1.1rem;
-  }
+  .user-dropdown-toggle { padding: 0.4rem 0.6rem; }
+  .user-name { font-size: 0.9rem; }
+  .user-avatar-icon { font-size: 1.75rem; }
+  .notification-icon { font-size: 1.1rem; }
 }
 
 @media (max-width: 480px) {
-  .header-content {
-    padding: 0.875rem 0.875rem 1.25rem 0.875rem;
-  }
+  .header-content { padding: 0.875rem 0.875rem 1.25rem 0.875rem; }
+  .page-title { font-size: 1.25rem; }
+  .page-subtitle { font-size: 0.75rem; }
+  .balances-content { padding: 0 0.875rem 0.875rem 0.875rem; }
 
-  .page-title {
-    font-size: 1.25rem;
-  }
+  .policy-section { padding: 0.875rem; }
+  .policy-title { font-size: 1rem; }
+  .card { padding: 12px; }
+  .card-header, .card h4 { font-size: 14px; }
 
-  .page-subtitle {
-    font-size: 0.75rem;
-  }
+  .schedule-base-amount, .base-amount { font-size: 14px; }
+  .schedule-total, .schedule-penalties { font-size: 14px; padding: 8px; }
 
-  .balances-content {
-    padding: 0 0.875rem 0.875rem 0.875rem;
-  }
+  .pay-now-btn { padding: 10px 16px; font-size: 13px; }
 
-  .policy-section {
-    padding: 0.875rem;
-  }
+  .user-name { font-size: 0.85rem; }
+  .user-avatar-icon { font-size: 1.5rem; }
 
-  .policy-title {
-    font-size: 1rem;
-  }
-
-  .card {
-    padding: 12px;
-  }
-
-  .card-header,
-  .card h4 {
-    font-size: 14px;
-  }
-
-  .schedule-base-amount,
-  .base-amount {
-    font-size: 14px;
-  }
-
-  .schedule-total,
-  .schedule-penalties {
-    font-size: 14px;
-    padding: 8px;
-  }
-
-  .pay-now-btn {
-    padding: 10px 16px;
-    font-size: 13px;
-  }
-
-  .user-name {
-    font-size: 0.85rem;
-  }
-
-  .user-avatar-icon {
-    font-size: 1.5rem;
-  }
-
-  .overdue-badge,
-  .disabled-badge {
-    font-size: 10px;
-    padding: 3px 6px;
-  }
+  .overdue-badge, .disabled-badge { font-size: 10px; padding: 3px 6px; }
 }
+ 

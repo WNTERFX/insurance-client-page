@@ -12,9 +12,7 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, fileName }) => {
                 <p className="modal-message">
                     Are you sure you want to remove this attachment?
                 </p>
-                {fileName && (
-                    <p className="modal-filename">"{fileName}"</p>
-                )}
+
                 <div className="modal-actions">
                     <button 
                         type="button" 

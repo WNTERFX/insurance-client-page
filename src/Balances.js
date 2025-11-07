@@ -4,9 +4,58 @@ import { useNavigate } from "react-router-dom";
 import { fetchPayments } from "./Actions/BalanceActions";
 import { fetchPoliciesWithComputation, getCurrentClient } from "./Actions/PolicyActions";
 import { createPayMongoCheckout, checkPaymentTransaction } from "./Actions/PaymongoActions";
-import { getTotalPenalty, checkPaymentPenalty } from "./Actions/PenaltyActions";
+import { getTotalPenalty } from "./Actions/PenaltyActions";
 import { logoutClient } from "./Actions/LoginActions";
 import { FaBell, FaSignOutAlt, FaUserCircle } from "react-icons/fa";
+
+/* ==== helpers ==== */
+
+/** Format "11/4/2025" → "November 4, 2025" */
+function formatDateLong(dateStr) {
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" });
+}
+
+/** LIFO for policy cards (newest first) */
+function policyOrderKey(p) {
+  // Prefer explicit timestamps if present
+  if (p?.created_at) return new Date(p.created_at).getTime();
+  if (p?.updated_at) return new Date(p.updated_at).getTime();
+
+  // Else use latest payment date
+  const latestPay = (p?.payments || [])
+    .map(x => new Date(x.payment_date).getTime())
+    .filter(n => Number.isFinite(n))
+    .sort((a, b) => b - a)[0];
+  if (latestPay) return latestPay;
+
+  // Else numeric part of internal_id like "P-000000008"
+  const n = Number(String(p?.internal_id || "").replace(/\D+/g, ""));
+  if (Number.isFinite(n)) return n;
+
+  // Fallback: DB id
+  return Number(p?.id || 0);
+}
+
+function isPaymentOverdue(paymentDate) {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const due = new Date(paymentDate); due.setHours(0, 0, 0, 0);
+  return due < today;
+}
+function getDaysOverdue(paymentDate) {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const due = new Date(paymentDate); due.setHours(0, 0, 0, 0);
+  const days = Math.floor((today - due) / (1000 * 60 * 60 * 24));
+  return days > 0 ? days : 0;
+}
+function isPaymentDisabled(payments, currentPaymentIndex) {
+  if (currentPaymentIndex === 0) return false;
+  for (let i = 0; i < currentPaymentIndex; i++) {
+    if (!payments[i].is_paid) return true;
+  }
+  return false;
+}
 
 export default function Balances() {
   const [policiesWithPayments, setPoliciesWithPayments] = useState([]);
@@ -24,19 +73,15 @@ export default function Balances() {
     loadCurrentUser();
   }, []);
 
-  // Load current user data
   async function loadCurrentUser() {
     try {
       const client = await getCurrentClient();
-      if (client) {
-        setCurrentUser(client);
-      }
+      if (client) setCurrentUser(client);
     } catch (error) {
       console.error("Error loading user:", error);
     }
   }
 
-  // Handle click outside dropdown
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -44,15 +89,52 @@ export default function Balances() {
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = async () => {
-    console.log("Logging out...");
-    const result = await logoutClient();
+  async function loadAllData() {
+    try {
+      const policies = await fetchPoliciesWithComputation();
+      if (!policies?.length) {
+        setPoliciesWithPayments([]);
+        return;
+      }
 
+      const policiesData = await Promise.all(
+        policies.map(async (policy) => {
+          const payments = (await fetchPayments(policy.id)) || [];
+
+          // Load penalties for unpaid payments
+          if (payments.length) {
+            for (const payment of payments) {
+              if (!payment.is_paid) {
+                try {
+                  const penalty = await getTotalPenalty(payment.id);
+                  setPenalties(prev => ({ ...prev, [payment.id]: Number(penalty || 0) }));
+                } catch (error) {
+                  console.error(`Error loading penalty for payment ${payment.id}:`, error);
+                }
+              }
+            }
+          }
+
+          return { ...policy, payments: payments || [] };
+        })
+      );
+
+      // 🔽 Only change: make the WHOLE policy-section list LIFO (newest first)
+      policiesData.sort((a, b) => policyOrderKey(b) - policyOrderKey(a));
+
+      setPoliciesWithPayments(policiesData);
+    } catch (error) {
+      console.error("Error loading policies and payments:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const handleLogout = async () => {
+    const result = await logoutClient();
     if (result.success) {
       navigate("/insurance-client-page/");
     } else {
@@ -61,125 +143,38 @@ export default function Balances() {
     }
   };
 
-  // Display name logic
   const displayName = () => {
     if (loading) return "Loading...";
     if (!currentUser) return "User";
-
     const prefix = currentUser.prefix || "";
     const firstName = currentUser.first_Name || "";
     const lastName = currentUser.last_Name || "";
-
-    if (prefix && firstName) {
-      return `${prefix} ${firstName}`;
-    } else if (firstName) {
-      return firstName;
-    } else if (lastName) {
-      return lastName;
-    } else {
-      return "User";
-    }
+    if (prefix && firstName) return `${prefix} ${firstName}`;
+    if (firstName) return firstName;
+    if (lastName) return lastName;
+    return "User";
   };
-
-  async function loadAllData() {
-    try {
-      const policies = await fetchPoliciesWithComputation();
-      
-      if (policies && policies.length > 0) {
-        const policiesData = await Promise.all(
-          policies.map(async (policy) => {
-            const payments = await fetchPayments(policy.id);
-            
-            // Load penalties for unpaid payments
-            if (payments && payments.length > 0) {
-              for (const payment of payments) {
-                if (!payment.is_paid) {
-                  try {
-                    const penalty = await getTotalPenalty(payment.id);
-                    setPenalties(prev => ({ ...prev, [payment.id]: penalty }));
-                  } catch (error) {
-                    console.error(`Error loading penalty for payment ${payment.id}:`, error);
-                  }
-                }
-              }
-            }
-
-            return {
-              ...policy,
-              payments: payments || []
-            };
-          })
-        );
-        
-        setPoliciesWithPayments(policiesData);
-      }
-    } catch (error) {
-      console.error("Error loading policies and payments:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
 
   async function handlePayNow(paymentId) {
     setProcessingPayment(paymentId);
     setPaymentError(null);
-
     try {
-      // Check for existing transaction
       const existingTransaction = await checkPaymentTransaction(paymentId);
-      
       if (existingTransaction && existingTransaction.checkout_url) {
         window.location.href = existingTransaction.checkout_url;
         return;
       }
-
-      // Create new checkout session
       const checkout = await createPayMongoCheckout(paymentId);
-      
       if (checkout.checkout_url) {
         window.location.href = checkout.checkout_url;
       } else {
-        throw new Error('No checkout URL received');
+        throw new Error("No checkout URL received");
       }
     } catch (error) {
-      console.error('Payment error:', error);
-      setPaymentError(error.message || 'Failed to initiate payment');
+      console.error("Payment error:", error);
+      setPaymentError(error.message || "Failed to initiate payment");
       setProcessingPayment(null);
     }
-  }
-
-  function isPaymentOverdue(paymentDate) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const dueDate = new Date(paymentDate);
-    dueDate.setHours(0, 0, 0, 0);
-    return dueDate < today;
-  }
-
-  function getDaysOverdue(paymentDate) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const dueDate = new Date(paymentDate);
-    dueDate.setHours(0, 0, 0, 0);
-    const days = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
-    return days > 0 ? days : 0;
-  }
-
-  // Check if payment button should be disabled
-  function isPaymentDisabled(payments, currentPaymentIndex) {
-    // Allow payment if it's the first payment
-    if (currentPaymentIndex === 0) {
-      return false;
-    }
-
-    // Check if all previous payments are paid
-    for (let i = 0; i < currentPaymentIndex; i++) {
-      if (!payments[i].is_paid) {
-        return true; // Disable if any previous payment is unpaid
-      }
-    }
-
-    return false;
   }
 
   if (loading) {
@@ -255,138 +250,154 @@ export default function Balances() {
           </div>
         )}
 
-      {policiesWithPayments.map((policy) => {
-        const totalBalance = policy.payments.reduce((sum, p) => sum + p.amount_to_be_paid, 0);
-        const pendingPayments = policy.payments.filter((p) => !p.is_paid);
-        const totalPenalties = pendingPayments.reduce((sum, p) => sum + (penalties[p.id] || 0), 0);
+        {policiesWithPayments.map((policy) => {
+          const totalBalance = policy.payments.reduce(
+            (sum, p) => sum + (Number(p.amount_to_be_paid) || 0),
+            0
+          );
+          const pendingPayments = policy.payments.filter((p) => !p.is_paid);
+          const totalPenalties = pendingPayments.reduce(
+            (sum, p) => sum + (Number(penalties[p.id]) || 0),
+            0
+          );
 
-        return (
-          <div key={policy.id} className="policy-section">
-            <h3 className="policy-title">
-              ID: {policy.internal_id} - {policy.policy_type}
-            </h3>
+          return (
+            <div key={policy.id} className="policy-section">
+              <h3 className="policy-title">
+                ID: {policy.internal_id} - {policy.policy_type}
+              </h3>
 
-            <div className="balances-row">
-              {/* Payment Schedule */}
-              <div className="card schedule-card">
-                <div className="card-header">Payment Schedule</div>
-                {policy.payments.length > 0 ? (
-                  <>
-                    {policy.payments.map((p) => {
-                      const penalty = penalties[p.id] || 0;
-                      const totalWithPenalty = p.amount_to_be_paid + penalty;
-                      const hasPenalty = !p.is_paid && penalty > 0;
+              <div className="balances-row">
+                {/* Payment Schedule (your inside layout unchanged) */}
+                <div className="card schedule-card">
+                  <div className="card-header">Payment Schedule</div>
+                  {policy.payments.length > 0 ? (
+                    <>
+                      {policy.payments.map((p) => {
+                        const penalty = Number(penalties[p.id] || 0);
+                        const totalWithPenalty = (Number(p.amount_to_be_paid) || 0) + penalty;
+                        const hasPenalty = !p.is_paid && penalty > 0;
+
+                        return (
+                          <div key={p.id} className="schedule-row">
+                            {/* Date → Amount → Status (as you requested before) */}
+                            <span className="schedule-date">{formatDateLong(p.payment_date)}</span>
+
+                            <div className="schedule-amount-col">
+                              <span className="schedule-base-amount">
+                                ₱ {(Number(p.amount_to_be_paid) || 0).toLocaleString()}
+                              </span>
+                              {hasPenalty && (
+                                <span className="schedule-penalty-text">
+                                  + ₱{penalty.toLocaleString()} penalty
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="schedule-status-col">
+                              <span
+                                className={p.is_paid ? "paid-status" : "unpaid-status"}
+                                title={hasPenalty ? `Total due: ₱${totalWithPenalty.toLocaleString()}` : ""}
+                              >
+                                {p.is_paid ? "✓ Paid" : "Pending"}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      <div className="schedule-total">
+                        <span>Policy Premium</span>
+                        <span>₱ {totalBalance.toLocaleString()}</span>
+                      </div>
+
+                      {totalPenalties > 0 && (
+                        <div className="schedule-penalties">
+                          <span>Total Penalties</span>
+                          <span>₱ {totalPenalties.toLocaleString()}</span>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <p className="no-payments">No payment schedule found</p>
+                  )}
+                </div>
+
+                {/* Pending Payments (inside unchanged) */}
+                <div className="card pending-card">
+                  <h4>Pending Payments</h4>
+                  <div className="pending-header">
+                    <span className="red-text">Date</span>
+                    <span className="red-text">Amount</span>
+                    <span className="red-text">Action</span>
+                  </div>
+                  {pendingPayments.length > 0 ? (
+                    pendingPayments.map((p) => {
+                      const penalty = Number(penalties[p.id] || 0);
+                      const totalAmount = (Number(p.amount_to_be_paid) || 0) + penalty;
+                      const isOverdue = isPaymentOverdue(p.payment_date);
+                      const daysOverdue = getDaysOverdue(p.payment_date);
+
+                      const originalIndex = policy.payments.findIndex(payment => payment.id === p.id);
+                      const isDisabled = isPaymentDisabled(policy.payments, originalIndex);
 
                       return (
-                        <div key={p.id} className="schedule-row">
-                          <div className="schedule-amount-col">
-                            <span className="schedule-base-amount">
-                              ₱ {p.amount_to_be_paid.toLocaleString()}
+                        <div key={p.id} className="pending-info">
+                          {/* Date first */}
+                          <div className="date-col">
+                            <span className={isOverdue ? "overdue-date" : ""}>
+                              {formatDateLong(p.payment_date)}
                             </span>
-                            {hasPenalty && (
-                              <span className="schedule-penalty-text">
-                                + ₱{penalty.toLocaleString()} penalty
+                            {isOverdue && (
+                              <span className="overdue-badge">
+                                {daysOverdue} day{daysOverdue > 1 ? 's' : ''} overdue
                               </span>
                             )}
                           </div>
-                          <span>{new Date(p.payment_date).toLocaleDateString()}</span>
-                          <div className="schedule-status-col">
-                            <span className={p.is_paid ? "paid-status" : "unpaid-status"}>
-                              {p.is_paid ? "✓ Paid" : "Pending"}
+
+                          {/* Amount second */}
+                          <div className="payment-amount-col">
+                            <span className="base-amount">
+                              ₱ {(Number(p.amount_to_be_paid) || 0).toLocaleString()}
                             </span>
+                            {penalty > 0 && (
+                              <>
+                                <span className="penalty-amount">
+                                  + ₱{penalty.toLocaleString()} penalty
+                                </span>
+                                <span className="total-amount">
+                                  Total: ₱{totalAmount.toLocaleString()}
+                                </span>
+                              </>
+                            )}
                           </div>
+
+                          {/* Action third */}
+                          <button
+                            className={`pay-now-btn ${isOverdue ? 'overdue-btn' : ''} ${isDisabled ? 'disabled-btn' : ''}`}
+                            onClick={() => handlePayNow(p.id)}
+                            disabled={processingPayment === p.id || isDisabled}
+                            title={isDisabled ? "Please pay previous payments first" : ""}
+                          >
+                            {processingPayment === p.id ? (
+                              <>
+                                <span className="btn-spinner"></span> Processing...
+                              </>
+                            ) : (
+                              "Pay Now"
+                            )}
+                          </button>
                         </div>
                       );
-                    })}
-                    <div className="schedule-total">
-                      <span>Policy Total</span>
-                      <span>₱ {totalBalance.toLocaleString()}</span>
-                    </div>
-                    {totalPenalties > 0 && (
-                      <div className="schedule-penalties">
-                        <span>Total Penalties</span>
-                        <span>₱ {totalPenalties.toLocaleString()}</span>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <p className="no-payments">No payment schedule found</p>
-                )}
-              </div>
-
-              {/* Pending Payments */}
-              <div className="card pending-card">
-                <h4>Pending Payments</h4>
-                <div className="pending-header">
-                  <span className="red-text">Amount</span>
-                  <span className="red-text">Date</span>
-                  <span className="red-text">Action</span>
+                    })
+                  ) : (
+                    <p className="no-pending">No pending payments</p>
+                  )}
                 </div>
-                {pendingPayments.length > 0 ? (
-                  pendingPayments.map((p, index) => {
-                    const penalty = penalties[p.id] || 0;
-                    const totalAmount = p.amount_to_be_paid + penalty;
-                    const isOverdue = isPaymentOverdue(p.payment_date);
-                    const daysOverdue = getDaysOverdue(p.payment_date);
-                    
-                    // Find the index in the original payments array
-                    const originalIndex = policy.payments.findIndex(payment => payment.id === p.id);
-                    const isDisabled = isPaymentDisabled(policy.payments, originalIndex);
-
-                    return (
-                      <div key={p.id} className="pending-info">
-                        <div className="payment-amount-col">
-                          <span className="base-amount">
-                            ₱ {p.amount_to_be_paid.toLocaleString()}
-                          </span>
-                          {penalty > 0 && (
-                            <>
-                              <span className="penalty-amount">
-                                + ₱{penalty.toLocaleString()} penalty
-                              </span>
-                              <span className="total-amount">
-                                Total: ₱{totalAmount.toLocaleString()}
-                              </span>
-                            </>
-                          )}
-                        </div>
-                        
-                        <div className="date-col">
-                          <span className={isOverdue ? "overdue-date" : ""}>
-                            {new Date(p.payment_date).toLocaleDateString()}
-                          </span>
-                          {isOverdue && (
-                            <span className="overdue-badge">
-                              {daysOverdue} day{daysOverdue > 1 ? 's' : ''} overdue
-                            </span>
-                          )}
-                        </div>
-                        
-                        <button
-                          className={`pay-now-btn ${isOverdue ? 'overdue-btn' : ''} ${isDisabled ? 'disabled-btn' : ''}`}
-                          onClick={() => handlePayNow(p.id)}
-                          disabled={processingPayment === p.id || isDisabled}
-                          title={isDisabled ? "Please pay previous payments first" : ""}
-                        >
-                          {processingPayment === p.id ? (
-                            <>
-                              <span className="btn-spinner"></span> Processing...
-                            </>
-                          ) : (
-                            "Pay Now"
-                          )}
-                        </button>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <p className="no-pending">No pending payments</p>
-                )}
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
       </div>
     </div>
   );

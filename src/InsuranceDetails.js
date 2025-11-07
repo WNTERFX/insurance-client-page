@@ -22,14 +22,30 @@ export default function InsuranceDetails() {
   const [partnerFilter, setPartnerFilter] = useState("All Partners");
   const [companyPartners, setCompanyPartners] = useState([]);
 
+  /* ---------- helpers (LIFO ordering) ---------- */
+  // Pick a robust ordering key so "newest" appears first.
+  function policyOrderKey(p) {
+    // Prefer explicit timestamps if present
+    if (p?.updated_at) return new Date(p.updated_at).getTime();
+    if (p?.created_at) return new Date(p.created_at).getTime();
+
+    // Else fall back to inception date
+    if (p?.policy_inception) return new Date(p.policy_inception).getTime();
+
+    // Else use numeric part of internal_id like "P-000000123"
+    const n = Number(String(p?.internal_id || "").replace(/\D+/g, ""));
+    if (Number.isFinite(n)) return n;
+
+    // Last resort, DB id
+    return Number(p?.id || 0);
+  }
+
   // Load current user data
   useEffect(() => {
     async function loadCurrentUser() {
       try {
         const client = await getCurrentClient();
-        if (client) {
-          setCurrentUser(client);
-        }
+        if (client) setCurrentUser(client);
       } catch (error) {
         console.error("Error loading user:", error);
       }
@@ -44,15 +60,11 @@ export default function InsuranceDetails() {
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleLogout = async () => {
-    console.log("Logging out...");
     const result = await logoutClient();
-   
     if (result.success) {
       navigate("/insurance-client-page/");
     } else {
@@ -64,19 +76,12 @@ export default function InsuranceDetails() {
   // Display name logic
   const displayName = () => {
     if (!currentUser) return "Loading...";
-    
     const prefix = currentUser.prefix || "";
     const firstName = currentUser.first_Name || "";
-    
-    if (prefix && firstName) {
-      return `${prefix} ${firstName}`;
-    } else if (firstName) {
-      return firstName;
-    } else if (currentUser.last_Name) {
-      return currentUser.last_Name;
-    } else {
-      return "User";
-    }
+    if (prefix && firstName) return `${prefix} ${firstName}`;
+    if (firstName) return firstName;
+    if (currentUser.last_Name) return currentUser.last_Name;
+    return "User";
   };
 
   useEffect(() => {
@@ -84,7 +89,6 @@ export default function InsuranceDetails() {
       try {
         setLoading(true);
         setError(null);
-
         const policies = await fetchPoliciesWithComputation();
         setDetails(policies || []);
       } catch (err) {
@@ -129,7 +133,7 @@ export default function InsuranceDetails() {
       policy.insurance_Partners?.insurance_Name,
       policy.vehicle_table?.map(v => v.vehicle_name).join(' '),
       policy.vehicle_table?.map(v => v.vehicle_maker).join(' '),
-      policy.vehicle_table?.map(v => v.engine_serial_no).join(' ')
+      policy.vehicle_table?.map(v => v.plate_num).join(' ')
     ].filter(Boolean).join(' ').toLowerCase();
 
     const matchesSearch = searchableText.includes(searchTerm.toLowerCase());
@@ -137,14 +141,17 @@ export default function InsuranceDetails() {
     return matchesStatus && matchesPartner && matchesSearch;
   });
 
-  const formatCurrency = (amount) => `₱${(amount || 0).toLocaleString()}`;
-  
-  // Calculate tax/fee amounts from percentage and round to nearest whole number
-  const calculateTaxAmount = (percentage, baseAmount) => {
-    const result = (percentage / 100) * baseAmount;
-    return Math.round(result);
-  };
+  // date 
+  const formatDateLong = (date) =>
+  date ? new Date(date).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }) : "N/A";
 
+  // LIFO: newest policy first (only affects the order of cards)
+  const filteredDetailsLIFO = [...filteredDetails].sort(
+    (a, b) => policyOrderKey(b) - policyOrderKey(a)
+  );
+
+  const formatCurrency = (amount) => `₱${(amount || 0).toLocaleString()}`;
+  const calculateTaxAmount = (percentage, baseAmount) => Math.round((percentage / 100) * baseAmount);
   const formatDate = (date) => (date ? new Date(date).toLocaleDateString() : "N/A");
 
   if (loading) {
@@ -156,21 +163,15 @@ export default function InsuranceDetails() {
               <h1 className="page-title">Insurance Details</h1>
               <p className="page-subtitle">Review your active and inactive policy information.</p>
             </div>
-            
             <div className="header-right">
               <button className="notification-btn">
                 <FaBell className="notification-icon" />
               </button>
-              
               <div className="user-dropdown" ref={dropdownRef}>
-                <button
-                  className="user-dropdown-toggle"
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                >
+                <button className="user-dropdown-toggle" onClick={() => setDropdownOpen(!dropdownOpen)}>
                   <span className="user-name">{displayName()}</span>
                   <FaUserCircle className="user-avatar-icon" />
                 </button>
-                
                 {dropdownOpen && (
                   <div className="dropdown-menu">
                     <button className="dropdown-item logout-item" onClick={handleLogout}>
@@ -200,21 +201,15 @@ export default function InsuranceDetails() {
               <h1 className="page-title">Insurance Details</h1>
               <p className="page-subtitle">Review your active and inactive policy information.</p>
             </div>
-            
             <div className="header-right">
               <button className="notification-btn">
                 <FaBell className="notification-icon" />
               </button>
-              
               <div className="user-dropdown" ref={dropdownRef}>
-                <button
-                  className="user-dropdown-toggle"
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                >
+                <button className="user-dropdown-toggle" onClick={() => setDropdownOpen(!dropdownOpen)}>
                   <span className="user-name">{displayName()}</span>
                   <FaUserCircle className="user-avatar-icon" />
                 </button>
-                
                 {dropdownOpen && (
                   <div className="dropdown-menu">
                     <button className="dropdown-item logout-item" onClick={handleLogout}>
@@ -240,21 +235,15 @@ export default function InsuranceDetails() {
             <h1 className="page-title">Insurance Details</h1>
             <p className="page-subtitle">Review your active and inactive policy information.</p>
           </div>
-          
           <div className="header-right">
             <button className="notification-btn">
               <FaBell className="notification-icon" />
             </button>
-            
             <div className="user-dropdown" ref={dropdownRef}>
-              <button
-                className="user-dropdown-toggle"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
+              <button className="user-dropdown-toggle" onClick={() => setDropdownOpen(!dropdownOpen)}>
                 <span className="user-name">{displayName()}</span>
                 <FaUserCircle className="user-avatar-icon" />
               </button>
-              
               {dropdownOpen && (
                 <div className="dropdown-menu">
                   <button className="dropdown-item logout-item" onClick={handleLogout}>
@@ -271,8 +260,9 @@ export default function InsuranceDetails() {
       {/* Filter Controls */}
       <div className="controls-insurance">
         <span className="policy-count-text">
-          Insurance Policy ({filteredDetails.length})
+          Insurance Policy ({filteredDetailsLIFO.length})
         </span>
+
         <div className="search-container-insurance">
           <input
             type="text"
@@ -306,15 +296,15 @@ export default function InsuranceDetails() {
         </select>
       </div>
 
-      {/* Policies Grid */}
-      {filteredDetails.length === 0 ? (
+      {/* Policies Grid (LIFO) */}
+      {filteredDetailsLIFO.length === 0 ? (
         <div className="empty-state">
           <h3>No Insurance Policies Found</h3>
           <p>No policies match your current filters.</p>
         </div>
       ) : (
         <div style={{ display: "grid", gap: "1.5rem" }}>
-          {filteredDetails.map((policy) => (
+          {filteredDetailsLIFO.map((policy) => (
             <div key={policy.id} className="policy-card">
               {/* Policy Header */}
               <div className="policy-header">
@@ -331,10 +321,10 @@ export default function InsuranceDetails() {
               <div className="policy-info">
                 <h3>Policy Information</h3>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1rem" }}>
-                  <div><strong>Inception Date:</strong> {formatDate(policy.policy_inception)}</div>
-                  <div><strong>Expiry Date:</strong> {formatDate(policy.policy_expiry)}</div>
-                  <div><strong>Created:</strong> {formatDate(policy.created_at)}</div>
-                  <div><strong>Insurer:</strong> {policy.insurance_Partners?.insurance_Name || 'N/A'}</div>
+                  <div><strong>Inception Date:</strong> {formatDateLong(policy.policy_inception)}</div>
+                  <div><strong>Expiry Date:</strong> {formatDateLong(policy.policy_expiry)}</div>
+                  <div><strong>Created:</strong> {formatDateLong(policy.created_at)}</div>
+                  <div><strong>Partner Name:</strong> {policy.insurance_Partners?.insurance_Name || 'N/A'}</div>
                 </div>
               </div>
 
@@ -366,11 +356,11 @@ export default function InsuranceDetails() {
                     <div key={vehicle.id} className="vehicle-info">
                       <div className="vehicle-info-grid">
                         <div>
-                          <strong>Make:</strong>
+                          <strong>Make Model:</strong>
                           <span>{vehicle.vehicle_maker || 'N/A'}</span>
                         </div>
                         <div>
-                          <strong>Model:</strong>
+                          <strong>Vehicle:</strong>
                           <span>{vehicle.vehicle_name || 'N/A'}</span>
                         </div>
                         <div>
@@ -391,7 +381,7 @@ export default function InsuranceDetails() {
                         </div>
                         <div>
                           <strong>Engine Serial Number:</strong>
-                          <span>{vehicle.engine_serial_no || 'N/A'}</span>
+                          <span>{vehicle.engine_num || 'N/A'}</span>
                         </div>
                       </div>
                     </div>
@@ -400,73 +390,52 @@ export default function InsuranceDetails() {
               </div>
 
               {/* Coverage & Tax Breakdown */}
-              {policy.vehicle_table?.length > 0 && policy.vehicle_table.map(vehicle => (
-                vehicle.calculation_Table ? (
+              {policy.vehicle_table?.length > 0 && policy.vehicle_table.map(vehicle => {
+                if (!vehicle.calculation_Table) {
+                  return <div className="no-calculation" key={vehicle.id}>No calculation data found for this vehicle</div>;
+                }
+                
+                // Calculate basic premium
+                const bodilyInjury = vehicle.calculation_Table.bodily_Injury || 0;
+                const propertyDamage = vehicle.calculation_Table.property_Damage || 0;
+                const personalAccident = vehicle.calculation_Table.personal_Accident || 0;
+                const vehicleRateValue = policy.policy_Computation_Table?.[0]?.vehicle_Rate_Value || 0;
+                const basicPremium = bodilyInjury + propertyDamage + personalAccident + vehicleRateValue;
+                
+                // Current vehicle value
+                const currentVehicleValue = policy.policy_Computation_Table?.[0]?.current_Value || 0;
+                void currentVehicleValue; // (kept for clarity if you reuse later)
+
+                return (
                   <div key={vehicle.id} className="coverage-tax">
                     <h3>Coverage & Tax Breakdown</h3>
                     <div className="grid-three">
                       <div>
                         <h5>Coverage Amounts</h5>
-                        <div><strong>Bodily Injury:</strong>{formatCurrency(vehicle.calculation_Table.bodily_Injury)}</div>
-                        <div><strong>Property Damage:</strong> {formatCurrency(vehicle.calculation_Table.property_Damage)}</div>
-                        <div><strong>Personal Accident:</strong> {formatCurrency(vehicle.calculation_Table.personal_Accident)}</div>
+                        <div><strong>Bodily Injury:</strong>{formatCurrency(bodilyInjury)}</div>
+                        <div><strong>Property Damage:</strong> {formatCurrency(propertyDamage)}</div>
+                        <div><strong>Personal Accident:</strong> {formatCurrency(personalAccident)}</div>
                         <div><strong>Vehicle Type:</strong> {vehicle.calculation_Table.vehicle_type}</div>
                       </div>
-                      {/*<div>
-                        <h5>Rates & Premiums</h5>
-                        <div>
-                          <strong>Vehicle Rate:</strong> 
-                          {formatCurrency(
-                            calculateTaxAmount(
-                              vehicle.calculation_Table.vehicle_Rate || 0,
-                              policy.policy_Computation_Table?.[0]?.current_Value || 0
-                            )
-                          )}
-                        </div>
-                        <div>
-                          <strong>AON:</strong> 
-                          {formatCurrency(
-                            calculateTaxAmount(
-                              vehicle.calculation_Table.aon * 100 || 0,
-                              policy.policy_Computation_Table?.[0]?.current_Value || 0
-                            )
-                          )}
-                        </div>
-                      </div>*/}
                       <div>
                         <h5>Taxes & Fees</h5>
                         <div>
                           <strong>VAT Tax:</strong> 
-                          {formatCurrency(
-                            calculateTaxAmount(
-                              vehicle.calculation_Table.vat_Tax || 0,
-                              policy.policy_Computation_Table?.[0]?.vehicle_Rate_Value || 0
-                            )
-                          )}
+                          {formatCurrency(calculateTaxAmount(vehicle.calculation_Table.vat_Tax || 0, basicPremium))}
                         </div>
                         <div>
                           <strong>Documentary Stamp:</strong> 
-                          {formatCurrency(
-                            calculateTaxAmount(
-                              vehicle.calculation_Table.docu_Stamp || 0,
-                              policy.policy_Computation_Table?.[0]?.vehicle_Rate_Value || 0
-                            )
-                          )}
+                          {formatCurrency(calculateTaxAmount(vehicle.calculation_Table.docu_Stamp || 0, basicPremium))}
                         </div>
                         <div>
                           <strong>Local Gov Tax:</strong> 
-                          {formatCurrency(
-                            calculateTaxAmount(
-                              vehicle.calculation_Table.local_Gov_Tax || 0,
-                              policy.policy_Computation_Table?.[0]?.vehicle_Rate_Value || 0
-                            )
-                          )}
+                          {formatCurrency(calculateTaxAmount(vehicle.calculation_Table.local_Gov_Tax || 0, basicPremium))}
                         </div>
                       </div>
                     </div>
                   </div>
-                ) : <div className="no-calculation" key={vehicle.id}>No calculation data found for this vehicle</div>
-              ))}
+                );
+              })}
             </div>
           ))}
         </div>

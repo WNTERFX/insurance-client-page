@@ -16,9 +16,10 @@ import Quotation from './Quotation';
 import Payment from './Payment';
 import AccountSettings from './AccountSettings';
 import MainArea from './MainArea';
-import { SignInForm } from './SignInForm';
+import { SignUpForm } from './SignUpForm';
 import InvalidAuthRoute from './AdminApp/ControllerAdmin/InvalidAuthRoute';
 import ResetPasswordForm from "./ResetPasswordForm";
+import { EmailVerified } from './EmailVerified'
 
 import PaymentSuccess from './PaymentSuccess';
 import PaymentFailure from './PaymentFailure';
@@ -38,9 +39,10 @@ function App() {
     
   <Routes>
   <Route path="/insurance-client-page" element={<LandingPage />} />
-  <Route path="/insurance-client-page/signin" element={<SignInForm />} />
+  <Route path="/insurance-client-page/signup" element={<SignUpForm />} />
   <Route path="/insurance-client-page/login" element={<LoginForm />} />
   <Route path="/insurance-client-page/reset-password" element={<ResetPasswordForm />} />
+  <Route path="/insurance-client-page/email-verified" element={<EmailVerified />} />
   
   <Route path="/insurance-client-page/main-portal/payment/success" element={<PaymentSuccess />} />
   <Route path="/insurance-client-page/main-portal/payment/failure" element={<PaymentFailure />} />
@@ -58,6 +60,7 @@ function App() {
   <Route element={<InvalidAuthRoute />}>
 
     <Route path="/insurance-client-page/main-portal" element={<MainArea />}>
+      <Route index element={<Home />} />
       <Route path="Home" element={<Home />} />
       <Route path="Home/CalendarWrapper" element={<CalendarWrapper />} />
       <Route path="InsuranceDetails" element={<InsuranceDetails />} />

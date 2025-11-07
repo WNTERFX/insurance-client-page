@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchPaymentHistory } from "./Actions/HistoryActions";
 import { getCurrentClient } from "./Actions/PolicyActions";
@@ -11,17 +11,13 @@ export default function History() {
   const [historyData, setHistoryData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  // --- Filter states ---
+
+  // Filters
   const [searchTerm, setSearchTerm] = useState("");
   const [companyFilter, setCompanyFilter] = useState("All Companies");
   const [companyPartners, setCompanyPartners] = useState([]);
 
-  // --- Pagination states ---
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5);
-
-  // --- User dropdown states ---
+  // User dropdown
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const dropdownRef = useRef(null);
@@ -41,34 +37,30 @@ export default function History() {
       setError(error);
       console.error("Error fetching payment history:", error);
     } else {
-      setHistoryData(data);
+      setHistoryData(Array.isArray(data) ? data : []);
     }
     setLoading(false);
   };
 
-  // Load current user data
   const loadCurrentUser = async () => {
     try {
       const client = await getCurrentClient();
-      if (client) {
-        setCurrentUser(client);
-      }
-    } catch (error) {
-      console.error("Error loading user:", error);
+      if (client) setCurrentUser(client);
+    } catch (err) {
+      console.error("Error loading user:", err);
     }
   };
 
-  // Load partners from Supabase
   const loadPartners = async () => {
     try {
       const partners = await fetchPartners();
-      setCompanyPartners(partners);
-    } catch (error) {
-      console.error("Error loading partners:", error);
+      setCompanyPartners(Array.isArray(partners) ? partners : []);
+    } catch (err) {
+      console.error("Error loading partners:", err);
     }
   };
 
-  // Handle click outside dropdown
+  // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -76,15 +68,11 @@ export default function History() {
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleLogout = async () => {
-    console.log("Logging out...");
     const result = await logoutClient();
-
     if (result.success) {
       navigate("/insurance-client-page/");
     } else {
@@ -93,77 +81,73 @@ export default function History() {
     }
   };
 
-  // Display name logic
   const displayName = () => {
     if (loading) return "Loading...";
     if (!currentUser) return "User";
-
     const prefix = currentUser.prefix || "";
     const firstName = currentUser.first_Name || "";
     const lastName = currentUser.last_Name || "";
-
-    // Combine name parts
-    if (prefix && firstName) {
-      return `${prefix} ${firstName}`;
-    } else if (firstName) {
-      return firstName;
-    } else if (lastName) {
-      return lastName;
-    } else {
-      return "User";
-    }
+    if (prefix && firstName) return `${prefix} ${firstName}`;
+    if (firstName) return firstName;
+    if (lastName) return lastName;
+    return "User";
   };
 
-  // --- Combined filtering logic ---
-  const filteredData = historyData.filter((row) => {
-    const matchesCompany = 
+  // ---------- Helpers: amounts ----------
+  // Parse/format amounts safely (handles "Php 908.5", "908.5", 908.5, "1,234.56")
+  const toNumber = (v) => {
+    if (v == null) return 0;
+    if (typeof v === "number" && isFinite(v)) return v;
+    if (typeof v === "string") {
+      const num = Number(v.replace(/[^0-9.\-]/g, ""));
+      return isFinite(num) ? num : 0;
+    }
+    return 0;
+  };
+
+  const toPeso = (v) =>
+    `Php ${toNumber(v).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+
+  const getPaymentMethod = (row) => row?.paymentMethod || row?.method || "—";
+
+  // ---------- LIFO sorting (latest first) ----------
+  // Sort by rawDate (ISO from backend), fallback to display date/created_at
+  const lifoSorted = useMemo(() => {
+    return [...historyData].sort((a, b) => {
+      const da = new Date(a?.rawDate || a?.date || a?.created_at || 0).getTime();
+      const db = new Date(b?.rawDate || b?.date || b?.created_at || 0).getTime();
+      return db - da;
+    });
+  }, [historyData]);
+
+  // ---------- Combined filtering ----------
+  const filteredData = lifoSorted.filter((row) => {
+    const matchesCompany =
       companyFilter === "All Companies" || row.company === companyFilter;
 
-    const matchesSearch = Object.values(row).some((value) =>
-      value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = Object.values(row || {}).some((value) =>
+      String(value ?? "").toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return matchesCompany && matchesSearch;
   });
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  
-  // --- Reset to page 1 when filters change ---
-  const handleFilterChange = () => {
-    setCurrentPage(1);
-  };
-  
-  useEffect(() => {
-    handleFilterChange();
-  }, [searchTerm, companyFilter]);
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
-  const handlePageClick = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
+  // Show ALL items (no pagination)
+  const currentItems = filteredData;
 
   return (
     <div className="dashboard-containerHistory">
-      {/* Header with Profile and Notification */}
+      {/* Header */}
       <header className="topbar-client">
         <div className="header-content">
           <div className="header-left">
-            <h1 className="page-title">History</h1>
-            <p className="page-subtitle">Track and manage all your payment transactions</p>
+            <h1 className="page-title">Transaction History</h1>
+            <p className="page-subtitle">
+              Track and manage all your payment transactions
+            </p>
           </div>
 
           <div className="header-right">
@@ -182,7 +166,10 @@ export default function History() {
 
               {dropdownOpen && (
                 <div className="dropdown-menu">
-                  <button className="dropdown-item logout-item" onClick={handleLogout}>
+                  <button
+                    className="dropdown-item logout-item"
+                    onClick={handleLogout}
+                  >
                     <FaSignOutAlt className="dropdown-icon" />
                     <span>Log out</span>
                   </button>
@@ -193,9 +180,8 @@ export default function History() {
         </div>
       </header>
 
-      {/* Content Area */}
+      {/* Content */}
       <div className="history-content">
-        {/* Loading Spinner */}
         {loading ? (
           <div className="loading-spinner-container">
             <div className="spinner"></div>
@@ -203,7 +189,7 @@ export default function History() {
           </div>
         ) : error ? (
           <div className="error-container">
-            <p>Error: {error}</p>
+            <p>Error: {String(error)}</p>
           </div>
         ) : (
           <>
@@ -212,10 +198,11 @@ export default function History() {
               <span className="transaction-text">
                 Payment Transactions ({filteredData.length})
               </span>
+
               <div className="search-container">
                 <input
                   type="text"
-                  placeholder="Search by date, method, company, client..."
+                  placeholder="Search by date, method, company, ref no..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -235,56 +222,41 @@ export default function History() {
               </select>
             </div>
 
-            {/* Table */}
+            {/* Table (ALL rows shown) */}
             <div className="history-table">
               <div className="history-grid header">
                 <div>Date</div>
                 <div>Payment Method</div>
                 <div>Amount</div>
                 <div>Company</div>
-                <div>Client</div>
+                <div>Reference Number</div>
               </div>
 
               {currentItems.length > 0 ? (
                 currentItems.map((row) => (
-                  <div className="history-grid" key={row.id}>
-                    <div>{row.date}</div>
-                    <div>{row.paymentMethod}</div>
+                  <div
+                    className="history-grid"
+                    key={row.id ?? `${row.rawDate}-${row.referenceNumber}`}
+                  >
+                    <div>{row?.date || "—"}</div>
+                    <div>{getPaymentMethod(row)}</div>
                     <div>
-                      Php {row.amount.toLocaleString()}
-                      {row.penalties > 0 && (
+                      {toPeso(row?.amount)}
+                      {toNumber(row?.penalties) > 0 && (
                         <span className="penalty-badge">
-                          Php {row.penalties.toLocaleString()} penalty
+                          {toPeso(row.penalties)} penalty
                         </span>
                       )}
                     </div>
-                    <div>{row.company}</div>
-                    <div>{row.clientName}</div>
+                    <div>{row?.company || "—"}</div>
+                    <div>{row?.referenceNumber || "—"}</div>
                   </div>
                 ))
               ) : (
                 <div className="no-results">No transactions found.</div>
               )}
             </div>
-
-            {/* Pagination */}
-            <div className="pagination">
-              <button onClick={handlePrevPage} disabled={currentPage === 1}>
-                Previous
-              </button>
-              {Array.from({ length: totalPages }, (_, index) => (
-                <button
-                  key={index + 1}
-                  onClick={() => handlePageClick(index + 1)}
-                  className={currentPage === index + 1 ? "active" : ""}
-                >
-                  {index + 1}
-                </button>
-              ))}
-              <button onClick={handleNextPage} disabled={currentPage === totalPages}>
-                Next
-              </button>
-            </div>
+            {/* No pagination — showing all rows */}
           </>
         )}
       </div>

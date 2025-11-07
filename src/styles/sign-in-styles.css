@@ -78,7 +78,7 @@
 .SignIn-form input {
   padding: 0.8rem;
   border: 1px solid #ccc;
-  border-radius: 12px; /* Restored */
+  border-radius: 5px; /* Restored */
   font-size: 0.95rem;
   background-color: #f3f5ff; /* Restored */
   outline: none;
@@ -90,7 +90,7 @@
 
 .SignIn-form input:focus {
   border-color: #7c3aed;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+ 
 }
 
 .required-star {
@@ -205,13 +205,53 @@
   }
 }
 
-.error-message {
-  background-color: #f8d7da;
-  color: #bd0211;
-  border: 1px solid #f5c2c7;
-  padding: 10px 10px;
+.error-message,
+.info-message {
+  display: block;
+  width: 100%;
+  text-align: center;      /* center the text */
+  color: #000;             /* black text */
+  background: #fdecec;     /* keep subtle background for visibility; adjust if needed */
+  border: 1px solid #e57373;
   border-radius: 8px;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
-  margin-top: 1px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+  font-weight: 600;        /* slightly bolder for readability */
+}
+
+.info-message {
+  padding: 10px;
+  background-color: #e6f7ff; /* Light blue */
+  border: 1px solid #91d5ff;
+  color: #0056b3;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.inline-error {
+  display: block;
+  margin-top: -6px;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+  color: #d32f2f;
+}
+
+/* ===== Invalid field styling (CreateQuote-style) ===== */
+.SignIn-form input.invalid {
+  border: 1px solid #e53935 !important;     /* red border */
+  background: #fff8f8 !important;           /* faint red fill */
+  box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.08); /* soft halo */
+}
+
+.SignIn-form .password-wrapper-client input.invalid {
+  border: 1px solid #e53935 !important;
+  background: #fff8f8 !important;
+}
+
+
+/* keep placeholder readable on the light red background */
+.SignIn-form input.invalid::placeholder {
+  color: #b85b5b;
 }

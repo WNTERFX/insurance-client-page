@@ -1,17 +1,23 @@
 import "./styles/sign-in-styles.css";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { signInClient } from "./Actions/SignInActions";
+import { signUpClient } from "./Actions/SignUpActions";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+// [!code focus]
+import { db } from "./dbServer"; // 1. Import your Supabase client
 
-export function SignInForm() {
+export function SignUpForm() {
   const navigate = useNavigate();
   const [policyId, setPolicyId] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  
+  // [!code focus:3]
+  // 2. Replace errorMessage with a new 'message' state
+  const [message, setMessage] = useState({ text: "", type: "error" });
+  
   const [loading, setLoading] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
@@ -19,41 +25,67 @@ export function SignInForm() {
   const togglePasswordVisibility = () => setPasswordVisible(!passwordVisible);
   const toggleConfirmPasswordVisibility = () => setConfirmPasswordVisible(!confirmPasswordVisible);
 
-  const handleSignIn = async (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
-    setErrorMessage(""); // reset error
+    // [!code focus]
+    setMessage({ text: "", type: "error" }); // reset message
 
-    // Validation
+    // [!code focus:17]
+    // 3. Update all validation to use the new message state
     if (!policyId || !email || !password || !confirmPassword) {
-      setErrorMessage("Please fill in all required fields.");
+      setMessage({ text: "Please fill in all required fields.", type: "error" });
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage("Passwords do not match!");
+      setMessage({ text: "Passwords do not match!", type: "error" });
       return;
     }
 
     if (password.length < 8) {
-      setErrorMessage("Password must be at least 8 characters long.");
+      setMessage({ text: "Password must be at least 8 characters long.", type: "error" });
       return;
     }
 
     if (!agreeTerms) {
-      setErrorMessage("You must agree to the Terms and Conditions before signing up.");
+      setMessage({ text: "You must agree to the Terms and Conditions.", type: "error" });
       return;
     }
 
     setLoading(true);
-    const result = await signInClient({
+    const result = await signUpClient({
       policyInternalId: policyId,
       email,
       password,
     });
     setLoading(false);
 
+    // [!code focus:25]
+    // 4. THIS IS THE MAIN FIX
     if (!result.success) {
-      setErrorMessage("Sign In failed: " + result.error);
+      // Check for the special verification error
+      if (result.requiresVerification) {
+        
+        // Show a loading message
+        setMessage({ text: "Please verify your email. We are resending the link now...", type: "info" });
+        
+        // Call the client-side resend function
+        const { error: resendError } = await db.auth.resend({
+          type: 'signup',
+          email: email
+        });
+
+        if (resendError) {
+          setMessage({ text: `Could not resend link: ${resendError.message}`, type: "error" });
+        } else {
+          // Tell the user to check their spam folder!
+          setMessage({ text: "We've just sent you a new confirmation link. Please check your inbox and spam folder.", type: "info" });
+        }
+
+      } else {
+        // This is a real sign-in error (e.g., "Invalid Policy ID")
+        setMessage({ text: "Sign In failed: " + (result.message || result.error || "Unknown error"), type: "error" });
+      }
       return;
     }
 
@@ -75,8 +107,15 @@ export function SignInForm() {
           />
         </div>
 
-        <form className="SignIn-form" onSubmit={handleSignIn}>
-          {errorMessage && <div className="error-message">{errorMessage}</div>}
+        <form className="SignIn-form" onSubmit={handleSignUp}>
+          
+          {/* [!code focus:4] */}
+          {/* 5. Update the JSX to show the new message state */}
+          {message.text && (
+            <div className={message.type === 'error' ? 'error-message' : 'info-message'}>
+              {message.text}
+            </div>
+          )}
 
           <label>Policy ID <span className="required-star">*</span></label>
           <input
@@ -108,7 +147,8 @@ export function SignInForm() {
           </div>
 
           <div className="password-wrapper-client">
-            <label>Change password <span className="required-star">*</span></label>
+            {/* This label seems wrong, it should be "Confirm password" */}
+            <label>Confirm password <span className="required-star">*</span></label>
             <input
               type={confirmPasswordVisible ? "text" : "password"}
               value={confirmPassword}

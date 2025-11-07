@@ -124,8 +124,8 @@ export default function LoginForm() {
           {/* Login Controls */}
           <div className="login-controls">
             <p>Don’t have an account?</p>
-            <a href="/insurance-client-page/signin" type="button" >
-              Sign In
+            <a href="/insurance-client-page/signup" type="button" >
+              Sign Up
             </a>
           </div>
         </form>
@@ -133,40 +133,83 @@ export default function LoginForm() {
 
 
       {/* Password Reset Modal */}
-      {showResetModal && (
-        <div className="modal-overlay" onClick={closeResetModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Reset Password</h3>
-              <button className="close-button" onClick={closeResetModal}>
+ {showResetModal && (
+        <div
+          className="rp-overlay"
+          onClick={closeResetModal}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="rp-title"
+        >
+          <div
+            className="rp-modal"
+            onClick={(e) => e.stopPropagation()}
+            tabIndex={-1}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") closeResetModal();
+              if (e.key === "Enter" && !resetLoading) handleSendResetEmail();
+            }}
+          >
+            <div className="rp-header">
+              <h3 id="rp-title">Reset password</h3>
+              <button
+                type="button"
+                className="rp-close"
+                aria-label="Close"
+                onClick={closeResetModal}
+              >
                 ×
               </button>
             </div>
-            <div className="modal-body">
 
-              <label>Email Address</label>
+            <hr className="rp-divider" />
+
+            <div className="rp-body">
+              {/* TOP BANNER (like Policy ID) */}
+              {resetError && (
+                <div className="alert alert-error" role="alert" aria-live="assertive">
+                  <strong>Error</strong>
+                  <span id="reset-error-text">{resetError}</span>
+                </div>
+              )}
+
+              <label className="rp-label">
+                Email Address <span className="rp-star">*</span>
+              </label>
+
               <input
                 type="email"
-                placeholder="you@example.com"
+                className="rp-input"
+                placeholder="you@gmail.com"
                 value={resetEmail}
-                onChange={(e) => setResetEmail(e.target.value)}
+                onChange={(e) => {
+                  // optional: clear banner while typing
+                  // setResetError("");
+                  setResetEmail(e.target.value);
+                }}
+                aria-describedby={resetError ? "reset-error-text" : undefined}
                 required
               />
 
-              <button
-                className="modal-button"
-                onClick={handleSendResetEmail}
-                disabled={resetLoading || !resetEmail}
-              >
-                {resetLoading ? "Sending..." : "Send Reset Link"}
-              </button>
+              <div className="rp-actions">
+                <button
+                  type="button"
+                  className="rp-btn"
+                  onClick={handleSendResetEmail}
+                  disabled={resetLoading || !resetEmail}
+                >
+                  {resetLoading ? "Sending..." : "Send reset link"}
+                </button>
+              </div>
 
-              {resetError && <p className="error-message">{resetError}</p>}
-              {resetSuccess && <p className="success-message">{resetSuccess}</p>}
+              {/* (Optional) remove the old bottom messages to avoid duplicates */}
+              {/* {resetError && <p className="rp-msg rp-error">{resetError}</p>} */}
+              {resetSuccess && <p className="rp-msg rp-success">{resetSuccess}</p>}
             </div>
           </div>
         </div>
       )}
+
 
     </div>
 
