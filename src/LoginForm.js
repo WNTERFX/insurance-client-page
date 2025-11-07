@@ -139,10 +139,7 @@ export default function LoginForm() {
             type="email"
             placeholder="Enter your email"
             value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              if (bannerError) setBannerError("");
-            }}
+            onChange={(e) => setEmail(e.target.value.replace(/\s/g, ''))}
             required
             aria-invalid={!!bannerError}
           />
@@ -154,10 +151,7 @@ export default function LoginForm() {
               type={passwordVisible ? "text" : "password"}
               placeholder="Enter your password"
               value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                if (passwordError) setPasswordError("");
-              }}
+              onChange={(e) => setPassword(e.target.value.replace(/\s/g, ''))}
               required
               aria-invalid={!!passwordError}
             />
@@ -246,12 +240,7 @@ export default function LoginForm() {
                 className="rp-input"
                 placeholder="you@gmail.com"
                 value={resetEmail}
-                onChange={(e) => {
-                  // optional: clear banner while typing
-                  // setResetError("");
-                  setResetEmail(e.target.value);
-                }}
-                aria-describedby={resetError ? "reset-error-text" : undefined}
+                onChange={(e) => setResetEmail(e.target.value.replace(/\s/g, ''))}
                 required
               />
 

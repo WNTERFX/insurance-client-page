@@ -191,10 +191,8 @@ export function SignUpForm() {
           <input
             type="text"
             value={policyId}
-            onChange={(e) => handleChange("policyId", e.target.value)}
-            onBlur={(e) => handleBlur("policyId", e.target.value)}
-            aria-invalid={isInvalid("policyId")}
-            className={isInvalid("policyId") ? "invalid" : ""}
+            onChange={(e) => setPolicyId(e.target.value.replace(/\s/g, ''))}
+            required
           />
           {touched.policyId && errors.policyId && (
             <small id="policyId-error" className="inline-error">{errors.policyId}</small>
@@ -207,10 +205,8 @@ export function SignUpForm() {
           <input
             type="email"
             value={email}
-            onChange={(e) => handleChange("email", e.target.value)}
-            onBlur={(e) => handleBlur("email", e.target.value)}
-            aria-invalid={isInvalid("email")}
-            className={isInvalid("email") ? "invalid" : ""}
+            onChange={(e) => setEmail(e.target.value.replace(/\s/g, ''))}
+            required
           />
           {touched.email && errors.email && (
             <small id="email-error" className="inline-error">{errors.email}</small>
@@ -224,10 +220,8 @@ export function SignUpForm() {
             <input
               type={passwordVisible ? "text" : "password"}
               value={password}
-              onChange={(e) => handleChange("password", e.target.value)}
-              onBlur={(e) => handleBlur("password", e.target.value)}
-              aria-invalid={isInvalid("password")}
-              className={isInvalid("password") ? "invalid" : ""}
+              onChange={(e) => setPassword(e.target.value.replace(/\s/g, ''))}
+              required
             />
             <span
               className="eye-icon-client"
@@ -246,10 +240,8 @@ export function SignUpForm() {
             <input
               type={confirmPasswordVisible ? "text" : "password"}
               value={confirmPassword}
-              onChange={(e) => handleChange("confirmPassword", e.target.value)}
-              onBlur={(e) => handleBlur("confirmPassword", e.target.value)}
-              aria-invalid={isInvalid("confirmPassword")}
-              className={isInvalid("confirmPassword") ? "invalid" : ""}
+              onChange={(e) => setConfirmPassword(e.target.value.replace(/\s/g, ''))}
+              required
             />
             <span
               className="eye-icon-client"
