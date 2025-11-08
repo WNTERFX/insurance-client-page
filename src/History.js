@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchPaymentHistory } from "./Actions/HistoryActions";
 import { getCurrentClient } from "./Actions/PolicyActions";
@@ -12,13 +12,17 @@ export default function History() {
   const [historyData, setHistoryData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Filters
+  
+  // --- Filter states ---
   const [searchTerm, setSearchTerm] = useState("");
   const [companyFilter, setCompanyFilter] = useState("All Companies");
   const [companyPartners, setCompanyPartners] = useState([]);
 
-  // User dropdown
+  // --- Pagination states ---
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
+
+  // --- User dropdown states ---
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const dropdownRef = useRef(null);
@@ -47,30 +51,121 @@ export default function History() {
       setError(error);
       console.error("Error fetching payment history:", error);
     } else {
-      setHistoryData(Array.isArray(data) ? data : []);
+      setHistoryData(data);
     }
     setLoading(false);
   };
 
+  // Load current user data
   const loadCurrentUser = async () => {
     try {
       const client = await getCurrentClient();
-      if (client) setCurrentUser(client);
-    } catch (err) {
-      console.error("Error loading user:", err);
+      if (client) {
+        setCurrentUser(client);
+      }
+    } catch (error) {
+      console.error("Error loading user:", error);
     }
   };
 
+  // Load partners from Supabase
   const loadPartners = async () => {
     try {
       const partners = await fetchPartners();
-      setCompanyPartners(Array.isArray(partners) ? partners : []);
-    } catch (err) {
-      console.error("Error loading partners:", err);
+      setCompanyPartners(partners);
+    } catch (error) {
+      console.error("Error loading partners:", error);
     }
   };
 
-  // Close dropdown on outside click
+  // Load receipt counts for all payments
+  const loadReceiptCounts = async () => {
+    try {
+      const { data: payments } = await fetchPaymentHistory();
+      if (payments && payments.length > 0) {
+        const counts = {};
+        for (const payment of payments) {
+          try {
+            const receipts = await fetchPaymentReceipts(payment.payment_id);
+            counts[payment.payment_id] = receipts.length;
+          } catch (error) {
+            counts[payment.payment_id] = 0;
+          }
+        }
+        setReceiptCounts(counts);
+      }
+    } catch (error) {
+      console.error("Error loading receipt counts:", error);
+    }
+  };
+
+  // Load receipts for a specific payment
+  const loadReceipts = async (paymentId) => {
+    setLoadingReceipts(true);
+    setSelectedPaymentId(paymentId);
+    setCurrentReceiptIndex(0);
+    try {
+      const receipts = await fetchPaymentReceipts(paymentId);
+      setSelectedPaymentReceipts(receipts);
+      setReceiptModalOpen(true);
+    } catch (error) {
+      console.error("Error loading receipts:", error);
+      alert("Failed to load receipts. Please try again.");
+    } finally {
+      setLoadingReceipts(false);
+    }
+  };
+
+  // Close receipt modal
+  const closeReceiptModal = () => {
+    setReceiptModalOpen(false);
+    setSelectedPaymentReceipts([]);
+    setSelectedPaymentId(null);
+    setCurrentReceiptIndex(0);
+  };
+
+  // Navigate between receipts
+  const handleNextReceipt = () => {
+    if (currentReceiptIndex < selectedPaymentReceipts.length - 1) {
+      setCurrentReceiptIndex(currentReceiptIndex + 1);
+    }
+  };
+
+  const handlePrevReceipt = () => {
+    if (currentReceiptIndex > 0) {
+      setCurrentReceiptIndex(currentReceiptIndex - 1);
+    }
+  };
+
+  // Handle receipt download
+  const handleDownloadReceipt = (fileUrl, fileName) => {
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = fileName;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Check if file is an image
+  const isImageFile = (fileType) => {
+    return fileType && (
+      fileType.includes('image') || 
+      fileType.includes('jpg') || 
+      fileType.includes('jpeg') || 
+      fileType.includes('png') || 
+      fileType.includes('gif') || 
+      fileType.includes('webp')
+    );
+  };
+
+  // Check if file is a PDF
+  const isPDFFile = (fileType) => {
+    return fileType && fileType.includes('pdf');
+  };
+
+  // Handle click outside dropdown
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -78,11 +173,15 @@ export default function History() {
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   const handleLogout = async () => {
+    console.log("Logging out...");
     const result = await logoutClient();
+
     if (result.success) {
       navigate("/insurance-client-page/");
     } else {
@@ -91,73 +190,77 @@ export default function History() {
     }
   };
 
+  // Display name logic
   const displayName = () => {
     if (loading) return "Loading...";
     if (!currentUser) return "User";
+
     const prefix = currentUser.prefix || "";
     const firstName = currentUser.first_Name || "";
     const lastName = currentUser.last_Name || "";
-    if (prefix && firstName) return `${prefix} ${firstName}`;
-    if (firstName) return firstName;
-    if (lastName) return lastName;
-    return "User";
-  };
 
-  // ---------- Helpers: amounts ----------
-  // Parse/format amounts safely (handles "Php 908.5", "908.5", 908.5, "1,234.56")
-  const toNumber = (v) => {
-    if (v == null) return 0;
-    if (typeof v === "number" && isFinite(v)) return v;
-    if (typeof v === "string") {
-      const num = Number(v.replace(/[^0-9.\-]/g, ""));
-      return isFinite(num) ? num : 0;
+    // Combine name parts
+    if (prefix && firstName) {
+      return `${prefix} ${firstName}`;
+    } else if (firstName) {
+      return firstName;
+    } else if (lastName) {
+      return lastName;
+    } else {
+      return "User";
     }
-    return 0;
   };
 
-  const toPeso = (v) =>
-    `Php ${toNumber(v).toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
-
-  const getPaymentMethod = (row) => row?.paymentMethod || row?.method || "—";
-
-  // ---------- LIFO sorting (latest first) ----------
-  // Sort by rawDate (ISO from backend), fallback to display date/created_at
-  const lifoSorted = useMemo(() => {
-    return [...historyData].sort((a, b) => {
-      const da = new Date(a?.rawDate || a?.date || a?.created_at || 0).getTime();
-      const db = new Date(b?.rawDate || b?.date || b?.created_at || 0).getTime();
-      return db - da;
-    });
-  }, [historyData]);
-
-  // ---------- Combined filtering ----------
-  const filteredData = lifoSorted.filter((row) => {
-    const matchesCompany =
+  // --- Combined filtering logic ---
+  const filteredData = historyData.filter((row) => {
+    const matchesCompany = 
       companyFilter === "All Companies" || row.company === companyFilter;
 
-    const matchesSearch = Object.values(row || {}).some((value) =>
-      String(value ?? "").toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = Object.values(row).some((value) =>
+      value.toString().toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return matchesCompany && matchesSearch;
   });
 
-  // Show ALL items (no pagination)
-  const currentItems = filteredData;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  
+  // --- Reset to page 1 when filters change ---
+  const handleFilterChange = () => {
+    setCurrentPage(1);
+  };
+  
+  useEffect(() => {
+    handleFilterChange();
+  }, [searchTerm, companyFilter]);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handlePageClick = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   return (
     <div className="dashboard-containerHistory">
-      {/* Header */}
+      {/* Header with Profile and Notification */}
       <header className="topbar-client">
         <div className="header-content">
           <div className="header-left">
-            <h1 className="page-title">Transaction History</h1>
-            <p className="page-subtitle">
-              Track and manage all your payment transactions
-            </p>
+            <h1 className="page-title">History</h1>
+            <p className="page-subtitle">Track and manage all your payment transactions</p>
           </div>
 
           <div className="header-right">
@@ -176,10 +279,7 @@ export default function History() {
 
               {dropdownOpen && (
                 <div className="dropdown-menu">
-                  <button
-                    className="dropdown-item logout-item"
-                    onClick={handleLogout}
-                  >
+                  <button className="dropdown-item logout-item" onClick={handleLogout}>
                     <FaSignOutAlt className="dropdown-icon" />
                     <span>Log out</span>
                   </button>
@@ -190,8 +290,9 @@ export default function History() {
         </div>
       </header>
 
-      {/* Content */}
+      {/* Content Area */}
       <div className="history-content">
+        {/* Loading Spinner */}
         {loading ? (
           <div className="loading-spinner-container">
             <div className="spinner"></div>
@@ -199,7 +300,7 @@ export default function History() {
           </div>
         ) : error ? (
           <div className="error-container">
-            <p>Error: {String(error)}</p>
+            <p>Error: {error}</p>
           </div>
         ) : (
           <>
@@ -208,11 +309,10 @@ export default function History() {
               <span className="transaction-text">
                 Payment Transactions ({filteredData.length})
               </span>
-
               <div className="search-container">
                 <input
                   type="text"
-                  placeholder="Search by date, method, company, ref no..."
+                  placeholder="Search by date, method, company, client..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -232,44 +332,172 @@ export default function History() {
               </select>
             </div>
 
-            {/* Table (ALL rows shown) */}
+            {/* Table */}
             <div className="history-table">
               <div className="history-grid header">
                 <div>Date</div>
                 <div>Payment Method</div>
                 <div>Amount</div>
                 <div>Company</div>
-                <div>Reference Number</div>
+                <div>Client</div>
+                <div>Receipt</div>
               </div>
 
               {currentItems.length > 0 ? (
                 currentItems.map((row) => (
-                  <div
-                    className="history-grid"
-                    key={row.id ?? `${row.rawDate}-${row.referenceNumber}`}
-                  >
-                    <div>{row?.date || "—"}</div>
-                    <div>{getPaymentMethod(row)}</div>
+                  <div className="history-grid" key={row.id}>
+                    <div>{row.date}</div>
+                    <div>{row.paymentMethod}</div>
                     <div>
-                      {toPeso(row?.amount)}
-                      {toNumber(row?.penalties) > 0 && (
+                      Php {row.amount.toLocaleString()}
+                      {row.penalties > 0 && (
                         <span className="penalty-badge">
-                          {toPeso(row.penalties)} penalty
+                          Php {row.penalties.toLocaleString()} penalty
                         </span>
                       )}
                     </div>
-                    <div>{row?.company || "—"}</div>
-                    <div>{row?.referenceNumber || "—"}</div>
+                    <div>{row.company}</div>
+                    <div>{row.clientName}</div>
+                    <div>
+                      {receiptCounts[row.payment_id] > 0 ? (
+                        <button
+                          className="receipt-view-btn"
+                          onClick={() => loadReceipts(row.payment_id)}
+                          disabled={loadingReceipts && selectedPaymentId === row.payment_id}
+                        >
+                          <FaReceipt className="receipt-icon" />
+                          {loadingReceipts && selectedPaymentId === row.payment_id ? 'Loading...' : `View (${receiptCounts[row.payment_id]})`}
+                        </button>
+                      ) : (
+                        <span className="no-receipt-badge">No Receipt</span>
+                      )}
+                    </div>
                   </div>
                 ))
               ) : (
                 <div className="no-results">No transactions found.</div>
               )}
             </div>
-            {/* No pagination — showing all rows */}
+
+            {/* Pagination */}
+            <div className="pagination">
+              <button onClick={handlePrevPage} disabled={currentPage === 1}>
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, index) => (
+                <button
+                  key={index + 1}
+                  onClick={() => handlePageClick(index + 1)}
+                  className={currentPage === index + 1 ? "active" : ""}
+                >
+                  {index + 1}
+                </button>
+              ))}
+              <button onClick={handleNextPage} disabled={currentPage === totalPages}>
+                Next
+              </button>
+            </div>
           </>
         )}
       </div>
+
+      {/* Receipt Modal */}
+      {receiptModalOpen && selectedPaymentReceipts.length > 0 && (
+        <div className="receipt-modal-overlay" onClick={closeReceiptModal}>
+          <div className="receipt-modal-content receipt-viewer" onClick={(e) => e.stopPropagation()}>
+            <div className="receipt-modal-header">
+              <div className="receipt-header-info">
+                <h2>Payment Receipt</h2>
+                {selectedPaymentReceipts.length > 1 && (
+                  <span className="receipt-counter">
+                    {currentReceiptIndex + 1} of {selectedPaymentReceipts.length}
+                  </span>
+                )}
+              </div>
+              <div className="receipt-header-actions">
+                <button
+                  className="receipt-download-btn-header"
+                  onClick={() => handleDownloadReceipt(
+                    selectedPaymentReceipts[currentReceiptIndex].file_url,
+                    selectedPaymentReceipts[currentReceiptIndex].file_name
+                  )}
+                  title="Download"
+                >
+                  <FaDownload />
+                </button>
+                <button className="receipt-modal-close" onClick={closeReceiptModal}>
+                  <FaTimes />
+                </button>
+              </div>
+            </div>
+            
+            <div className="receipt-modal-body receipt-viewer-body">
+              {/* Navigation arrows for multiple receipts */}
+              {selectedPaymentReceipts.length > 1 && (
+                <>
+                  <button
+                    className="receipt-nav-btn receipt-nav-prev"
+                    onClick={handlePrevReceipt}
+                    disabled={currentReceiptIndex === 0}
+                  >
+                    <FaChevronLeft />
+                  </button>
+                  <button
+                    className="receipt-nav-btn receipt-nav-next"
+                    onClick={handleNextReceipt}
+                    disabled={currentReceiptIndex === selectedPaymentReceipts.length - 1}
+                  >
+                    <FaChevronRight />
+                  </button>
+                </>
+              )}
+
+              {/* File viewer */}
+              <div className="receipt-file-viewer">
+                {isPDFFile(selectedPaymentReceipts[currentReceiptIndex].file_type) ? (
+                  <iframe
+                    src={selectedPaymentReceipts[currentReceiptIndex].file_url}
+                    className="receipt-pdf-viewer"
+                    title="Receipt PDF"
+                  />
+                ) : isImageFile(selectedPaymentReceipts[currentReceiptIndex].file_type) ? (
+                  <img
+                    src={selectedPaymentReceipts[currentReceiptIndex].file_url}
+                    alt={selectedPaymentReceipts[currentReceiptIndex].file_name}
+                    className="receipt-image-viewer"
+                  />
+                ) : (
+                  <div className="receipt-unsupported">
+                    <FaFileAlt className="unsupported-icon" />
+                    <p>Preview not available for this file type</p>
+                    <p className="file-type-text">{selectedPaymentReceipts[currentReceiptIndex].file_type}</p>
+                    <a
+                      href={selectedPaymentReceipts[currentReceiptIndex].file_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="receipt-view-external-link"
+                    >
+                      Open in New Tab
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {/* File info */}
+              <div className="receipt-file-info">
+                <p className="receipt-filename-display">
+                  {selectedPaymentReceipts[currentReceiptIndex].file_name}
+                </p>
+                <p className="receipt-metadata-display">
+                  {selectedPaymentReceipts[currentReceiptIndex].file_type} • 
+                  {(selectedPaymentReceipts[currentReceiptIndex].file_size / 1024).toFixed(2)} KB • 
+                  Uploaded {new Date(selectedPaymentReceipts[currentReceiptIndex].created_at).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
