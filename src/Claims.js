@@ -660,9 +660,9 @@ export default function Claims() {
 
       {/* Documents Modal */}
       {showDocumentsModal && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
+        <div className="modal-overlay-view-document" onClick={closeModal}>
+          <div className="modal-content-view-document" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header-view-document">
               <div>
                 <h2>Claims Documents - CLAIM ID: {selectedClaim.id}</h2>
                 <p className="modal-subtitle">View and download all documents related to this claim</p>

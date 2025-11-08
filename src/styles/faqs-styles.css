@@ -305,7 +305,7 @@ body {
 }
 
 .faq-item.open span {
-  transform: rotate(45deg);
+  transform: none;
 }
 
 .faq-answer {

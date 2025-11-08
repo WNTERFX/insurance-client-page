@@ -121,7 +121,7 @@ export function SignUpForm() {
           <input
             type="text"
             value={policyId}
-            onChange={(e) => setPolicyId(e.target.value.replace(/\s/g, ''))}
+            onChange={(e) => setPolicyId(e.target.value)}
             required
           />
 
@@ -129,7 +129,7 @@ export function SignUpForm() {
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value.replace(/\s/g, ''))}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
 
@@ -138,7 +138,7 @@ export function SignUpForm() {
             <input
               type={passwordVisible ? "text" : "password"}
               value={password}
-              onChange={(e) => setPassword(e.target.value.replace(/\s/g, ''))}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
             <span onClick={togglePasswordVisibility} className="eye-icon-client">
@@ -152,7 +152,7 @@ export function SignUpForm() {
             <input
               type={confirmPasswordVisible ? "text" : "password"}
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value.replace(/\s/g, ''))}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
             <span onClick={toggleConfirmPasswordVisibility} className="eye-icon-client">

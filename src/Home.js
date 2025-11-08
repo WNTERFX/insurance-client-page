@@ -1018,11 +1018,11 @@ const hasOverduePaymentOnDate = useCallback((day, month, year) => {
             </div>
           </div>
 
-          <div className="card_ contacts_H">
+          {/*<div className="card_ contacts_H">
             <div className="boxh">
               <h3>Contacts</h3>
             </div>
-          </div>
+          </div>*/}
         </div>
       </div>
     </div>

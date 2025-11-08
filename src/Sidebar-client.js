@@ -45,7 +45,7 @@ export default function Sidebar() {
           className={`menu-item${isActive("/insurance-client-page/main-portal/History") ? " active" : ""}`}
         >
           <History className="menu-icon" />
-          <span>Payment History</span>
+          <span>Transaction History</span>
         </Link>
         <Link 
           to="/insurance-client-page/main-portal/Claims"

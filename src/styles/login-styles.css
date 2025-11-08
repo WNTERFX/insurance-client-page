@@ -83,7 +83,7 @@
 .login-form input {
   padding: 0.8rem;
   border: 1px solid #ccc;
-  border-radius: 10px;
+  border-radius: 5px;
   margin-bottom: 1rem;
   font-size: 0.95rem;
   background-color: #f3f5ff;
@@ -118,6 +118,39 @@
   align-items: center;
   justify-content: center;
 }
+
+
+
+/* 1) Always-white inputs */
+.login-form input,
+.SignIn-form input,
+.login-form select,
+.SignIn-form select,
+.login-form textarea,
+.SignIn-form textarea {
+  background-color: #fff !important;
+  /* keep your border/radius from earlier CSS */
+}
+
+/* 2) If a wrapper is adding color (e.g., the eye-icon row), make it transparent */
+.password-wrapper,
+.password-wrapper-client {
+  background: transparent !important;
+}
+
+/* 3) Chrome/Safari autofill remove blue/yellow tint */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #fff inset !important; /* paint white */
+  -webkit-text-fill-color: inherit;
+  caret-color: inherit;
+  transition: background-color 9999s ease-out; /* suppress flash */
+}
+
+
 
 /* Forgot password link */
 .forgot-password-client {
@@ -200,117 +233,132 @@
 /* ==============================
    MODAL OVERLAY & CONTENT
 ============================== */
-.modal-overlay {
+/* Overlay */
+.rp-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  background: rgba(0,0,0,.45);
+  display: grid;
+  place-items: center;
+  padding: 20px;
   z-index: 1000;
-  animation: fadeIn 0.3s ease;
 }
 
-.modal-content {
-  background: white;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 450px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  animation: slideUp 0.3s ease;
+/* Card */
+.rp-modal {
+  width: 100%;
+  max-width: 640px;                 /* desktop width */
+  background: #fff;
+  border-radius: 18px;              /* rounded like screenshot */
+  box-shadow: 0 10px 30px rgba(0,0,0,.18);
+  outline: none;
+  animation: rp-pop .16s ease-out;
 }
 
-/* ==============================
-   MODAL HEADER
-============================== */
-.modal-header {
+@keyframes rp-pop {
+  from { transform: translateY(6px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+
+/* Header */
+.rp-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 20px 25px;
-  border-bottom: 1px solid var(--border-color);
+  justify-content: space-between;
+  padding: 22px 22px 14px 22px;
 }
-
-.modal-header h3 {
+.rp-header h3 {
   margin: 0;
-  font-size: 20px;
+  font-size: 1.6rem;
+  font-weight: 750;
+  letter-spacing: -.02em;
+}
+
+/* Close button (×) */
+.rp-close {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+.rp-close:focus-visible { outline: 2px solid #6b7280; outline-offset: 2px; }
+
+/* Divider */
+.rp-divider {
+  margin: 0 22px;
+  border: none;
+  border-top: 1px solid #e5e7eb;   /* subtle gray line */
+}
+
+/* Body */
+.rp-body {
+  padding: 18px 22px 22px 22px;
+}
+
+.rp-label {
+  display: block;
   font-weight: 600;
-  color: var(--text-color);
+  margin-bottom: 10px;
+}
+.rp-star { color: #6b6b6b; }
+
+/* Grey input */
+.rp-input {
+    padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 5px; /* Restored */
+  font-size: 0.95rem;
+  background-color: #f3f5ff; /* Restored */
+  outline: none;
+  transition: all 0.3s ease;
+  margin-bottom: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+.rp-input::placeholder { color: #9ca3af; }
+.rp-input:focus {
+  outline: 2px solid #a78bfa;       /* soft purple focus */
+  background: #fff;                 /* slight lift on focus */
 }
 
-.close-button {
-  background: none;
-  border: none;
-  font-size: 32px;
-  color: #999;
-  cursor: pointer;
-  transition: color var(--transition);
-}
-
-.close-button:hover {
-  color: var(--text-color);
-}
-
-/* ==============================
-   MODAL BODY
-============================== */
-.modal-body {
-  padding: 25px;
-}
-
-.reset-step {
+/* Actions */
+.rp-actions {
   display: flex;
-  flex-direction: column;
-  gap: 15px;
+  justify-content: flex-end;       /* button on the right */
+  margin-top: 16px;
 }
 
-.reset-step p {
-  color: #666;
-  font-size: 14px;
-}
-
-.reset-step label {
-  font-weight: 500;
-  color: var(--text-color);
-  font-size: 14px;
-}
-
-.reset-step input {
-  padding: 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  font-size: 15px;
-  transition: border-color var(--transition);
-}
-
-.reset-step input:focus {
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-}
-
-.modal-button {
-  padding: 12px 20px;
-  background-color: var(--accent-color);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 15px;
-  font-weight: 500;
+/* Purple pill button */
+.rp-btn {
+  appearance: none;
+  border: 0;
+  border-radius: 12px;             /* pill-ish */
+  padding: 12px 18px;
+  background: #40215f;             /* deep purple */
+  color: #fff;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color var(--transition);
-  margin-top: 5px;
+  transition: transform .05s ease, filter .15s ease;
 }
+.rp-btn:hover { filter: brightness(1.05); }
+.rp-btn:active { transform: translateY(1px); }
+.rp-btn:disabled { opacity: .6; cursor: not-allowed; }
 
-.modal-button:hover:not(:disabled) {
-  background-color: var(--hover-accent);
-}
+/* Messages */
+.rp-msg { margin-top: 12px; font-size: .95rem; }
+.rp-error { color: #b91c1c; }
+.rp-success { color: #166534; }
 
-.modal-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  opacity: 0.6;
+/* Responsive tweaks */
+@media (max-width: 480px) {
+  .rp-modal { border-radius: 14px; }
+  .rp-header h3 { font-size: 1.35rem; }
+  .rp-actions { margin-top: 14px; }
+  .rp-btn { padding: 11px 16px; border-radius: 10px; }
 }
 
 /* ==============================
@@ -407,4 +455,59 @@
 .login-controls a:hover {
   text-decoration: underline;
   color: #5b21b6;
+}
+
+
+/* ====== AUTH BANNER (top of form) ====== */
+.alert {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+  align-items: center;
+}
+.alert strong { font-weight: 700; }
+
+.alert-error {
+  background: #fdecec;              /* pale red */
+  border-color: #e57373;            /* red border like screenshot */
+  color: #000000;
+}
+
+/* ====== inline field error (under password) ====== */
+.field-error {
+  display: block;
+  margin-top: -8px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  color: #d32f2f;
+}
+
+/* ====== Better responsiveness ====== */
+@media (max-width: 768px) {
+  .login-page { padding: 16px; }
+  .login-box { width: 100%; max-width: 520px; border-radius: 16px; }
+  .login-form { padding: 1.25rem; }
+  .header-left h2 { font-size: 1.6rem; }
+  .header-left p { font-size: 0.9rem; }
+  .header-logo { width: 80px; }
+}
+
+@media (max-width: 480px) {
+  .login-box { width: 100%; }
+  .login-form { padding: 1rem; }
+  .header-left h2 { font-size: 1.4rem; }
+  .header-left p { font-size: 0.85rem; }
+  .header-logo { width: 64px; }
+}
+
+@media (max-width: 360px) {
+  .login-form label { font-size: 0.85rem; }
+  .login-form input { font-size: 0.9rem; }
+  .forgot-password-client { font-size: 0.8rem; }
+  .login-button-client { font-size: 0.95rem; padding: 10px; }
 }

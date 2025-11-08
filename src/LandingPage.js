@@ -26,10 +26,12 @@ import trustedExperienceIcon from "./images/trusted-experience.png";
 import personalizedAssistanceIcon from "./images/personalized-assistance.png";
 import reliableProtectionIcon from "./images/reliable-protection.png";
 
-import SilverstarLOGO from "./images/SilverstarLOGO.png";
+import SilverstarLOGO from "./images/SilverStar.png";
 
 import { Home, Info, Phone, Mail, MapPin, Users, Handshake } from 'lucide-react';
 import fb from "./images/fb.png";
+
+import useViewportMeta from "./ClientController/useViewportMeta";
 
 
 export default function LandingPage() {
@@ -42,6 +44,8 @@ export default function LandingPage() {
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  useViewportMeta();
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -186,18 +190,35 @@ export default function LandingPage() {
   return (
     <div className="landing-page-container">
       <header className="top-bar-container">
-        <div className="logo-container">
-          <img src={SilverstarLOGO} alt="Logo" className="logo" />
-          <p className="company-name">Silverstar Insurance Agency</p>
+        {/* Brand row: logo + burger (burger sits to the RIGHT of the logo) */}
+        <div className="brand">
+          <Link
+            to="/insurance-client-page"
+            className="logo-container"
+            onClick={handleNavClick}
+            aria-label="Go to Home — Silverstar Insurance Agency"
+          >
+            <img src={SilverstarLOGO} alt="Silverstar Insurance — Home" className="logo" />
+
+          </Link>
+
+          {/* Burger right of the logo */}
+          <button
+            className={`hamburger ${menuOpen ? "is-open" : ""}`}
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
+            aria-expanded={menuOpen}
+            aria-controls="primary-navigation"
+          >
+            ☰
+          </button>
         </div>
-        <button
-          className="hamburger"
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle menu"
+
+        {/* Nav Links */}
+        <nav
+          id="primary-navigation"
+          className={`nav-links ${menuOpen ? "active" : ""}`}
         >
-          ☰
-        </button>
-        <nav className={`nav-links ${menuOpen ? "active" : ""}`}>
           <Link
             to="/insurance-client-page"
             className={`nav-link ${isActiveLink('/insurance-client-page') ? 'active' : ''}`}
@@ -217,7 +238,7 @@ export default function LandingPage() {
             className={`nav-link ${isActiveLink('/insurance-client-page/FAQs') ? 'active' : ''}`}
             onClick={handleNavClick}
           >
-            FAQs 
+            FAQs
           </Link>
           <Link
             to="/insurance-client-page/AboutUs"
@@ -233,15 +254,16 @@ export default function LandingPage() {
           >
             Contact
           </Link>
-          <Link
-            to="/insurance-client-page/login"
+          <a
+            href="/insurance-client-page/login"
             className="login-button"
             onClick={handleNavClick}
           >
             Log in
-          </Link>
+          </a>
         </nav>
       </header>
+
 
       {/* Hero Section */}
       <section id="home" className="landing-page-hero" style={{ backgroundImage: `url(${lanpage})` }}>
@@ -377,74 +399,73 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer id="about" className="footer">
-        {/* Column 1: Company Info */}
-        <div className="footer-column">
-          <h4>Silverstar Insurance Agency Inc.</h4>
-          <p>
-            At Silverstar, we deliver car insurance with quality, protection, and
-            service you can trust.
-          </p>
-          <a
-            href="https://www.facebook.com/profile.php/?id=61576375235366"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="footer-social-link"
-          >
-            <img src={fb} alt="Facebook Page" className="facebook-icon" />
-          </a>
-        </div>
+            {/* Footer */}
+            <footer id="about" className="footer">
+                {/* Column 1: Company Info */}
+                <div className="footer-column">
+                    <h4>Silverstar Insurance Agency Inc.</h4>
+                    <p>
+                        At Silverstar, we deliver car insurance with quality, protection, and
+                        service you can trust.
+                    </p>
+                    <a
+                        href="https://www.facebook.com/profile.php/?id=61576375235366"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="footer-social-link"
+                    >
+                        <img src={fb} alt="Facebook Page" className="facebook-icon" />
+                    </a>
+                </div>
 
-        {/* Column 2: Categories */}
-        <div className="footer-column">
-          <h4>CATEGORIES</h4>
-          <a href="/insurance-client-page">Home</a>
-          <a href="/insurance-client-page/Partners">Partners</a>
-          <a href="#faq">FAQs</a>
-          <a href="/insurance-client-page/AboutUs">About Us</a>
-        </div>
+                {/* Column 2: Categories */}
+                <div className="footer-column">
+                    <h4>CATEGORIES</h4>
+                    <a href="/insurance-client-page">Home</a>
+                    <a href="/insurance-client-page/Partners">Partners</a>
+                    <a href="#faq">FAQs</a>
+                    <a href="/insurance-client-page/AboutUs">About Us</a>
+                </div>
 
-        {/* Column 3: Reach Us */}
-        <div className="footer-column">
-          <h4>REACH US</h4>
-          <p>
-            <strong>Address:</strong> Room 210 2nd floor shorthorn street bahay toro
-            project 8 quezon city
-          </p>
-          <p>
-            <strong>Phone number:</strong> +63 2 7406 8176
-          </p>
-          <p>
-            <strong>Email:</strong> aira.mktg2@gmail.com
-          </p>
-          <p>
-            <strong>Office Hours:</strong> Monday - Saturday 8AM - 5PM
-          </p>
-        </div>
+                {/* Column 3: Reach Us */}
+                <div className="footer-column">
+                    <h4>REACH US</h4>
+                    <p>
+                        <strong>Address:</strong>Room 210, 2nd floor, 16 Shorthorn Street, Bahay Toro, Project 8, Quezon City Metro Manila
+                    </p>
+                    <p>
+                        <strong>Phone number:</strong>+632 7406-8176
+                    </p>
+                    <p>
+                        <strong>Email:</strong>aira.mktg2@gmail.com
+                    </p>
+                    <p>
+                        <strong>Office Hours:</strong>Monday - Saturday 8AM - 5PM
+                    </p>
+                </div>
 
-        {/* Column 4: About Us */}
-        <div className="footer-column">
-          <h4>ABOUT US</h4>
-          <p>
-            Silverstar Insurance Agency Inc. is a trusted insurance provider
-            established in 2013 and based in Project 8, Quezon City. The company
-            offers reliable vehicle insurance services for cars, motorcycles, and
-            cargo trucks, focusing on transparency, accuracy, and customer care to
-            ensure every client's peace of mind.
-          </p>
-        </div>
+                {/* Column 4: About Us */}
+                <div className="footer-column">
+                    <h4>ABOUT US</h4>
+                    <p>
+                        Silverstar Insurance Agency Inc. is a trusted insurance provider
+                        established in 2013 and based in Project 8, Quezon City. The company
+                        offers reliable vehicle insurance services for cars, motorcycles, and
+                        cargo trucks, focusing on transparency, accuracy, and customer care to
+                        ensure every client's peace of mind.
+                    </p>
+                </div>
 
-        {/* --- This creates the horizontal line and the bottom row --- */}
-        <div className="footer-bottom">
-          <hr className="footer-divider" />
-          <div className="footer-bottom-content">
-            <p>© 2025 Silverstar Insurance Agency Inc.</p>
-            <a href="#TermsandCondiiton">Terms and Condition</a>
-            <a href="#Privacy Policy">Privacy Policy</a>
-          </div>
-        </div>
-      </footer>
+                {/* --- This creates the horizontal line and the bottom row --- */}
+                <div className="footer-bottom">
+                    <hr className="footer-divider" />
+                    <div className="footer-bottom-content">
+                        <p>© 2025 Silverstar Insurance Agency Inc.</p>
+                        <a href="#TermsandCondiiton">Terms and Condition</a>
+                        <a href="#Privacy Policy">Privacy Policy</a>
+                    </div>
+                </div>
+            </footer>
 
       {/*<CreateQuote isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />*/}
     </div>

@@ -60,6 +60,7 @@ function App() {
   <Route element={<InvalidAuthRoute />}>
 
     <Route path="/insurance-client-page/main-portal" element={<MainArea />}>
+      <Route index element={<Home />} />
       <Route path="Home" element={<Home />} />
       <Route path="Home/CalendarWrapper" element={<CalendarWrapper />} />
       <Route path="InsuranceDetails" element={<InsuranceDetails />} />
