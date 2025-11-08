@@ -43,7 +43,7 @@ export const fetchPaymentHistory = async () => {
 
     const formattedData = data.map((payment) => ({
       id: payment.id,
-      payment_id: payment.id, // Add this explicitly for receipt fetching
+      payment_id: payment.id, 
       date: new Date(payment.payment_date).toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
