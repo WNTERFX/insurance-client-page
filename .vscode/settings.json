@@ -1,0 +1,11 @@
+{
+  "deno.enable": true,
+  "deno.unstable": [],          // ← was `true`; now an array (or delete this line)
+  "deno.lint": true,
+  "deno.enablePaths": ["supabase/functions"],
+  "deno.suggest.imports.hosts": {
+    "https://deno.land": true,
+    "https://esm.sh": true
+  },
+  "deno.config": "supabase/functions/deno.json"
+}

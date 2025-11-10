@@ -34,6 +34,8 @@ import FAQs from './FAQs';
 
 import CalendarWrapper from './ClientForms/CalendarWrapper';
 
+import ProfilePage from './ProfilePage';
+
 function App() {
   return (
     
@@ -53,6 +55,7 @@ function App() {
   <Route path="/insurance-client-page/CreateQuote" element={<CreateQuote />} />
   <Route path="/insurance-client-page/QuoteInfo" element={<QuoteInfo />} />
   <Route path="/insurance-client-page/FAQs" element={<FAQs />} />
+  
   
 
    
@@ -74,6 +77,7 @@ function App() {
       <Route path="Quotation" element={<Quotation />} />
       <Route path="Payment" element={<Payment />} />
       <Route path ="AccountSettings" element={<AccountSettings/>} />
+      <Route path ="Profile" element={<ProfilePage/>} />
     </Route>
   </Route>
 

@@ -1,6 +1,10 @@
+/* Let the DOCUMENT scroll, not inner divs */
+html, body { height: auto; overflow-y: auto; }
+
 .main-area {
   display: flex;
-  height: 100vh;
+  flex-direction: column;   /* header on top, body below */
+  min-height: 100vh;        /* not fixed height */
   width: 100%;
   background-color: #F2F5FA;
 }
@@ -8,23 +12,30 @@
 .body-area {
   display: flex;
   flex: 1;
-  height: 100vh; /* Changed from calc(100vh - 72px) */
-  overflow: hidden;
+  min-height: 0;
+  overflow: visible;         /* no inner scroll container */
 }
 
+/* your fixed sidebar wrapper */
 .sidebar {
-  width: 250px; /* Match your sidebar width */
+  width: 260px;
   background-color: #fff;
   border-right: 1px solid #e5e5e5;
-  padding: 0; /* Remove padding - let sidebar component handle it */
-  flex-shrink: 0; /* Prevent sidebar from shrinking */
-  overflow-y: auto; /* Allow sidebar to scroll if needed */
+  flex-shrink: 0;
+  overflow-y: auto;          /* sidebar can scroll independently if long */
 }
 
+/* main content should not create its own scrollbar */
 .content-area {
   flex: 1;
   background-color: #F2F5FA;
-  padding: 0; /* Remove padding - let individual pages handle it */
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: visible;         /* let the page scroll */
+  padding-top: calc(var(--topbar-height) + 12px);  /* ⬅️ pushes content below fixed bar */
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Push content below the fixed topbar overlay */
+.content-area{
+  padding-top: calc(var(--topbar-height) + 12px);
 }

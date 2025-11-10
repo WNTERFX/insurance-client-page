@@ -1,0 +1,173 @@
+/* src/styles/address-styles.css */
+
+/* ------- Card / Header ------- */
+.addr-wrap {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 1px 3px rgba(16,24,40,.08);
+}
+
+.addr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.addr-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.addr-new {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: none;
+  background: #4c1d95; /* purple */
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ------- List Row ------- */
+.addr-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+
+  background: #faf7ff;
+  border: 1px solid #ece8ff;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+
+/* left column: address text (first line) + default badge (second line) */
+.addr-line {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.addr-line .addr-text {
+  display: block;          /* forces the next sibling (badge) onto a new line */
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.addr-line .addr-badge {
+  display: inline-block;   /* keep pill tight, no stretching */
+  margin-top: 6px;
+
+  font-size: 11px;
+  background: #fff4e6;
+  color: #9a3412;
+  border: 1px solid #facc15;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+/* right column: actions */
+.addr-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 12px;
+}
+
+.addr-link {
+  background: transparent;
+  border: none;
+  color: #6b21a8;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.addr-link:disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.addr-divider { color: #d1d5db; }
+
+.addr-loading { padding: 16px; }
+
+/* ------- Form ------- */
+.addr-form-wrap {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 1px 3px rgba(16,24,40,.08);
+}
+
+.addr-form-wrap h2 { margin: 0 0 12px; }
+
+.addr-grid { display: grid; gap: 16px; }
+
+.addr-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.addr-field label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.addr-field input,
+.addr-field select {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #f8fafc;
+}
+
+.addr-err {
+  color: #b91c1c;
+  font-size: 12px;
+  margin-top: 6px;
+  display: block;
+}
+
+.addr-check { display: flex; align-items: end; }
+.addr-check-label { font-weight: 600; user-select: none; }
+
+.addr-actions-bar {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.addr-btn-cancel {
+  background: #9ca3af;
+  border: none;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.addr-btn-save {
+  background: #4c1d95;
+  border: none;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ------- Responsive tweaks ------- */
+@media (max-width: 640px) {
+  .addr-row { align-items: flex-start; }
+  .addr-actions { margin-left: 0; }
+}

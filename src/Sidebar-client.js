@@ -1,4 +1,4 @@
-import { Home, FileText, Settings, Banknote, History, ClipboardCheck, Truck } from "lucide-react";
+import { Home, FileText, Settings, Banknote, History, ClipboardCheck, Truck , Info} from "lucide-react";
 import { Link } from "react-router-dom";
 import "./styles/Sidebar-client-styles.css";
 import { useLocation } from "react-router-dom";
@@ -65,8 +65,8 @@ export default function Sidebar() {
           to="/insurance-client-page/main-portal/AccountSettings"
           className={`menu-item menu-item-bottom${isActive("/insurance-client-page/main-portal/AccountSettings") ? " active" : ""}`}
         >
-          <Settings className="menu-icon" />
-          <span>Settings</span>
+          <Info className="menu-icon" />
+          <span>About</span>
         </Link>
       </nav>
     </aside>

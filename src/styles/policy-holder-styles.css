@@ -1,0 +1,116 @@
+/* Policy Holder – edit screen */
+
+.ph-page { font: inherit; color: #111827; }
+
+.ph-header { margin: 8px 0 14px; }
+.ph-header-row {
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px;
+}
+.ph-header h1 { margin: 0 0 4px; font-size: 26px; font-weight: 700; line-height: 1.2; }
+.ph-note { margin: 0; color: #6b7280; font-size: 14px; font-weight: 500; }
+
+.ph-back {
+  appearance: none; border: 0; background: transparent; color: #000;
+  font-weight: 700; padding: 4px 6px; border-radius: 6px; cursor: pointer;
+}
+.ph-back:hover { text-decoration: underline; }
+
+.ph-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(17,24,39,.04);
+  padding: 22px;
+  max-width: 900px;
+}
+
+.ph-title {
+  margin: 2px 0 16px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* 2-column grid */
+.ph-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 28px;
+}
+
+.ph-field { display: flex; flex-direction: column; }
+.ph-field.span-2 { grid-column: span 2; }
+
+.ph-label {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #111827;
+}
+
+.ph-req {
+  color: #dc2626;
+  margin-left: 4px;
+}
+
+.ph-input {
+  height: 40px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  outline: none;
+  background: #fafafa;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.ph-input:focus {
+  border-color: #5b3ba1;
+  box-shadow: 0 0 0 3px rgba(91,59,161,.15);
+  background: #fff;
+}
+
+.ph-error {
+  border-color: #ef4444 !important;
+  background: #fff5f5;
+}
+.ph-help {
+  margin-top: 6px;
+  color: #b91c1c;
+  font-size: 12px;
+}
+
+/* Actions */
+.ph-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.ph-btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .06s ease, background .2s ease;
+}
+.ph-btn.primary {
+  background: #5b3ba1;
+  color: #fff;
+}
+.ph-btn.primary:hover { background: #4a2f8c; transform: translateY(-1px); }
+.ph-btn.primary:disabled { opacity: .7; cursor: default; transform: none; }
+
+.ph-btn.ghost {
+  background: transparent;
+  color: #4b5563;
+}
+.ph-btn.ghost:hover { background: #f3f4f6; }
+  
+/* Responsive */
+@media (max-width: 760px) {
+  .ph-grid { grid-template-columns: 1fr; }
+  .ph-field.span-2 { grid-column: auto; }
+  .ph-card { padding: 18px; }
+}

@@ -1,12 +1,12 @@
+// Balances.jsx
 import "./styles/Balances-styles.css";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchPayments } from "./Actions/BalanceActions";
-import { fetchPoliciesWithComputation, getCurrentClient } from "./Actions/PolicyActions";
+import { fetchPoliciesWithComputation } from "./Actions/PolicyActions";
 import { createPayMongoCheckout, checkPaymentTransaction } from "./Actions/PaymongoActions";
 import { getTotalPenalty } from "./Actions/PenaltyActions";
-import { logoutClient } from "./Actions/LoginActions";
-import { FaBell, FaSignOutAlt, FaUserCircle } from "react-icons/fa";
+import { useDeclarePageHeader } from "./PageHeaderProvider";
 
 /* ==== helpers ==== */
 
@@ -14,38 +14,42 @@ import { FaBell, FaSignOutAlt, FaUserCircle } from "react-icons/fa";
 function formatDateLong(dateStr) {
   const d = new Date(dateStr);
   if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" });
+  return d.toLocaleDateString(undefined, {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 /** LIFO for policy cards (newest first) */
 function policyOrderKey(p) {
-  // Prefer explicit timestamps if present
   if (p?.created_at) return new Date(p.created_at).getTime();
   if (p?.updated_at) return new Date(p.updated_at).getTime();
 
-  // Else use latest payment date
   const latestPay = (p?.payments || [])
-    .map(x => new Date(x.payment_date).getTime())
-    .filter(n => Number.isFinite(n))
+    .map((x) => new Date(x.payment_date).getTime())
+    .filter((n) => Number.isFinite(n))
     .sort((a, b) => b - a)[0];
   if (latestPay) return latestPay;
 
-  // Else numeric part of internal_id like "P-000000008"
   const n = Number(String(p?.internal_id || "").replace(/\D+/g, ""));
   if (Number.isFinite(n)) return n;
 
-  // Fallback: DB id
   return Number(p?.id || 0);
 }
 
 function isPaymentOverdue(paymentDate) {
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const due = new Date(paymentDate); due.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(paymentDate);
+  due.setHours(0, 0, 0, 0);
   return due < today;
 }
 function getDaysOverdue(paymentDate) {
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const due = new Date(paymentDate); due.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(paymentDate);
+  due.setHours(0, 0, 0, 0);
   const days = Math.floor((today - due) / (1000 * 60 * 60 * 24));
   return days > 0 ? days : 0;
 }
@@ -58,42 +62,23 @@ function isPaymentDisabled(payments, currentPaymentIndex) {
 }
 
 export default function Balances() {
+  // Declare global page header (Topbar renders this)
+  useDeclarePageHeader("Balances", "Manage your payment balances and schedule.");
+
   const [policiesWithPayments, setPoliciesWithPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingPayment, setProcessingPayment] = useState(null);
   const [paymentError, setPaymentError] = useState(null);
   const [penalties, setPenalties] = useState({});
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-  const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     loadAllData();
-    loadCurrentUser();
-  }, []);
-
-  async function loadCurrentUser() {
-    try {
-      const client = await getCurrentClient();
-      if (client) setCurrentUser(client);
-    } catch (error) {
-      console.error("Error loading user:", error);
-    }
-  }
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   async function loadAllData() {
     try {
+      setLoading(true);
       const policies = await fetchPoliciesWithComputation();
       if (!policies?.length) {
         setPoliciesWithPayments([]);
@@ -110,9 +95,15 @@ export default function Balances() {
               if (!payment.is_paid) {
                 try {
                   const penalty = await getTotalPenalty(payment.id);
-                  setPenalties(prev => ({ ...prev, [payment.id]: Number(penalty || 0) }));
+                  setPenalties((prev) => ({
+                    ...prev,
+                    [payment.id]: Number(penalty || 0),
+                  }));
                 } catch (error) {
-                  console.error(`Error loading penalty for payment ${payment.id}:`, error);
+                  console.error(
+                    `Error loading penalty for payment ${payment.id}:`,
+                    error
+                  );
                 }
               }
             }
@@ -122,9 +113,8 @@ export default function Balances() {
         })
       );
 
-      // 🔽 Only change: make the WHOLE policy-section list LIFO (newest first)
+      // LIFO ordering for whole policy list
       policiesData.sort((a, b) => policyOrderKey(b) - policyOrderKey(a));
-
       setPoliciesWithPayments(policiesData);
     } catch (error) {
       console.error("Error loading policies and payments:", error);
@@ -132,28 +122,6 @@ export default function Balances() {
       setLoading(false);
     }
   }
-
-  const handleLogout = async () => {
-    const result = await logoutClient();
-    if (result.success) {
-      navigate("/insurance-client-page/");
-    } else {
-      console.error("Failed to log out:", result.error);
-      alert("Logout failed. Please try again.");
-    }
-  };
-
-  const displayName = () => {
-    if (loading) return "Loading...";
-    if (!currentUser) return "User";
-    const prefix = currentUser.prefix || "";
-    const firstName = currentUser.first_Name || "";
-    const lastName = currentUser.last_Name || "";
-    if (prefix && firstName) return `${prefix} ${firstName}`;
-    if (firstName) return firstName;
-    if (lastName) return lastName;
-    return "User";
-  };
 
   async function handlePayNow(paymentId) {
     setProcessingPayment(paymentId);
@@ -180,25 +148,6 @@ export default function Balances() {
   if (loading) {
     return (
       <div className="balances-container">
-        <header className="topbar-client">
-          <div className="header-content">
-            <div className="header-left">
-              <h1 className="page-title">Balances</h1>
-              <p className="page-subtitle">Manage your payment balances and schedule.</p>
-            </div>
-            <div className="header-right">
-              <button className="notification-btn">
-                <FaBell className="notification-icon" />
-              </button>
-              <div className="user-dropdown">
-                <button className="user-dropdown-toggle">
-                  <span className="user-name">Loading...</span>
-                  <FaUserCircle className="user-avatar-icon" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </header>
         <div className="loading-message">
           Loading Balances <span className="spinner"></span>
         </div>
@@ -208,40 +157,6 @@ export default function Balances() {
 
   return (
     <div className="balances-container">
-      <header className="topbar-client">
-        <div className="header-content">
-          <div className="header-left">
-            <h1 className="page-title">Balances</h1>
-            <p className="page-subtitle">Manage your payment balances and schedule.</p>
-          </div>
-
-          <div className="header-right">
-            <button className="notification-btn">
-              <FaBell className="notification-icon" />
-            </button>
-
-            <div className="user-dropdown" ref={dropdownRef}>
-              <button
-                className="user-dropdown-toggle"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-                <span className="user-name">{displayName()}</span>
-                <FaUserCircle className="user-avatar-icon" />
-              </button>
-
-              {dropdownOpen && (
-                <div className="dropdown-menu">
-                  <button className="dropdown-item logout-item" onClick={handleLogout}>
-                    <FaSignOutAlt className="dropdown-icon" />
-                    <span>Log out</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
-
       <div className="balances-content">
         {paymentError && (
           <div className="error-banner">
@@ -268,20 +183,24 @@ export default function Balances() {
               </h3>
 
               <div className="balances-row">
-                {/* Payment Schedule (your inside layout unchanged) */}
+                {/* Payment Schedule */}
                 <div className="card schedule-card">
                   <div className="card-header">Payment Schedule</div>
+
                   {policy.payments.length > 0 ? (
                     <>
                       {policy.payments.map((p) => {
                         const penalty = Number(penalties[p.id] || 0);
-                        const totalWithPenalty = (Number(p.amount_to_be_paid) || 0) + penalty;
+                        const totalWithPenalty =
+                          (Number(p.amount_to_be_paid) || 0) + penalty;
                         const hasPenalty = !p.is_paid && penalty > 0;
 
                         return (
                           <div key={p.id} className="schedule-row">
-                            {/* Date → Amount → Status (as you requested before) */}
-                            <span className="schedule-date">{formatDateLong(p.payment_date)}</span>
+                            {/* Date → Amount → Status */}
+                            <span className="schedule-date">
+                              {formatDateLong(p.payment_date)}
+                            </span>
 
                             <div className="schedule-amount-col">
                               <span className="schedule-base-amount">
@@ -297,7 +216,11 @@ export default function Balances() {
                             <div className="schedule-status-col">
                               <span
                                 className={p.is_paid ? "paid-status" : "unpaid-status"}
-                                title={hasPenalty ? `Total due: ₱${totalWithPenalty.toLocaleString()}` : ""}
+                                title={
+                                  hasPenalty
+                                    ? `Total due: ₱${totalWithPenalty.toLocaleString()}`
+                                    : ""
+                                }
                               >
                                 {p.is_paid ? "✓ Paid" : "Pending"}
                               </span>
@@ -323,7 +246,7 @@ export default function Balances() {
                   )}
                 </div>
 
-                {/* Pending Payments (inside unchanged) */}
+                {/* Pending Payments */}
                 <div className="card pending-card">
                   <h4>Pending Payments</h4>
                   <div className="pending-header">
@@ -331,15 +254,21 @@ export default function Balances() {
                     <span className="red-text">Amount</span>
                     <span className="red-text">Action</span>
                   </div>
+
                   {pendingPayments.length > 0 ? (
                     pendingPayments.map((p) => {
                       const penalty = Number(penalties[p.id] || 0);
-                      const totalAmount = (Number(p.amount_to_be_paid) || 0) + penalty;
+                      const totalAmount =
+                        (Number(p.amount_to_be_paid) || 0) + penalty;
                       const isOverdue = isPaymentOverdue(p.payment_date);
                       const daysOverdue = getDaysOverdue(p.payment_date);
-
-                      const originalIndex = policy.payments.findIndex(payment => payment.id === p.id);
-                      const isDisabled = isPaymentDisabled(policy.payments, originalIndex);
+                      const originalIndex = policy.payments.findIndex(
+                        (payment) => payment.id === p.id
+                      );
+                      const disabled = isPaymentDisabled(
+                        policy.payments,
+                        originalIndex
+                      );
 
                       return (
                         <div key={p.id} className="pending-info">
@@ -350,7 +279,7 @@ export default function Balances() {
                             </span>
                             {isOverdue && (
                               <span className="overdue-badge">
-                                {daysOverdue} day{daysOverdue > 1 ? 's' : ''} overdue
+                                {daysOverdue} day{daysOverdue > 1 ? "s" : ""} overdue
                               </span>
                             )}
                           </div>
@@ -374,10 +303,16 @@ export default function Balances() {
 
                           {/* Action third */}
                           <button
-                            className={`pay-now-btn ${isOverdue ? 'overdue-btn' : ''} ${isDisabled ? 'disabled-btn' : ''}`}
+                            className={`pay-now-btn ${isOverdue ? "overdue-btn" : ""} ${
+                              disabled ? "disabled-btn" : ""
+                            }`}
                             onClick={() => handlePayNow(p.id)}
-                            disabled={processingPayment === p.id || isDisabled}
-                            title={isDisabled ? "Please pay previous payments first" : ""}
+                            disabled={processingPayment === p.id || disabled}
+                            title={
+                              disabled
+                                ? "Please pay previous payments first"
+                                : ""
+                            }
                           >
                             {processingPayment === p.id ? (
                               <>

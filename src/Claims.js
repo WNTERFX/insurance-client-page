@@ -1,21 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import './styles/claims-styles.css';
 import './styles/claims-display-styles.css';
 import { useNavigate } from "react-router-dom";
-import { getCurrentClient } from "./Actions/PolicyActions";
-import { logoutClient } from "./Actions/LoginActions";
 import { fetchClientClaims, getClaimDocumentUrls } from "./Actions/ClaimsActions";
 import { db } from "./dbServer";
 import UploadFilesModal from "./ClientForms/UploadFilesModal";
-import { FaBell, FaSignOutAlt, FaUserCircle } from "react-icons/fa";
 import { MapPin, Calendar, Phone, FileText, Upload, User, Building2, Banknote, AlertTriangle, X, Eye, Download } from "lucide-react";
+import { useDeclarePageHeader } from "./PageHeaderProvider"; // <-- global header
 
 export default function Claims() {
-  // Header state
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [headerLoading, setHeaderLoading] = useState(true);
-  const dropdownRef = useRef(null);
+  // Declare page header for the global Topbar
+  useDeclarePageHeader("My Claims", "Track and manage your insurance claims");
+
   const navigate = useNavigate();
 
   // Claims display state
@@ -31,23 +27,6 @@ export default function Claims() {
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [currentMessage, setCurrentMessage] = useState('');
   const [loading, setLoading] = useState(true);
-
-  // Load current user data for header
-  useEffect(() => {
-    async function loadCurrentUser() {
-      try {
-        const client = await getCurrentClient();
-        if (client) {
-          setCurrentUser(client);
-        }
-      } catch (error) {
-        console.error("Error loading user:", error);
-      } finally {
-        setHeaderLoading(false);
-      }
-    }
-    loadCurrentUser();
-  }, []);
 
   // Load auth user for claims
   useEffect(() => {
@@ -107,58 +86,10 @@ export default function Claims() {
     loadClaims();
   }, [clientData]);
 
-  // Handle click outside dropdown
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const handleLogout = async () => {
-    console.log("Logging out...");
-    const result = await logoutClient();
-
-    if (result.success) {
-      navigate("/insurance-client-page/");
-    } else {
-      console.error("Failed to log out:", result.error);
-      alert("Logout failed. Please try again.");
-    }
-  };
-
-  // Display name logic
-  const displayName = () => {
-    if (headerLoading) return "Loading...";
-    if (!currentUser) return "User";
-
-    const prefix = currentUser.prefix || "";
-    const firstName = currentUser.first_Name || "";
-    const lastName = currentUser.last_Name || "";
-
-    if (prefix && firstName) {
-      return `${prefix} ${firstName}`;
-    } else if (firstName) {
-      return firstName;
-    } else if (lastName) {
-      return lastName;
-    } else {
-      return "User";
-    }
-  };
-
   const handleViewDocuments = async () => {
     if (!selectedClaim) return;
-
     setLoadingDocuments(true);
     try {
-      console.log("📂 Loading documents for claim:", selectedClaim.id);
-
       const { data, error } = await db
         .from("claims_Table")
         .select("documents, created_at")
@@ -168,7 +99,6 @@ export default function Claims() {
       if (error) throw error;
 
       if (!data.documents || !Array.isArray(data.documents) || data.documents.length === 0) {
-        console.log("No documents found");
         setDocuments([]);
         setShowDocumentsModal(true);
         setLoadingDocuments(false);
@@ -180,10 +110,8 @@ export default function Claims() {
       const processedDocs = docsWithUrls.map(doc => {
         const isImage = doc.type?.startsWith('image/') ||
           /\.(jpg|jpeg|png|gif|webp)$/i.test(doc.name);
-        const isPDF = doc.type === 'application/pdf' ||
-          /\.pdf$/i.test(doc.name);
-        const isWord = doc.type?.includes('word') ||
-          /\.(doc|docx)$/i.test(doc.name);
+        const isPDF = doc.type === 'application/pdf' || /\.pdf$/i.test(doc.name);
+        const isWord = doc.type?.includes('word') || /\.(doc|docx)$/i.test(doc.name);
 
         return {
           name: doc.name,
@@ -232,23 +160,15 @@ export default function Claims() {
     setExpandedDocument(null);
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-PH", {
-      style: "currency",
-      currency: "PHP",
-    }).format(amount || 0);
-  };
+  const formatCurrency = (amount) =>
+    new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" }).format(amount || 0);
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-CA");
-  };
+  const formatDate = (dateString) => (!dateString ? "N/A" : new Date(dateString).toLocaleDateString("en-CA"));
 
   // Determine which progress items to show based on status
   const getProgressItems = (claim) => {
     const items = [];
 
-    // 1. Claim Submitted - Always completed (using created_at timestamp)
     items.push({
       title: "Claim Submitted",
       date: formatDate(claim.created_at),
@@ -256,7 +176,6 @@ export default function Claims() {
       completed: true
     });
 
-    // 2. Under Review
     if (claim.status === 'Under Review' || claim.status === 'Approved' || claim.status === 'Rejected' || claim.status === 'Completed') {
       items.push({
         title: "Under Review",
@@ -273,7 +192,6 @@ export default function Claims() {
       });
     }
 
-    // 3. Initial Review Complete
     if (claim.status === 'Approved' || claim.status === 'Completed') {
       items.push({
         title: "Initial Review Complete",
@@ -298,7 +216,6 @@ export default function Claims() {
       });
     }
 
-    // 4. Completed - Only show if status is Approved or Completed (NOT for Rejected)
     if (claim.status === 'Completed') {
       items.push({
         title: "Completed",
@@ -314,26 +231,19 @@ export default function Claims() {
         completed: false
       });
     }
-    // If status is 'Rejected', don't show Completed step at all
 
     return items;
   };
 
-  // Check if upload should be disabled
-  const isUploadDisabled = (status) => {
-    return status === 'Approved' || status === 'Rejected' || status === 'Completed';
-  };
+  const isUploadDisabled = (status) =>
+    status === 'Approved' || status === 'Rejected' || status === 'Completed';
 
   const handleUploadComplete = async (claimId, photos, documents) => {
     try {
-      console.log("📤 Uploading files for claim:", claimId);
-
-      // Get current user
       const { data: { user }, error: authError } = await db.auth.getUser();
       if (authError) throw authError;
       if (!user) throw new Error("No authenticated user");
 
-      // Get client auth_id
       const { data: clientAuthData, error: clientError } = await db
         .from("clients_Table")
         .select("auth_id")
@@ -343,10 +253,8 @@ export default function Claims() {
       if (clientError) throw clientError;
       if (!clientAuthData) throw new Error("Client not found");
 
-      // Combine all files
       const allFiles = [...photos, ...documents];
 
-      // Get existing documents
       const { data: existingClaim, error: claimError } = await db
         .from("claims_Table")
         .select("documents")
@@ -358,14 +266,11 @@ export default function Claims() {
       const existingDocs = existingClaim.documents || [];
       const newDocs = [];
 
-      // Upload each file
       for (const file of allFiles) {
         const timestamp = Date.now();
         const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
         const fileName = `${timestamp}_${sanitizedFileName}`;
         const filePath = `${clientAuthData.auth_id}/${claimId}/${fileName}`;
-
-        console.log(`📤 Uploading: ${file.name}`);
 
         const { data: uploadData, error: uploadError } = await db.storage
           .from('claim-documents')
@@ -379,8 +284,6 @@ export default function Claims() {
           continue;
         }
 
-        console.log(`✅ Uploaded: ${uploadData.path}`);
-
         newDocs.push({
           path: uploadData.path,
           name: file.name,
@@ -390,7 +293,6 @@ export default function Claims() {
         });
       }
 
-      // Update claim with new documents
       const updatedDocs = [...existingDocs, ...newDocs];
 
       const { error: updateError } = await db
@@ -400,27 +302,17 @@ export default function Claims() {
 
       if (updateError) throw updateError;
 
-      console.log(`✅ Successfully uploaded ${newDocs.length} file(s)`);
-
-      // Refresh claims list
       if (clientData) {
         const identifier = clientData.uid || clientData.id;
         const data = await fetchClientClaims(identifier);
         setClaims(data);
 
-        // Update selected claim to show new documents
         const updatedClaim = data.find(c => c.id === claimId);
-        if (updatedClaim) {
-          setSelectedClaim(updatedClaim);
-        }
+        if (updatedClaim) setSelectedClaim(updatedClaim);
       }
 
-      // Close modal
       setShowUploadModal(false);
-
-      // Show success message
       alert(`Successfully uploaded ${newDocs.length} file(s)!`);
-
       return true;
     } catch (error) {
       console.error("❌ Upload error:", error);
@@ -431,49 +323,12 @@ export default function Claims() {
 
   return (
     <div className="claims-page-container">
-      {/* Header with Profile */}
-      <header className="topbar-client">
-        <div className="header-content">
-          <div className="header-left">
-            <h1 className="page-title">My Claims</h1>
-            <p className="page-subtitle">Track and manage your insurance claims</p>
-          </div>
-
-          <div className="header-right">
-            <button className="notification-btn">
-              <FaBell className="notification-icon" />
-            </button>
-
-            <div className="user-dropdown" ref={dropdownRef}>
-              <button
-                className="user-dropdown-toggle"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-                <span className="user-name">{displayName()}</span>
-                <FaUserCircle className="user-avatar-icon" />
-              </button>
-
-              {dropdownOpen && (
-                <div className="dropdown-menu">
-                  <button className="dropdown-item logout-item" onClick={handleLogout}>
-                    <FaSignOutAlt className="dropdown-icon" />
-                    <span>Log out</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Content Section */}
       <div className="claims-content">
         {/* Action Button */}
         <div className="claims-action-section">
           <div className="claims-header-row">
-            <h2 className="claims-count-title">
-              Claims ({claims.length})
-            </h2>
+            <h2 className="claims-count-title">Claims ({claims.length})</h2>
             <button
               className="file-new-claim-btn"
               onClick={() => navigate("/insurance-client-page/main-portal/Claims/ClientClaimsCreationController")}
@@ -748,12 +603,7 @@ export default function Claims() {
                 src={expandedDocument.url}
                 className="expanded-pdf"
                 title={expandedDocument.name}
-                style={{
-                  width: '90vw',
-                  height: '90vh',
-                  border: 'none',
-                  borderRadius: '8px'
-                }}
+                style={{ width: '90vw', height: '90vh', border: 'none', borderRadius: '8px' }}
               />
             ) : (
               <div className="expanded-document">

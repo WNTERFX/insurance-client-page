@@ -1,68 +1,162 @@
-.topbar {
-  background-color: #402158;
-  color: white;
-  padding: 0.5rem 1rem;
-  height: 72px;
+/* ==========================
+   Topbar — F2F5FA glass, original fonts
+   ========================== */
+:root{
+  --sidebar-width: 260px;                 /* match your Sidebar */
+  --topbar-height: 92px;                  /* room for H1 + subtitle */
+  --topbar-alpha: 0.80;                   /* 0.35 (more see-through) … 0.75 (less) */
+  --topbar-bg: rgba(242,245,250,var(--topbar-alpha)); /* F2F5FA w/ alpha */
+  --topbar-blur: 6px;                     /* set 0 for no blur */
+}
+
+/* Fixed overlay so transparency/blur shows; offset by fixed sidebar */
+.topbar-client{
+  position: fixed;
+  top: 0;
+  left: var(--sidebar-width);
+  right: 0;
+  height: var(--topbar-height);
+  z-index: 900;
+
+  background: var(--topbar-bg);
+  -webkit-backdrop-filter: saturate(150%) blur(var(--topbar-blur));
+  backdrop-filter: saturate(150%) blur(var(--topbar-blur));
+
+
+
+}
+
+/* Inner layout */
+.header-content{
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 20px;
+  max-width: 100%;
 }
 
-.left-section {
+/* Title + subtitle */
+.header-left{
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.page-title{
+  margin: 0;
+  line-height: 1.2;
+  font-size: 1.875rem;     /* original sizing */
+  font-weight: 700;
+  color: #0f172a;
+  font-family: inherit;
+}
+.page-subtitle{
+  margin: 0;
+  line-height: 1.4;
+  font-size: 0.95rem;      /* slightly larger for readability */
+  color: #4b5563;          /* good contrast on F2F5FA */
+  font-family: inherit;
+  opacity: 0.98;
 }
 
-.nav-bar-icon {
+/* Right actions */
+.header-right{ display: flex; align-items: center; gap: .5rem; }
+
+.notification-btn{
+  background: transparent;
+  border: none;
   cursor: pointer;
-}
-
-.company-name {
-  font-size: 1.49rem;
-  font-weight: normal;
-}
-
-.user-dropdown {
+  padding: .25rem;
+  border-radius: .5rem;
+  transition: background-color .2s;
   position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
 }
+.notification-btn:hover{ background-color: rgba(241,245,249,.6); }
+.notification-icon{ font-size: 1.25rem; color: #6b7280; }
 
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-  font-size: large;
-}
-
-.dropdown-toggle {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.5rem;
-}
-
-.dropdown-menu {
+.notification-badge{
   position: absolute;
-  top: 48px;
+  top: .25rem; right: .25rem;
+  background: #ef4444; color: #fff;
+  font-size: .625rem; font-weight: 700;
+  padding: 0 .375rem; border-radius: 9999px;
+  min-width: 1rem; text-align: center;
+}
+
+.user-dropdown{ position: relative; }
+.user-dropdown-toggle{
+  display: flex; align-items: center; gap: .5rem;
+  background: transparent; border: none; cursor: pointer;
+  padding: .5rem .75rem; border-radius: .5rem;
+  transition: background-color .2s;
+  font-family: inherit;
+}
+.user-dropdown-toggle:hover{ background-color: rgba(241,245,249,.6); }
+.user-name{ font-size: 1rem; font-weight: 700; color: #0f172a; font-family: inherit; }
+.user-avatar-icon{ font-size: 2rem; color: #6b7280; }
+
+.dropdown-menu{
+  position: absolute;
+  top: calc(100% + .5rem);
   right: 0;
-  background-color: white;
-  color: black;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 10px;
+  background: rgba(255,255,255,.98);
+  border: 1px solid #e5e7eb;
+  border-radius: .5rem;
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -2px rgba(0,0,0,.05);
+  min-width: 140px;
+  overflow: hidden;
   z-index: 1000;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.dropdown-item{
+  display: flex; align-items: center; gap: .625rem;
+  width: 100%;
+  padding: .625rem .875rem;
+  background: transparent; border: none; cursor: pointer;
+  font-size: .875rem; color: #374151;
+  text-align: left; white-space: nowrap;
+  transition: background-color .15s;
+  font-family: inherit;
+}
+.dropdown-item:hover{ background: #f3f4f6; }
+.logout-item{ color: #111827; }
+.logout-item:hover{ background: #e5e7eb; }
+.dropdown-icon{ font-size: 1rem; flex-shrink: 0; }
+
+/* Hide any legacy duplicate header blocks */
+.headermessage{ display: none !important; }
+
+/* Fallback if blur unsupported */
+@supports not ((-webkit-backdrop-filter: none) or (backdrop-filter: none)){
+  .topbar-client{ background: rgba(242,245,250,0.92); }
 }
 
-.dropdown-item {
-  padding: 5px 10px;
-  cursor: pointer;
+/* Mobile: sidebar collapses → full-width */
+@media (max-width: 768px){
+  .topbar-client{ left: 0; }
 }
 
-.dropdown-item.logout:hover {
-  background-color: #eee;
+/* --- Force subtitle to be visible and high-contrast --- */
+.topbar-client .header-left .page-subtitle {
+  color: #374151 !important;   /* slate-700: clearly visible on #F2F5FA */
+  opacity: 1 !important;
+  font-weight: 500;            /* a touch heavier helps readability */
+}
+
+/* Safety: ensure no ancestor is fading the text */
+.topbar-client .header-left,
+.topbar-client .page-title,
+.topbar-client .page-subtitle {
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+
+/* If you ever applied letterpress-like shadows elsewhere, keep it subtle */
+@supports (text-shadow: 0 1px 0 #fff) {
+  .topbar-client .page-subtitle {
+    text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+  }
 }
