@@ -2,10 +2,9 @@
 import "./styles/Balances-styles.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchPayments } from "./Actions/BalanceActions";
+import { fetchPayments} from "./Actions/BalanceActions";
 import { fetchPoliciesWithComputation } from "./Actions/PolicyActions";
 import { createPayMongoCheckout, checkPaymentTransaction } from "./Actions/PaymongoActions";
-import { getTotalPenalty } from "./Actions/PenaltyActions";
 import { useDeclarePageHeader } from "./PageHeaderProvider";
 
 /* ==== helpers ==== */
@@ -38,21 +37,42 @@ function policyOrderKey(p) {
   return Number(p?.id || 0);
 }
 
+function parsePHDate(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  const utcTime = d.getTime();
+  const phOffset = 8 * 60; // +08:00 in minutes
+  const localOffset = d.getTimezoneOffset(); // in minutes
+  const adjusted = new Date(utcTime + (phOffset + localOffset) * 60 * 1000);
+  return adjusted;
+}
+
 function isPaymentOverdue(paymentDate) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const due = new Date(paymentDate);
+  const due = parsePHDate(paymentDate);
   due.setHours(0, 0, 0, 0);
   return due < today;
 }
+
 function getDaysOverdue(paymentDate) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const due = new Date(paymentDate);
+  const due = parsePHDate(paymentDate);
   due.setHours(0, 0, 0, 0);
   const days = Math.floor((today - due) / (1000 * 60 * 60 * 24));
   return days > 0 ? days : 0;
 }
+
+function calculatePenalty(paymentDate, baseAmount) {
+  const daysOverdue = getDaysOverdue(paymentDate);
+  if (daysOverdue === 0) return 0;
+
+  const effectiveDays = Math.min(daysOverdue, 31);
+  const penaltyMultiplier = Math.pow(1.01, effectiveDays) - 1;
+  return baseAmount * penaltyMultiplier;
+}
+
 function isPaymentDisabled(payments, currentPaymentIndex) {
   if (currentPaymentIndex === 0) return false;
   for (let i = 0; i < currentPaymentIndex; i++) {
@@ -69,7 +89,6 @@ export default function Balances() {
   const [loading, setLoading] = useState(true);
   const [processingPayment, setProcessingPayment] = useState(null);
   const [paymentError, setPaymentError] = useState(null);
-  const [penalties, setPenalties] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -88,27 +107,6 @@ export default function Balances() {
       const policiesData = await Promise.all(
         policies.map(async (policy) => {
           const payments = (await fetchPayments(policy.id)) || [];
-
-          // Load penalties for unpaid payments
-          if (payments.length) {
-            for (const payment of payments) {
-              if (!payment.is_paid) {
-                try {
-                  const penalty = await getTotalPenalty(payment.id);
-                  setPenalties((prev) => ({
-                    ...prev,
-                    [payment.id]: Number(penalty || 0),
-                  }));
-                } catch (error) {
-                  console.error(
-                    `Error loading penalty for payment ${payment.id}:`,
-                    error
-                  );
-                }
-              }
-            }
-          }
-
           return { ...policy, payments: payments || [] };
         })
       );
@@ -171,10 +169,12 @@ export default function Balances() {
             0
           );
           const pendingPayments = policy.payments.filter((p) => !p.is_paid);
-          const totalPenalties = pendingPayments.reduce(
-            (sum, p) => sum + (Number(penalties[p.id]) || 0),
-            0
-          );
+          
+          // Calculate total penalties from all pending payments
+          const totalPenalties = pendingPayments.reduce((sum, p) => {
+            const penalty = calculatePenalty(p.payment_date, Number(p.amount_to_be_paid) || 0);
+            return sum + penalty;
+          }, 0);
 
           return (
             <div key={policy.id} className="policy-section">
@@ -190,7 +190,9 @@ export default function Balances() {
                   {policy.payments.length > 0 ? (
                     <>
                       {policy.payments.map((p) => {
-                        const penalty = Number(penalties[p.id] || 0);
+                        const penalty = !p.is_paid 
+                          ? calculatePenalty(p.payment_date, Number(p.amount_to_be_paid) || 0)
+                          : 0;
                         const totalWithPenalty =
                           (Number(p.amount_to_be_paid) || 0) + penalty;
                         const hasPenalty = !p.is_paid && penalty > 0;
@@ -208,7 +210,10 @@ export default function Balances() {
                               </span>
                               {hasPenalty && (
                                 <span className="schedule-penalty-text">
-                                  + ₱{penalty.toLocaleString()} penalty
+                                  + ₱{penalty.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                  })} penalty
                                 </span>
                               )}
                             </div>
@@ -218,7 +223,10 @@ export default function Balances() {
                                 className={p.is_paid ? "paid-status" : "unpaid-status"}
                                 title={
                                   hasPenalty
-                                    ? `Total due: ₱${totalWithPenalty.toLocaleString()}`
+                                    ? `Total due: ₱${totalWithPenalty.toLocaleString(undefined, {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                      })}`
                                     : ""
                                 }
                               >
@@ -237,7 +245,10 @@ export default function Balances() {
                       {totalPenalties > 0 && (
                         <div className="schedule-penalties">
                           <span>Total Penalties</span>
-                          <span>₱ {totalPenalties.toLocaleString()}</span>
+                          <span>₱ {totalPenalties.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          })}</span>
                         </div>
                       )}
                     </>
@@ -257,7 +268,10 @@ export default function Balances() {
 
                   {pendingPayments.length > 0 ? (
                     pendingPayments.map((p) => {
-                      const penalty = Number(penalties[p.id] || 0);
+                      const penalty = calculatePenalty(
+                        p.payment_date, 
+                        Number(p.amount_to_be_paid) || 0
+                      );
                       const totalAmount =
                         (Number(p.amount_to_be_paid) || 0) + penalty;
                       const isOverdue = isPaymentOverdue(p.payment_date);
@@ -292,10 +306,16 @@ export default function Balances() {
                             {penalty > 0 && (
                               <>
                                 <span className="penalty-amount">
-                                  + ₱{penalty.toLocaleString()} penalty
+                                  + ₱{penalty.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                  })} penalty
                                 </span>
                                 <span className="total-amount">
-                                  Total: ₱{totalAmount.toLocaleString()}
+                                  Total: ₱{totalAmount.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                  })}
                                 </span>
                               </>
                             )}

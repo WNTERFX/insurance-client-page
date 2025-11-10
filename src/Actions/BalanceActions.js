@@ -24,3 +24,15 @@ export async function fetchPayments(policyId) {
   }
   return data || [];
 }
+
+function parsePHDate(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  // Supabase already stores +08, but JS may interpret as local time
+  // We'll force it to UTC+8 by adding the offset difference
+  const utcTime = d.getTime();
+  const phOffset = 8 * 60; // +08:00 in minutes
+  const localOffset = d.getTimezoneOffset(); // in minutes
+  const adjusted = new Date(utcTime + (phOffset + localOffset) * 60 * 1000);
+  return adjusted;
+}
