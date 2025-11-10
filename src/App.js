@@ -40,7 +40,7 @@ function App() {
   return (
     
   <Routes>
-  <Route path="/insurance-client-page" element={<LandingPage />} />
+  <Route path="/" element={<LandingPage />} />
   <Route path="/insurance-client-page/signup" element={<SignUpForm />} />
   <Route path="/insurance-client-page/login" element={<LoginForm />} />
   <Route path="/insurance-client-page/reset-password" element={<ResetPasswordForm />} />
