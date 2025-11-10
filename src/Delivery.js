@@ -1,168 +1,64 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+// Delivery.jsx
+import React, { useState, useEffect } from "react";
 import "./styles/client-delivery.css";
-import { FaPlus, FaBell, FaSignOutAlt, FaUserCircle, FaUser, FaPhoneAlt, FaMapMarkerAlt, FaStickyNote } from "react-icons/fa";
+import { FaPlus, FaPhoneAlt, FaMapMarkerAlt, FaStickyNote, FaUser } from "react-icons/fa";
 import { BsCalendarDate } from "react-icons/bs";
+
 import ClientDeliveryCreationController from "./ClientController/ClientDeliveryCreationController";
 import { getCurrentClient } from "./Actions/PolicyActions";
-import { logoutClient } from "./Actions/LoginActions";
 import { fetchClientDeliveriesDetailed } from "./Actions/ClientDeliveryActions";
-import { db } from "./dbServer";
+import { useDeclarePageHeader } from "./PageHeaderProvider";
 
 export default function Delivery() {
+  // Show the global header in Topbar
+  useDeclarePageHeader("Policy Delivery", "Track your scheduled and completed policy deliveries");
+
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [refreshFlag, setRefreshFlag] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+
   const [clientData, setClientData] = useState(null);
   const [deliveries, setDeliveries] = useState([]);
   const [deliveriesLoading, setDeliveriesLoading] = useState(true);
-  const dropdownRef = useRef(null);
 
-  const navigate = useNavigate();
-
-  // Load authenticated user
+  // Load client data
   useEffect(() => {
-    async function loadAuthUser() {
-      const { data, error } = await db.auth.getUser();
-      if (error) {
-        console.error("Auth fetch error:", error.message);
-        setLoading(false);
-        return;
-      }
-      setCurrentUser(data?.user || null);
-      setLoading(false);
-    }
-    loadAuthUser();
-  }, []);
-
-  // Load client data for header display
-  useEffect(() => {
-    async function loadCurrentUser() {
+    (async () => {
       try {
         const client = await getCurrentClient();
-        if (client) {
-          setClientData(client);
-        }
-      } catch (error) {
-        console.error("Error loading user:", error);
+        setClientData(client || null);
+      } catch (err) {
+        console.error("Error loading user:", err);
+        setClientData(null);
       }
-    }
-    if (currentUser) {
-      loadCurrentUser();
-    }
-  }, [currentUser]);
+    })();
+  }, []);
 
-  // Load deliveries
+  // Load deliveries whenever client or refresh toggles
   useEffect(() => {
-    const loadDeliveries = async () => {
+    (async () => {
       if (!clientData?.uid && !clientData?.id) return;
       setDeliveriesLoading(true);
       try {
         const identifier = clientData.uid || clientData.id;
         const data = await fetchClientDeliveriesDetailed(identifier);
-        setDeliveries(data);
+        setDeliveries(data || []);
       } catch (err) {
         console.error("Error loading deliveries:", err);
+        setDeliveries([]);
       } finally {
         setDeliveriesLoading(false);
       }
-    };
-    loadDeliveries();
+    })();
   }, [clientData, refreshFlag]);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const handleLogout = async () => {
-    console.log("Logging out...");
-    const result = await logoutClient();
-
-    if (result.success) {
-      navigate("/insurance-client-page/");
-    } else {
-      console.error("Failed to log out:", result.error);
-      alert("Logout failed. Please try again.");
-    }
-  };
-
-  // Display name logic
-  const displayName = () => {
-    if (loading) return "Loading...";
-    if (!clientData) return "User";
-
-    const prefix = clientData.prefix || "";
-    const firstName = clientData.first_Name || "";
-    const lastName = clientData.last_Name || "";
-
-    // Combine name parts
-    if (prefix && firstName) {
-      return `${prefix} ${firstName}`;
-    } else if (firstName) {
-      return firstName;
-    } else if (lastName) {
-      return lastName;
-    } else {
-      return "User";
-    }
-  };
 
   const handleDeliveryCreated = () => {
     setShowCreateModal(false);
-    setRefreshFlag((prev) => !prev);
+    setRefreshFlag((v) => !v);
   };
 
   return (
     <div className="policy-delivery-container">
-      {/* Header with notification and profile */}
-      <header className="topbar-delivery">
-        <div className="header-content">
-          <div className="header-left">
-            <h1 className="page-title">Policy Delivery</h1>
-            <p className="page-subtitle">Track your scheduled and completed policy deliveries</p>
-          </div>
-
-          <div className="header-right">
-            <button className="notification-btn">
-              <FaBell className="notification-icon" />
-              {/* Optional: Add notification badge */}
-              {/* <span className="notification-badge">3</span> */}
-            </button>
-
-            <div className="user-dropdown" ref={dropdownRef}>
-              <button
-                className="user-dropdown-toggle"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-                <span className="user-name">{displayName()}</span>
-                <FaUserCircle className="user-avatar-icon" />
-              </button>
-
-              {dropdownOpen && (
-                <div className="dropdown-menu">
-                  <button className="dropdown-item logout-item" onClick={handleLogout}>
-                    <FaSignOutAlt className="dropdown-icon" />
-                    <span>Log out</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main content */}
+      {/* Content header (page-local) */}
       <div className="delivery-content-wrapper">
         <div className="policy-header">
           <div className="active-deliveries">

@@ -1,0 +1,11 @@
+# Paths in config.toml are **relative to each function's folder**.
+# Your functions live in supabase/functions/<func>, and deno.json is at supabase/deno.json,
+# so the correct relative path is "../deno.json"
+
+[functions.send-client-change-code-lite]
+verify_jwt = false
+import_map = "./deno.json"
+
+[functions.verify-client-change-code-lite]
+verify_jwt = false
+import_map = "./deno.json"

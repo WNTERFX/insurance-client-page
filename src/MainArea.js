@@ -1,21 +1,19 @@
-import { Outlet } from 'react-router-dom';
-import Topbar_client from './Topbar-client';
-import Sidebar from './Sidebar-client';
-import "./styles/MainArea-styles.css"
-export default function MainArea() 
-{
-    return(
-       <div className="main-area">
-    {/*  <Topbar_client />*/}
-      <div className="body-area">
-        <Sidebar />
-        <div className="content-area">
-          <Outlet />
+import { Outlet } from "react-router-dom";
+import TopbarClient from "./Topbar-client";
+import Sidebar from "./Sidebar-client";
+import { PageHeaderProvider } from "./PageHeaderProvider";
+import "./styles/MainArea-styles.css";
+
+export default function MainArea() {
+  return (
+    <PageHeaderProvider>
+      <div className="main-area">
+        <TopbarClient />
+        <div className="body-area">
+          <div className="sidebar"><Sidebar /></div>
+          <div className="content-area"><Outlet /></div>
         </div>
       </div>
-    </div>
-         
-
-    );
-
+    </PageHeaderProvider>
+  );
 }
