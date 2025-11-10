@@ -76,7 +76,7 @@ export default function TopbarClient() {
     try {
       const res = await logoutClient();
       if (res?.success) {
-        navigate("/insurance-client-page/", { replace: true });
+        navigate("/", { replace: true });
       } else {
         alert("Logout failed. Please try again.");
       }

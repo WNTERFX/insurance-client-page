@@ -127,7 +127,7 @@ export default function Partners() {
         {/* Brand row: logo + burger (burger sits to the RIGHT of the logo) */}
         <div className="brand">
           <Link
-            to="/insurance-client-page"
+            to="/"
             className="logo-container"
             onClick={handleNavClick}
             aria-label="Go to Home — Silverstar Insurance Agency"
@@ -154,7 +154,7 @@ export default function Partners() {
           className={`nav-links ${menuOpen ? "active" : ""}`}
         >
           <Link
-            to="/insurance-client-page"
+            to="/"
             className={`nav-link ${isActiveLink('/insurance-client-page') ? 'active' : ''}`}
             onClick={handleNavClick}
           >

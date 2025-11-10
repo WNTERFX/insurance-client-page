@@ -230,7 +230,7 @@ export default function InsuranceDetails() {
                     {formatDateLong(policy.created_at)}
                   </div>
                   <div>
-                    <strong>Partner Name:</strong>{" "}
+                    <strong>Insurer:</strong>{" "}
                     {policy.insurance_Partners?.insurance_Name || "N/A"}
                   </div>
                 </div>

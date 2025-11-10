@@ -47,7 +47,7 @@ export default function Contact() {
         {/* Brand row: logo + burger (burger sits to the RIGHT of the logo) */}
         <div className="brand">
           <Link
-            to="/insurance-client-page"
+            to="/"
             className="logo-container"
             onClick={handleNavClick}
             aria-label="Go to Home — Silverstar Insurance Agency"
@@ -70,8 +70,8 @@ export default function Contact() {
         {/* Nav Links */}
         <nav id="primary-navigation" className={`nav-links ${menuOpen ? "active" : ""}`}>
           <Link
-            to="/insurance-client-page"
-            className={`nav-link ${isActiveLink("/insurance-client-page") ? "active" : ""}`}
+            to="/"
+            className={`nav-link ${isActiveLink("/") ? "active" : ""}`}
             onClick={handleNavClick}
           >
             Home
