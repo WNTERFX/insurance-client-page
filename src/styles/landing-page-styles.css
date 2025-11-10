@@ -1,3 +1,5 @@
+
+
 /* --- Professional Landing Page Styles with Animations --- */
 
 /* General Resets and Base Styles */
@@ -116,8 +118,8 @@ body {
   padding: 1rem 3rem;
   background-color: #402158;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  position: sticky;  /* Keep sticky */
-  top: 0;            /* Keep top */
+  position: relative;  /* Keep sticky */
+  top: auto;            /* Keep top */
   z-index: 1000;
   height: 70px;
 }
@@ -204,6 +206,33 @@ body {
   cursor: pointer;
   z-index: 1001;
 }
+/* Mobile nav dropdown under header */
+@media (max-width: 768px) {
+  .nav-links {
+    flex-direction: column;
+    position: absolute;
+    top: 100%;               /* follow header height automatically */
+    left: 0;
+    width: 100%;
+    background-color: var(--primary-purple);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    padding: 20px 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-12px);
+    transition: opacity .3s ease, visibility .3s ease, transform .3s ease;
+    z-index: 999;
+  }
+  .nav-links.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .hamburger {
+    display: block;
+  }
+}
+
 
 /* --- Hero Section --- */
 .landing-page-hero {

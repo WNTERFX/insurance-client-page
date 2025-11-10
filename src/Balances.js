@@ -230,7 +230,7 @@ export default function Balances() {
                       })}
 
                       <div className="schedule-total">
-                        <span>Policy Premium</span>
+                        <span>Total Premium</span>
                         <span>₱ {totalBalance.toLocaleString()}</span>
                       </div>
 

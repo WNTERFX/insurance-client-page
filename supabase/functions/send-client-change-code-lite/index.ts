@@ -29,7 +29,7 @@ const ORIGINS = new Set([
   "http://localhost:3000",
   "http://127.0.0.1:3000",
   "https://wnterfx.github.io",
-  `https://${new URL(SUPABASE_URL).host}`,
+  "https://ezmvecxqcjnrspmjfgkk.supabase.co"
 ]);
 const cors = (origin: string | null) => ({
   "access-control-allow-origin": ORIGINS.has(origin ?? "") ? (origin as string) : "http://localhost:3000",

@@ -36,11 +36,15 @@ import CalendarWrapper from './ClientForms/CalendarWrapper';
 
 import ProfilePage from './ProfilePage';
 
+import TermsAndConditions from './TermsAndConditions';
+import PrivacyPolicy from './PrivacyPolicy';
+
 function App() {
   return (
     
   <Routes>
   <Route path="/" element={<LandingPage />} />
+  
   <Route path="/insurance-client-page/signup" element={<SignUpForm />} />
   <Route path="/insurance-client-page/login" element={<LoginForm />} />
   <Route path="/insurance-client-page/reset-password" element={<ResetPasswordForm />} />
@@ -55,8 +59,8 @@ function App() {
   <Route path="/insurance-client-page/CreateQuote" element={<CreateQuote />} />
   <Route path="/insurance-client-page/QuoteInfo" element={<QuoteInfo />} />
   <Route path="/insurance-client-page/FAQs" element={<FAQs />} />
-  
-  
+  <Route path="/insurance-client-page/PrivacyPolicy" element={<PrivacyPolicy />} />
+  <Route path="/insurance-client-page/TermsAndConditions" element={<TermsAndConditions />} />
 
    
   {/* Protected routes */}

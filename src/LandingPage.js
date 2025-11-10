@@ -193,7 +193,7 @@ export default function LandingPage() {
         {/* Brand row: logo + burger (burger sits to the RIGHT of the logo) */}
         <div className="brand">
           <Link
-            to="/insurance-client-page"
+            to="/"
             className="logo-container"
             onClick={handleNavClick}
             aria-label="Go to Home — Silverstar Insurance Agency"
@@ -220,8 +220,8 @@ export default function LandingPage() {
           className={`nav-links ${menuOpen ? "active" : ""}`}
         >
           <Link
-            to="/insurance-client-page"
-            className={`nav-link ${isActiveLink('/insurance-client-page') ? 'active' : ''}`}
+            to="/"
+            className={`nav-link ${isActiveLink('/') ? 'active' : ''}`}
             onClick={handleNavClick}
           >
             Home
@@ -461,8 +461,8 @@ export default function LandingPage() {
                     <hr className="footer-divider" />
                     <div className="footer-bottom-content">
                         <p>© 2025 Silverstar Insurance Agency Inc.</p>
-                        <a href="#TermsandCondiiton">Terms and Condition</a>
-                        <a href="#Privacy Policy">Privacy Policy</a>
+                        <a href="/insurance-client-page/TermsAndConditions">Terms and Condition</a>
+                        <a href="/insurance-client-page/PrivacyPolicy">Privacy Policy</a>
                     </div>
                 </div>
             </footer>

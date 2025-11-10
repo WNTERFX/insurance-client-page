@@ -168,7 +168,7 @@ export function SignUpForm() {
               onChange={(e) => setAgreeTerms(e.target.checked)}
             />
             <label htmlFor="terms" className="terms-text">
-              I've read and agree to Silverstar <a href="#">Terms of service</a> and <a href="#">Privacy Policy</a>.
+              I've read and agree to Silverstar <a href="/insurance-client-page/TermsAndConditions">Terms of service</a> and <a href="/insurance-client-page/PrivacyPolicy">Privacy Policy</a>.
             </label>
           </div>
 
