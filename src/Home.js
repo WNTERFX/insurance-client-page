@@ -99,7 +99,7 @@ export default function Home() {
         const result = await logoutClient();
        
         if (result.success) {
-          navigate("/insurance-client-page/");
+          navigate("/");
         } else {
           console.error("Failed to log out:", result.error);
           alert("Logout failed. Please try again.");

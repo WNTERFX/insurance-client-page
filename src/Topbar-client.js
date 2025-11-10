@@ -44,13 +44,23 @@ export default function Topbar_client() {
 
   const handleLogout = async () => {
     console.log("Logging out...");
-    const result = await logoutClient();
-   
-    if (result.success) {
-      navigate("/insurance-client-page/");
-    } else {
-      console.error("Failed to log out:", result.error);
-      alert("Logout failed. Please try again.");
+    try {
+      const result = await logoutClient();
+
+      // THIS IS THE MOST IMPORTANT DEBUGGING STEP
+      console.log("Logout result:", result); 
+
+      if (result.success) {
+        console.log("Logout success, navigating to /");
+        navigate("/");
+      } else {
+        console.error("Failed to log out:", result.error);
+        alert("Logout failed. Please try again.");
+      }
+    } catch (error) {
+      // This will catch any errors thrown by logoutClient
+      console.error("An error occurred during logout:", error);
+      alert("An error occurred. Please try again.");
     }
   };
 
