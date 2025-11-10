@@ -1,7 +1,4 @@
 {
-  "redirects": [
-    { "source": "/", "destination": "/insurance-client-page", "permanent": true }
-  ],
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
   ]
