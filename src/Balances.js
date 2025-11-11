@@ -1,4 +1,3 @@
-// Balances.jsx
 import "./styles/Balances-styles.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -43,7 +42,7 @@ function parsePHDate(dateStr) {
   const utcTime = d.getTime();
   const phOffset = 8 * 60; // +08:00 in minutes
   const localOffset = d.getTimezoneOffset(); // in minutes
-  const adjusted = new Date(utcTime + (phOffset + localOffset) * 60 * 1000);
+  const adjusted = new Date(utcTime + (localOffset) * 60 * 1000);
   return adjusted;
 }
 
@@ -69,7 +68,8 @@ function calculatePenalty(paymentDate, baseAmount) {
   if (daysOverdue === 0) return 0;
 
   const effectiveDays = Math.min(daysOverdue, 31);
-  const penaltyMultiplier = Math.pow(1.01, effectiveDays) - 1;
+  const penaltyRate = 0.01; // 1% per day
+  const penaltyMultiplier = penaltyRate * effectiveDays; // Simple interest
   return baseAmount * penaltyMultiplier;
 }
 
