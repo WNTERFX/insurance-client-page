@@ -708,6 +708,7 @@ export default function Home() {
                   </p>
                 </div>
               ) : (
+
                 <BarChart
                   xAxis={[
                     {
@@ -717,7 +718,6 @@ export default function Home() {
                         type: 'ordinal',
                         colors: chartData.map((_, index) => COLOR_SCHEME[index % COLOR_SCHEME.length]),
                       },
-                      tickLabelStyle: { angle: 0, textAnchor: 'middle', fontSize: 10 },
                     },
                   ]}
                   yAxis={[
@@ -730,23 +730,22 @@ export default function Home() {
                       valueFormatter: (value, context) => {
                         if (context && context.dataIndex !== undefined) {
                           const d = chartData[context.dataIndex];
-                          if (d) return `Rating: ${d.percentage.toFixed(2)}%`;
+                          if (d) return `${d.name}: ${d.percentage.toFixed(2)}%`;
                         }
                         return `${value?.toFixed(2)}%`;
                       },
                     },
                   ]}
-                  height={400}
-                  width={1100}
-                  margin={{ top: 20, bottom: 20, left: 20, right: 20 }}
+                  height={500}
+                  margin={{ top: 20, bottom: 80, left: 50, right: 20 }}
                   colors={chartData.map((_, index) => COLOR_SCHEME[index % COLOR_SCHEME.length])}
                   slotProps={{ legend: { hidden: true } }}
                   sx={{
                     '& .MuiBarElement-root': { cursor: 'pointer' },
                     '& .MuiBarElement-root:hover': { opacity: 0.8 },
                     '& .MuiChartsAxis-bottom .MuiChartsAxis-tickLabel': {
-                      textAlign: 'center',
-                      dominantBaseline: 'hanging',
+                      fontSize: '11px',
+                      textAnchor: 'middle',
                     },
                   }}
                 />

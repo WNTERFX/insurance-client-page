@@ -140,12 +140,27 @@ async function uploadFilesToStorage(files, clientAuthId, claimId) {
       const fileName = `${timestamp}_${randomStr}_${sanitizedFileName}`;
       const filePath = `${clientAuthId}/${claimId}/${fileName}`;
 
-      // Determine content type - override text/plain for .txt files
-      let contentType = file.type;
-      if (file.name.toLowerCase().endsWith('.txt')) {
-        contentType = 'application/octet-stream'; // Use generic binary type for .txt files
+      // UPDATED: Validate file types before upload
+      const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      const validDocTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      ];
+
+      const isValidImage = validImageTypes.includes(file.type);
+      const isValidDoc = validDocTypes.includes(file.type);
+
+      // Skip text files and other invalid types
+      if (!isValidImage && !isValidDoc) {
+        console.warn(`Skipping invalid file type: ${file.name} (${file.type})`);
+        failedFiles.push(file.name);
+        continue;
       }
 
+      // Use correct content type
+      let contentType = file.type;
+      
       const { data, error } = await db.storage
         .from('claim-documents')
         .upload(filePath, file, {

@@ -12,7 +12,7 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.policy-header {
+.policy-header-delivery {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -23,20 +23,20 @@
   gap: 16px;
 }
 
-.active-deliveries h4 {
+.active-deliveries-delivery h4 {
   margin: 0;
   font-size: 24px;
   font-weight: 700;
   color: #111;
 }
 
-.active-deliveries p {
+.active-deliveries-delivery p {
   margin: 4px 0 0 0;
   font-size: 14px;
   color: #6b7280;
 }
 
-.schedule-btn {
+.schedule-btn-delivery {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -51,25 +51,25 @@
   transition: all 0.2s;
 }
 
-.schedule-btn:hover {
+.schedule-btn-delivery:hover {
   background: #2563eb;
   transform: translateY(-1px);
   box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
 }
 
-.btn-icon {
+.btn-icon-delivery {
   font-size: 16px;
 }
 
 /* Delivery List */
-.delivery-list {
+.delivery-list-delivery {
   display: flex;
   flex-direction: column;
   gap: 20px;
   padding: 20px 0;
 }
 
-.delivery-card {
+.delivery-card-delivery {
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
@@ -77,11 +77,11 @@
   transition: box-shadow 0.2s;
 }
 
-.delivery-card:hover {
+.delivery-card-delivery:hover {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.delivery-header {
+.delivery-header-delivery {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -92,32 +92,32 @@
   gap: 12px;
 }
 
-.delivery-header h3 {
+.delivery-header-delivery h3 {
   margin: 0;
   font-size: 18px;
   font-weight: 700;
   color: #111;
 }
 
-.policy-num {
+.policy-num-delivery {
   color: #3b82f6;
 }
 
-.status {
+.status-delivery {
   font-weight: 600;
   font-size: 16px;
 }
 
-/* ✅ NEW: Action Buttons Container */
-.delivery-header-actions {
+/* Action Buttons Container */
+.delivery-header-actions-delivery {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-/* ✅ NEW: Button Base Styles */
-.btn-proof-delivery,
-.btn-policy-receive,
+/* Button Base Styles */
+.client-btn-proof,
+.client-btn-policy-receive,
 .btn-edit-delivery,
 .btn-cancel-delivery {
   padding: 8px 16px;
@@ -130,31 +130,31 @@
   white-space: nowrap;
 }
 
-/* ✅ NEW: Proof of Delivery Button */
-.btn-proof-delivery {
+/* Proof of Delivery Button (client-btn-proof - KEPT) */
+.client-btn-proof {
   background: #eff6ff;
   color: #1d4ed8;
   border: 1px solid #bfdbfe;
 }
 
-.btn-proof-delivery:hover {
+.client-btn-proof:hover {
   background: #dbeafe;
   border-color: #93c5fd;
 }
 
-/* ✅ NEW: Policy Receive Button */
-.btn-policy-receive {
+/* Policy Receive Button (client-btn-policy-receive - KEPT) */
+.client-btn-policy-receive {
   background: #d1fae5;
   color: #065f46;
   border: 1px solid #6ee7b7;
 }
 
-.btn-policy-receive:hover {
+.client-btn-policy-receive:hover {
   background: #a7f3d0;
   border-color: #34d399;
 }
 
-/* ✅ NEW: Edit Button - Warning Yellow */
+/* Edit Button - Warning Yellow */
 .btn-edit-delivery {
   background: #fef3c7;
   color: #92400e;
@@ -166,7 +166,7 @@
   border-color: #fbbf24;
 }
 
-/* ✅ NEW: Cancel Button - Red */
+/* Cancel Button - Red */
 .btn-cancel-delivery {
   background: #fee2e2;
   color: #991b1b;
@@ -178,14 +178,14 @@
   border-color: #fca5a5;
 }
 
-.delivery-info {
+.delivery-info-delivery {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-bottom: 12px;
 }
 
-.delivery-info p {
+.delivery-info-delivery p {
   margin: 0;
   display: flex;
   align-items: center;
@@ -194,11 +194,11 @@
   color: #374151;
 }
 
-.delivery-info svg {
+.delivery-info-delivery svg {
   color: #6b7280;
 }
 
-.delivery-date {
+.delivery-date-delivery {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -206,7 +206,7 @@
   border-top: 1px solid #e5e7eb;
 }
 
-.delivery-date p {
+.delivery-date-delivery p {
   margin: 0;
   display: flex;
   align-items: center;
@@ -215,19 +215,19 @@
   color: #374151;
 }
 
-.delivery-date svg {
+.delivery-date-delivery svg {
   color: #6b7280;
 }
 
 /* Loading & Empty States */
-.balances-container {
+.balances-container-delivery {
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 40px;
 }
 
-.loading-message {
+.loading-message-delivery {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -235,7 +235,7 @@
   color: #374151;
 }
 
-.spinner {
+.spinner-delivery {
   width: 20px;
   height: 20px;
   border: 3px solid #e5e7eb;
@@ -248,7 +248,7 @@
   to { transform: rotate(360deg); }
 }
 
-.no-delivery-text {
+.no-delivery-text-delivery {
   text-align: center;
   padding: 40px;
   color: #6b7280;
@@ -256,7 +256,7 @@
 }
 
 /* Modal Overlay */
-.delivery-creation-modal-overlay-client {
+.delivery-creation-modal-overlay-delivery {
   position: fixed;
   top: 0;
   left: 0;
@@ -269,7 +269,7 @@
   z-index: 1000;
 }
 
-.delivery-creation-modal-content-client {
+.delivery-creation-modal-content-delivery {
   background: white;
   border-radius: 12px;
   padding: 24px;
@@ -279,30 +279,30 @@
   overflow-y: auto;
 }
 
-/* ✅ Responsive Design */
+/* Responsive Design */
 @media (max-width: 768px) {
-  .policy-header {
+  .policy-header-delivery {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .schedule-btn {
+  .schedule-btn-delivery {
     width: 100%;
     justify-content: center;
   }
 
-  .delivery-header {
+  .delivery-header-delivery {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .delivery-header-actions {
+  .delivery-header-actions-delivery {
     width: 100%;
     justify-content: flex-start;
   }
 
-  .btn-proof-delivery,
-  .btn-policy-receive,
+  .client-btn-proof,
+  .client-btn-policy-receive,
   .btn-edit-delivery,
   .btn-cancel-delivery {
     flex: 1;
@@ -315,16 +315,16 @@
     padding: 16px;
   }
 
-  .delivery-card {
+  .delivery-card-delivery {
     padding: 16px;
   }
 
-  .delivery-header h3 {
+  .delivery-header-delivery h3 {
     font-size: 16px;
   }
 
-  .btn-proof-delivery,
-  .btn-policy-receive,
+  .client-btn-proof,
+  .client-btn-policy-receive,
   .btn-edit-delivery,
   .btn-cancel-delivery {
     font-size: 12px;

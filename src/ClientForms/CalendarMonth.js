@@ -1,74 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/calendar-month-styles.css';
-import { FaBell, FaSignOutAlt, FaUserCircle } from "react-icons/fa";
-import { getCurrentClient } from "../Actions/PolicyActions";
-import { logoutClient } from "../Actions/LoginActions";
+
+// Import the shared page header hook
+import { useDeclarePageHeader } from "../PageHeaderProvider";
 
 export default function CalendarMonth({ upcomingPayments }) {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    async function loadCurrentUser() {
-      try {
-        const client = await getCurrentClient();
-        if (client) {
-          setCurrentUser(client);
-        }
-      } catch (error) {
-        console.error("Error loading user:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadCurrentUser();
-  }, []);
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const handleLogout = async () => {
-    const result = await logoutClient();
-    if (result.success) {
-      navigate("/insurance-client-page/");
-    } else {
-      console.error("Failed to log out:", result.error);
-      alert("Logout failed. Please try again.");
-    }
-  };
-
-  const displayName = () => {
-    if (loading) return "Loading...";
-    if (!currentUser) return "User";
-    
-    const prefix = currentUser.prefix || "";
-    const firstName = currentUser.first_Name || "";
-    const lastName = currentUser.last_Name || "";
-    
-    if (prefix && firstName) {
-      return `${prefix} ${firstName}`;
-    } else if (firstName) {
-      return firstName;
-    } else if (lastName) {
-      return lastName;
-    } else {
-      return "User";
-    }
-  };
+  // Declare dynamic page header based on current month/year
+  const monthNames = ["January", "February", "March", "April", "May", "June",
+                      "July", "August", "September", "October", "November", "December"];
+  
+  useDeclarePageHeader(
+    `${monthNames[currentDate.getMonth()]}, ${currentDate.getFullYear()}`,
+    "Your Insurance Activity for this month."
+  );
 
   const getDaysInMonth = (year, month) => {
     return new Date(year, month + 1, 0).getDate();
@@ -77,9 +25,6 @@ export default function CalendarMonth({ upcomingPayments }) {
   const getFirstDayOfMonth = (year, month) => {
     return new Date(year, month, 1).getDay();
   };
-
-  const monthNames = ["January", "February", "March", "April", "May", "June",
-                      "July", "August", "September", "October", "November", "December"];
 
   const isPaymentOverdue = (paymentDate) => {
     const today = new Date();
@@ -151,42 +96,42 @@ export default function CalendarMonth({ upcomingPayments }) {
           <div className={`date-number-full ${isCurrentDay ? 'current-day-circle' : ''}`}>
             {i}
           </div>
-<div className="payment-list-full">
-  {paymentsOnDate.map((payment, idx) => {
-    const isOverdue = isPaymentOverdue(payment.date);
-    return (
-      <div 
-        key={`${payment.paymentId}-${idx}`} 
-        className="payment-card-full-wrapper"
-        onClick={(e) => {
-          e.stopPropagation();
-          navigate("/insurance-client-page/main-portal/Balances");
-        }}
-      >
-        <div className="payment-card-full">
-          <div className="payment-info-full">
-            <div className="payment-row-calendar">
-              <span className={`payment-label-full ${isOverdue ? 'overdue-text' : ''}`}>
-                Payment Due:
-              </span>
-            </div>
-            <div className="payment-row-calendar">
-              <span className={`payment-date-full ${isOverdue ? 'overdue-text' : ''}`}>
-                {new Date(payment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-              </span>
-            </div>
-            <div className="payment-row-calendar">
-              <span className="payment-label-full">Policy Number:</span>
-            </div>
-            <div className="payment-row-calendar">
-              <span className="payment-policy-full">{payment.policyNumber}</span>
-            </div>
+          <div className="payment-list-full">
+            {paymentsOnDate.map((payment, idx) => {
+              const isOverdue = isPaymentOverdue(payment.date);
+              return (
+                <div 
+                  key={`${payment.paymentId}-${idx}`} 
+                  className="payment-card-full-wrapper"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate("/insurance-client-page/main-portal/Balances");
+                  }}
+                >
+                  <div className="payment-card-full">
+                    <div className="payment-info-full">
+                      <div className="payment-row-calendar">
+                        <span className={`payment-label-full ${isOverdue ? 'overdue-text' : ''}`}>
+                          Payment Due:
+                        </span>
+                      </div>
+                      <div className="payment-row-calendar">
+                        <span className={`payment-date-full ${isOverdue ? 'overdue-text' : ''}`}>
+                          {new Date(payment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                      </div>
+                      <div className="payment-row-calendar">
+                        <span className="payment-label-full">Policy Number:</span>
+                      </div>
+                      <div className="payment-row-calendar">
+                        <span className="payment-policy-full">{payment.policyNumber}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        </div>
-      </div>
-    );
-  })}
-</div>
         </div>
       );
     }
@@ -222,41 +167,7 @@ export default function CalendarMonth({ upcomingPayments }) {
 
   return (
     <div className="calendar-full-page">
-      <header className="topbar-client">
-        <div className="header-content">
-          <div className="header-left">
-            <h1 className="page-title">{monthNames[currentDate.getMonth()]}, {currentDate.getFullYear()}</h1>
-            <p className="page-subtitle">Your Insurance Activity for this month.</p>
-          </div>
-
-          <div className="header-right">
-            <button className="notification-btn">
-              <FaBell className="notification-icon" />
-              {/* Optional: Add notification badge */}
-              {/* <span className="notification-badge">3</span> */}
-            </button>
-
-            <div className="user-dropdown" ref={dropdownRef}>
-              <button
-                className="user-dropdown-toggle"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-                <span className="user-name">{displayName()}</span>
-                <FaUserCircle className="user-avatar-icon" />
-              </button>
-
-              {dropdownOpen && (
-                <div className="dropdown-menu">
-                  <button className="dropdown-item logout-item" onClick={handleLogout}>
-                    <FaSignOutAlt className="dropdown-icon" />
-                    <span>Log out</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* HEADER REMOVED — handled globally by TopbarClient via useDeclarePageHeader */}
 
       <div className="calendar-full-container">
         <div className="calendar-full-navigation">

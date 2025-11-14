@@ -52,9 +52,11 @@ export const getRecentClaim = async () => {
 
     const policyIds = policies.map(p => p.id);
 
+    // FIXED: Changed to order by ID descending to get the most recent claim (LIFO)
     const { data: claimData, error: claimError } = await db
       .from('claims_Table')
       .select(`
+        id,
         type_of_incident,
         incident_date,
         claim_date,
@@ -64,7 +66,7 @@ export const getRecentClaim = async () => {
         )
       `)
       .in('policy_id', policyIds)
-      .order('claim_date', { ascending: false })
+      .order('id', { ascending: false })  // Changed from claim_date to id
       .limit(1);
 
     if (claimError) {
@@ -119,11 +121,12 @@ export const getRecentPolicyAndClient = async () => {
     const client = clientData[0];
     const clientUid = client.uid;
 
+    // FIXED: Changed to order by ID descending to get the most recent policy (LIFO)
     const { data: policyData, error: policyError } = await db
       .from('policy_Table')
       .select('id, client_id, internal_id, partner_id, policy_inception, policy_is_active')
       .eq('client_id', clientUid)
-      .order('policy_inception', { ascending: false })
+      .order('id', { ascending: false })  // Changed from policy_inception to id
       .limit(1);
 
     if (policyError) {
@@ -165,9 +168,6 @@ export const getRecentPolicyAndClient = async () => {
   }
 };
 
-// NEW: Fetch insurance partner statistics for chart (ALL ACTIVE POLICIES FROM ALL CLIENTS)
-
-
 export const fetchBestInsurancePartners = async (month, year) => {
   try {
     const startDate = new Date(year, month - 1, 1);
@@ -191,7 +191,6 @@ export const fetchBestInsurancePartners = async (month, year) => {
 
     console.log('RPC Response:', data);
 
-    // Check if data is null or empty
     if (!data || data.length === 0) {
       console.log('No data returned from RPC');
       return {
@@ -200,7 +199,6 @@ export const fetchBestInsurancePartners = async (month, year) => {
       };
     }
 
-    // Group by partner
     const partnersMap = new Map();
     
     data.forEach(row => {
@@ -223,9 +221,7 @@ export const fetchBestInsurancePartners = async (month, year) => {
 
     const partnersData = Array.from(partnersMap.values());
 
-    // Process the data
     const processedData = partnersData.map(partner => {
-      // Filter policies that are active and within the date range
       const activePolicies = partner.policies.filter(policy => {
         if (!policy.policy_is_active || !policy.policy_inception) return false;
         
@@ -240,10 +236,8 @@ export const fetchBestInsurancePartners = async (month, year) => {
       };
     });
 
-    // Filter out partners with no policies in the date range
     const filteredData = processedData.filter(partner => partner.policyCount > 0);
 
-    // If no partners have policies in this range, return empty
     if (filteredData.length === 0) {
       console.log('No policies found within date range');
       return {
@@ -273,10 +267,6 @@ export const fetchBestInsurancePartners = async (month, year) => {
   }
 };
 
-/**
- * Get available years from 2013 to current year
- * Array of years
- */
 export const getAvailableYears = () => {
   const currentYear = new Date().getFullYear();
   const startYear = 2013;
@@ -289,10 +279,6 @@ export const getAvailableYears = () => {
   return years;
 };
 
-/**
- * Get month names
- * Array of month objects with value and label
- */
 export const getMonths = () => {
   return [
     { value: 1, label: 'January' },

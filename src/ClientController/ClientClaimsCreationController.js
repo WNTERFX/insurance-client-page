@@ -207,43 +207,44 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
     setIsModalOpen(true);
   };
 
-  const handleDocumentUpload = (event) => {
-    const files = event.target.files;
+const handleDocumentUpload = (event) => {
+  const files = event.target.files;
 
-    if (!files || files.length === 0) {
-      console.log('No documents selected');
-      return;
-    }
+  if (!files || files.length === 0) {
+    console.log('No documents selected');
+    return;
+  }
 
-    console.log(`Selected ${files.length} document(s)`);
-    const filesArray = Array.from(files);
+  console.log(`Selected ${files.length} document(s)`);
+  const filesArray = Array.from(files);
 
-    const validTypes = [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'text/plain',
-    ];
-    const invalidFiles = filesArray.filter((file) => !validTypes.includes(file.type));
+  // UPDATED: Only PDF and Word documents allowed (removed text/plain)
+  const validTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ];
+  
+  const invalidFiles = filesArray.filter((file) => !validTypes.includes(file.type));
 
-    if (invalidFiles.length > 0) {
-      setAlertModal({
-        isOpen: true,
-        message: `Invalid file type(s): ${invalidFiles.map((f) => f.name).join(', ')}\n\nPlease upload only PDFs, Word documents, or text files`,
-        title: 'Invalid File Type',
-      });
-      event.target.value = null;
-      return;
-    }
-
-    setDocuments((prevDocuments) => {
-      const newDocuments = [...prevDocuments, ...filesArray];
-      console.log(`Total documents: ${newDocuments.length}`);
-      return newDocuments;
+  if (invalidFiles.length > 0) {
+    setAlertModal({
+      isOpen: true,
+      message: `Invalid file type(s): ${invalidFiles.map((f) => f.name).join(', ')}\n\nPlease upload only PDF or Word documents (.pdf, .doc, .docx)`,
+      title: 'Invalid File Type',
     });
-
     event.target.value = null;
-  };
+    return;
+  }
+
+  setDocuments((prevDocuments) => {
+    const newDocuments = [...prevDocuments, ...filesArray];
+    console.log(`Total documents: ${newDocuments.length}`);
+    return newDocuments;
+  });
+
+  event.target.value = null;
+};
 
   const handleDeleteDocument = (fileToDelete) => {
     console.log(`Requesting to delete document: ${fileToDelete.name}`);
