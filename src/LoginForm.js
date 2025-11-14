@@ -45,8 +45,6 @@ export default function LoginForm() {
     navigate("/insurance-client-page/main-portal/home");
   };
 
-
-
   // Send password reset email
   const handleSendResetEmail = async () => {
     setResetLoading(true);
@@ -60,12 +58,17 @@ export default function LoginForm() {
       return;
     }
 
+    // Construct the redirect URL
+    const redirectUrl = window.location.hostname === 'localhost' 
+      ? 'http://localhost:3000/insurance-client-page/reset-password'
+      : 'https://insurance-client-page.vercel.app/insurance-client-page/reset-password';
+
     console.log("Sending reset email to:", resetEmail);
-    console.log("Redirect URL:", `${window.location.origin}/insurance-client-page/reset-password`);
+    console.log("Redirect URL:", redirectUrl);
 
     try {
       const { data, error } = await db.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: `${window.location.origin}/insurance-client-page/reset-password`,
+        redirectTo: redirectUrl,
       });
 
       console.log("Supabase response:", { data, error });
@@ -139,14 +142,13 @@ export default function LoginForm() {
 
           {/* Login Controls */}
           <div className="login-controls">
-            <p>Don’t have an account?</p>
+            <p>Don't have an account?</p>
             <a href="/insurance-client-page/signup" type="button" >
               Sign Up
             </a>
           </div>
         </form>
       </div>
-
 
       {/* Password Reset Modal */}
       {showResetModal && (
@@ -174,14 +176,14 @@ export default function LoginForm() {
                 aria-label="Close"
                 onClick={closeResetModal}
               >
-                
+                ×
               </button>
             </div>
 
             <hr className="rp-divider" />
 
             <div className="rp-body">
-              {/* TOP BANNER (like Policy ID) */}
+              {/* Error Banner */}
               {resetError && (
                 <div className="alert alert-error" role="alert" aria-live="assertive">
                   <strong>Error</strong>
@@ -199,8 +201,6 @@ export default function LoginForm() {
                 placeholder="you@gmail.com"
                 value={resetEmail}
                 onChange={(e) => {
-                  // optional: clear banner while typing
-                  // setResetError("");
                   setResetEmail(e.target.value);
                 }}
                 aria-describedby={resetError ? "reset-error-text" : undefined}
@@ -218,16 +218,11 @@ export default function LoginForm() {
                 </button>
               </div>
 
-              
               {resetSuccess && <p className="rp-msg rp-success">{resetSuccess}</p>}
             </div>
           </div>
         </div>
       )}
-
-
     </div>
-
-
   );
 }
