@@ -53,17 +53,33 @@ export default function LoginForm() {
     setResetError("");
     setResetSuccess("");
 
+    // Validate email format
+    if (!resetEmail || !resetEmail.includes('@')) {
+      setResetError("Please enter a valid email address");
+      setResetLoading(false);
+      return;
+    }
+
+    console.log("Sending reset email to:", resetEmail);
+    console.log("Redirect URL:", `${window.location.origin}/insurance-client-page/reset-password`);
+
     try {
       const { data, error } = await db.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: window.location.origin + "/insurance-client-page/reset-password",
+        redirectTo: `${window.location.origin}/insurance-client-page/reset-password`,
       });
 
-      if (error) throw error;
+      console.log("Supabase response:", { data, error });
 
-      console.log("Reset link (test only):", data?.action_link);
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
 
-      setResetSuccess("Password reset link sent! Check your email inbox. (Check console for test link)");
+      // Success - even if email doesn't exist, Supabase returns success for security
+      setResetSuccess("If an account exists with this email, you'll receive a password reset link shortly.");
+      
     } catch (error) {
+      console.error("Caught error:", error);
       setResetError(error.message || "Failed to send password reset email.");
     } finally {
       setResetLoading(false);
@@ -133,7 +149,7 @@ export default function LoginForm() {
 
 
       {/* Password Reset Modal */}
- {showResetModal && (
+      {showResetModal && (
         <div
           className="rp-overlay"
           onClick={closeResetModal}
@@ -158,7 +174,7 @@ export default function LoginForm() {
                 aria-label="Close"
                 onClick={closeResetModal}
               >
-                ×
+                
               </button>
             </div>
 
@@ -202,8 +218,7 @@ export default function LoginForm() {
                 </button>
               </div>
 
-              {/* (Optional) remove the old bottom messages to avoid duplicates */}
-              {/* {resetError && <p className="rp-msg rp-error">{resetError}</p>} */}
+              
               {resetSuccess && <p className="rp-msg rp-success">{resetSuccess}</p>}
             </div>
           </div>
