@@ -1,90 +1,247 @@
-/* Container */
+/* Client Delivery Page Styles */
 .policy-delivery-container {
-  background-color: #F2F5FA;
-  font-family: 'Inter', sans-serif;
-  max-width: 100%;
-  overflow-x: hidden;
-  padding-bottom: 30px;
-  min-height: 100vh;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-
-
-/* Content Wrapper */
 .delivery-content-wrapper {
-  padding: 0 2rem;
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* Header section - ALIGNED */
 .policy-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
   border-bottom: 2px solid #e5e7eb;
-}
-
-.active-deliveries {
-  flex: 1;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .active-deliveries h4 {
-  font-size: 1.25rem;
-  color: #111827;
+  margin: 0;
+  font-size: 24px;
   font-weight: 700;
-  margin: 0 0 0.25rem 0;
+  color: #111;
 }
 
 .active-deliveries p {
-  font-size: 0.875rem;
+  margin: 4px 0 0 0;
+  font-size: 14px;
   color: #6b7280;
-  margin: 0;
 }
 
 .schedule-btn {
-  background: #5b3ba1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: #3b82f6;
   color: white;
   border: none;
   border-radius: 8px;
-  padding: 0.7rem 1.5rem;
-  font-size: 0.95rem;
   font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  font-size: 14px;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(91, 59, 161, 0.3);
-  transition: all 0.25s ease;
-  white-space: nowrap;
+  transition: all 0.2s;
 }
 
 .schedule-btn:hover {
-  background: #4a2f8c;
-  transform: scale(1.03);
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
 }
 
 .btn-icon {
-  font-size: 1rem;
+  font-size: 16px;
 }
 
-
-.loading-message {
-  font-size: 1.1rem;
-  color: #6b7280;
+/* Delivery List */
+.delivery-list {
   display: flex;
   flex-direction: column;
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.delivery-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  transition: box-shadow 0.2s;
+}
+
+.delivery-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.delivery-header {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.delivery-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111;
+}
+
+.policy-num {
+  color: #3b82f6;
+}
+
+.status {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* ✅ NEW: Action Buttons Container */
+.delivery-header-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ✅ NEW: Button Base Styles */
+.btn-proof-delivery,
+.btn-policy-receive,
+.btn-edit-delivery,
+.btn-cancel-delivery {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  white-space: nowrap;
+}
+
+/* ✅ NEW: Proof of Delivery Button */
+.btn-proof-delivery {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.btn-proof-delivery:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+/* ✅ NEW: Policy Receive Button */
+.btn-policy-receive {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+.btn-policy-receive:hover {
+  background: #a7f3d0;
+  border-color: #34d399;
+}
+
+/* ✅ NEW: Edit Button - Warning Yellow */
+.btn-edit-delivery {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde047;
+}
+
+.btn-edit-delivery:hover {
+  background: #fde68a;
+  border-color: #fbbf24;
+}
+
+/* ✅ NEW: Cancel Button - Red */
+.btn-cancel-delivery {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.btn-cancel-delivery:hover {
+  background: #fecaca;
+  border-color: #fca5a5;
+}
+
+.delivery-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.delivery-info p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.delivery-info svg {
+  color: #6b7280;
+}
+
+.delivery-date {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.delivery-date p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.delivery-date svg {
+  color: #6b7280;
+}
+
+/* Loading & Empty States */
+.balances-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.loading-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  color: #374151;
 }
 
 .spinner {
-  width: 30px;
-  height: 30px;
-  border: 4px solid #e5e7eb;
-  border-top-color: #007bff;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #3b82f6;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
@@ -93,127 +250,12 @@
 
 .no-delivery-text {
   text-align: center;
-  font-size: 1.1rem;
+  padding: 40px;
   color: #6b7280;
-  padding: 3rem;
-  background: #ffffff;
-  border: 2px dashed #e5e7eb;
-  border-radius: 12px;
-  margin-top: 1rem;
+  font-size: 16px;
 }
 
-/* Delivery List */
-.delivery-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  margin-top: 1rem;
-}
-
-/* Delivery Card - Matching the image */
-.delivery-card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 1rem 2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
-}
-
-.delivery-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-/* Delivery Header */
-.delivery-header {
-  margin-bottom: 1.25rem;
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 1rem;
-}
-
-.delivery-header h3 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #111827;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.policy-num {
-  font-weight: 700;
-  color: #000000;
-}
-
-.status {
-  font-weight: 600;
-  font-size: 1rem;
-}
-
-.status-badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.status-badge.scheduled {
-  background: #fef3c7;
-  color: #d97706;
-}
-
-.status-badge.delivered {
-  background: #c8f2cd;
-  color: #226b35;
-}
-
-/* Delivery Info Section */
-.delivery-info {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem 2rem;
-  margin-bottom: 0.5rem;
-}
-
-.delivery-info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.delivery-info-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #111827;
-  margin: 0;
-}
-
-.delivery-info-label svg {
-  font-size: 1rem;
-  color: #6b7280;
-  flex-shrink: 0;
-}
-
-.delivery-info-value {
-  font-size: 0.95rem;
-  color: #374151;
-  margin: 0;
-  padding-left: 1.5rem;
-  line-height: 1.5;
-}
-
-/* Address takes full width */
-.delivery-info-item.address-full {
-  grid-column: 1 / -1;
-}
-
-/* Modal Styles */
+/* Modal Overlay */
 .delivery-creation-modal-overlay-client {
   position: fixed;
   top: 0;
@@ -224,45 +266,24 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
-  padding: 1rem;
+  z-index: 1000;
 }
 
 .delivery-creation-modal-content-client {
   background: white;
   border-radius: 12px;
+  padding: 24px;
   max-width: 600px;
-  width: 100%;
+  width: 90%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .delivery-content-wrapper {
-    padding: 0 1.5rem;
-  }
-  
-  .header-content {
-    padding: 1rem 1.5rem;
-  }
-}
-
+/* ✅ Responsive Design */
 @media (max-width: 768px) {
-  .delivery-content-wrapper {
-    padding: 0 1rem;
-  }
-
-  .header-content {
-    padding: 1rem;
-    gap: 0.75rem;
-  }
-
   .policy-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1rem;
   }
 
   .schedule-btn {
@@ -270,49 +291,43 @@
     justify-content: center;
   }
 
-  .delivery-card {
-    padding: 1.25rem;
+  .delivery-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
-  .delivery-info {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+  .delivery-header-actions {
+    width: 100%;
+    justify-content: flex-start;
   }
 
-  .delivery-info-value {
-    padding-left: 1.5rem;
+  .btn-proof-delivery,
+  .btn-policy-receive,
+  .btn-edit-delivery,
+  .btn-cancel-delivery {
+    flex: 1;
+    min-width: 120px;
   }
 }
 
 @media (max-width: 480px) {
-  .header-content {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .header-right {
-    width: 100%;
-    justify-content: flex-end;
-  }
-  
-  .user-name {
-    display: none;
-  }
-  
   .delivery-content-wrapper {
-    padding: 0 0.5rem;
+    padding: 16px;
   }
-  
+
   .delivery-card {
-    padding: 1rem;
+    padding: 16px;
   }
-  
+
   .delivery-header h3 {
-    font-size: 1rem;
+    font-size: 16px;
   }
-  
-  .delivery-info-label,
-  .delivery-info-value {
-    font-size: 0.85rem;
+
+  .btn-proof-delivery,
+  .btn-policy-receive,
+  .btn-edit-delivery,
+  .btn-cancel-delivery {
+    font-size: 12px;
+    padding: 6px 12px;
   }
 }

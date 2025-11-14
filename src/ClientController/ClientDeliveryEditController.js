@@ -1,27 +1,33 @@
-// ClientControllers/ClientDeliveryCreationController.jsx
+// ClientControllers/ClientDeliveryEditController.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   getCurrentClient,
   fetchClientActivePolicies,
-  createClientDelivery,
-  fetchClientDeliveries,
+  updateClientDelivery,
   fetchClientDefaultAddress,
   fetchClientCustomAddresses,
   formatAddressString,
   pickDeliveredAddress,
 } from "../Actions/ClientDeliveryActions";
-import ClientDeliveryCreationForm from "../ClientForms/ClientDeliveryCreationForm";
+import ClientDeliveryEditForm from "../ClientForms/ClientDeliveryEditForm";
 import ClientAddressPickerModal from "../ClientForms/ClientAddressPickerModal";
 import CustomAlertModal from "../ClientForms/CustomAlertModal";
 
-export default function ClientDeliveryCreationController({ onCancel, onDeliveryCreated }) {
+const toYMD = (d) => {
+  if (!d) return "";
+  const dt = new Date(d);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`;
+};
+
+export default function ClientDeliveryEditController({ delivery, onClose, onUpdateSuccess }) {
   const navigate = useNavigate();
-  const [policies, setPolicies] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [policies, setPolicies] = useState([]);
   const [currentClient, setCurrentClient] = useState(null);
 
-  // ✅ Address state - matches admin side naming
+  // Address state
   const [defaultAddr, setDefaultAddr] = useState(null);
   const [clientAddrs, setClientAddrs] = useState([]);
   const [deliveredAddr, setDeliveredAddr] = useState(null);
@@ -32,7 +38,13 @@ export default function ClientDeliveryCreationController({ onCancel, onDeliveryC
 
   const [formData, setFormData] = useState({
     policyId: "",
-    deliveryDate: new Date().toISOString().split("T")[0],
+    deliveryDate: "",
+    estDeliveryDate: "",
+    remarks: "",
+  });
+
+  const [originalData, setOriginalData] = useState({
+    deliveryDate: "",
     estDeliveryDate: "",
     remarks: "",
   });
@@ -41,7 +53,7 @@ export default function ClientDeliveryCreationController({ onCancel, onDeliveryC
     setAlertModal({ isOpen: true, message, title });
   };
 
-  // ✅ Load client and initial data
+  // Load client and data
   useEffect(() => {
     let mounted = true;
     async function load() {
@@ -50,7 +62,7 @@ export default function ClientDeliveryCreationController({ onCancel, onDeliveryC
         if (!client || !mounted) return;
         setCurrentClient(client);
 
-        // ✅ Load addresses - matches admin side logic
+        // Load addresses
         const [defAddr, customAddrs] = await Promise.all([
           fetchClientDefaultAddress(client.uid),
           fetchClientCustomAddresses(client.uid),
@@ -61,26 +73,26 @@ export default function ClientDeliveryCreationController({ onCancel, onDeliveryC
         setDefaultAddr(defAddr);
         setClientAddrs(customAddrs);
 
-        // ✅ Check if any custom address is delivered, else use default
+        // Check if there's a delivered address
         const customDelivered = pickDeliveredAddress(customAddrs);
         setDeliveredAddr(customDelivered || null);
 
-        // Load policies and deliveries
-        const [activePolicies, deliveries] = await Promise.all([
-          fetchClientActivePolicies(client.uid),
-          fetchClientDeliveries(client.uid),
-        ]);
-
+        // Load policies
+        const activePolicies = await fetchClientActivePolicies(client.uid);
         if (!mounted) return;
+        setPolicies(activePolicies);
 
-        const deliveredIds = new Set((deliveries || []).map((d) => String(d.policy_id)));
-
-        const updated = (activePolicies || []).map((p) => ({
-          ...p,
-          hasDelivery: deliveredIds.has(String(p.id)),
-        }));
-
-        setPolicies(updated);
+        // Initialize form with delivery data
+        if (delivery) {
+          const init = {
+            policyId: String(delivery.policy_id || ""),
+            deliveryDate: toYMD(delivery.delivery_date) || toYMD(new Date()),
+            estDeliveryDate: toYMD(delivery.estimated_delivery_date) || "",
+            remarks: delivery.remarks || "",
+          };
+          setFormData(init);
+          setOriginalData(init);
+        }
       } catch (err) {
         console.error("Error loading data:", err);
         if (mounted) showAlert(`Failed to load data: ${err.message}`, "Error");
@@ -90,16 +102,16 @@ export default function ClientDeliveryCreationController({ onCancel, onDeliveryC
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [delivery]);
 
-  // ✅ Display address: prioritize custom delivered, else default (matches admin logic)
+  // Display address: prioritize custom delivered, else default
   const displayAddress = useMemo(() => {
     const chosen = deliveredAddr || defaultAddr || null;
     if (!chosen) return "";
     return formatAddressString(chosen);
   }, [deliveredAddr, defaultAddr]);
 
-  // ✅ Address metadata (matches admin logic)
+  // Address metadata
   const addressMeta = useMemo(() => {
     return {
       isDefault: !deliveredAddr && !!defaultAddr,
@@ -114,26 +126,16 @@ export default function ClientDeliveryCreationController({ onCancel, onDeliveryC
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    const selected = policies.find((p) => String(p.id) === String(formData.policyId));
-    if (!selected) {
-      showAlert("Please select a policy.", "Warning");
-      return;
-    }
-    if (selected.hasDelivery) {
-      showAlert("This policy already has a scheduled delivery.", "Warning");
-      return;
-    }
 
-    // ✅ Always use delivered or default address (matches admin logic)
+    // Always use delivered or default address
     const snap = deliveredAddr || defaultAddr || {};
-    
+
     if (!snap.street_address && !snap.address) {
-      showAlert("No address available for this client. Please add an address first.", "Warning");
+      showAlert("No address available. Please add an address first.", "Warning");
       return;
     }
 
-    // ✅ Build address payload (matches admin logic)
+    // Build address payload
     const addressPayload = {
       deliveryAddressType: deliveredAddr ? "custom" : "client_default",
       customAddressId: deliveredAddr ? deliveredAddr.id : null,
@@ -147,30 +149,28 @@ export default function ClientDeliveryCreationController({ onCancel, onDeliveryC
 
     setLoading(true);
     try {
-      const created = await createClientDelivery({
-        policyId: formData.policyId,
-        deliveryDate: formData.deliveryDate,
+      await updateClientDelivery(delivery.id, {
         estDeliveryDate: formData.estDeliveryDate,
         remarks: formData.remarks,
         ...addressPayload,
       });
 
-      showAlert("✅ Delivery scheduled successfully!", "Success");
+      showAlert("✅ Delivery updated successfully!", "Success");
 
       setTimeout(() => {
-        if (typeof onDeliveryCreated === "function") onDeliveryCreated(created);
-        if (typeof onCancel === "function") onCancel(created);
+        if (typeof onUpdateSuccess === "function") onUpdateSuccess();
+        if (typeof onClose === "function") onClose();
         else navigate("/appinsurance/ClientArea/Delivery");
       }, 1500);
     } catch (err) {
-      showAlert("❌ Failed to create delivery: " + (err?.message || err), "Error");
+      showAlert("❌ Failed to update delivery: " + (err?.message || err), "Error");
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Handle address changes from picker (matches admin logic)
+  // Handle address changes from picker
   const handleAddressChanged = (addr) => {
     // Reload addresses after changes
     if (currentClient?.uid) {
@@ -191,13 +191,14 @@ export default function ClientDeliveryCreationController({ onCancel, onDeliveryC
         title={alertModal.title}
       />
 
-      <ClientDeliveryCreationForm
+      <ClientDeliveryEditForm
         formData={formData}
+        originalData={originalData}
         policies={policies}
         loading={loading}
         onChange={handleChange}
         onSubmit={handleSubmit}
-        onCancel={onCancel || (() => navigate("/appinsurance/ClientArea/Delivery"))}
+        onCancel={onClose || (() => navigate("/appinsurance/ClientArea/Delivery"))}
         displayAddressText={displayAddress}
         addressMeta={addressMeta}
         onOpenAddressPicker={() => setAddressPickerOpen(true)}

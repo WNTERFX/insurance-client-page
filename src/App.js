@@ -38,6 +38,7 @@ import ProfilePage from './ProfilePage';
 
 import TermsAndConditions from './TermsAndConditions';
 import PrivacyPolicy from './PrivacyPolicy';
+import About from './About';
 
 function App() {
   return (
@@ -82,6 +83,7 @@ function App() {
       <Route path="Payment" element={<Payment />} />
       <Route path ="AccountSettings" element={<AccountSettings/>} />
       <Route path ="Profile" element={<ProfilePage/>} />
+      <Route path ="About" element={<About/>} />
     </Route>
   </Route>
 

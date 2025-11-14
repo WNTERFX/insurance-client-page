@@ -8,7 +8,7 @@ export default function TermsAndConditions() {
     const [menuOpen, setMenuOpen] = useState(false);
     const location = useLocation();
 
-     // Function to handle navigation link clicks and scroll to top
+    // Function to handle navigation link clicks and scroll to top
     const handleNavClick = () => {
         setMenuOpen(false);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -22,7 +22,7 @@ export default function TermsAndConditions() {
         <div className="TNC">
 
             {/* Header */}
- <header className="top-bar-container">
+            <header className="top-bar-container">
                 {/* Brand row: logo + burger (burger sits to the RIGHT of the logo) */}
                 <div className="brand">
                     <Link
@@ -99,7 +99,7 @@ export default function TermsAndConditions() {
 
             <div className="TNCPolicy">
                 <h2>Terms and Conditions</h2>
-                <p className="main-subtitle">SILVERSTAR INSURANCE AGENCY INC.— TERMS AND CONDITIONS</p>
+                <h3 className="main-subtitle">SILVERSTAR INSURANCE AGENCY INC.— TERMS AND CONDITIONS</h3>
 
                 <div className="tnc-section">
                     <h3>Acceptance of Terms</h3>
@@ -232,19 +232,6 @@ export default function TermsAndConditions() {
                     </p>
                 </div>
 
-                <div className="tnc-section">
-                    <h3>Contact Information</h3>
-                    <p>For any questions, technical assistance, or concerns, you may contact:</p>
-                    <div className="contact-details">
-                        Silverstar Insurance Agency Inc.
-                        <br />
-                        Room 210, 2nd Floor, No. 20, Shorthorn Street, Barangay Bahay Toro, Project 8, Quezon City
-                        <br />
-                        +63 92 7405-8176
-                        <br />
-                        sia.mktg2@gmail.com
-                    </div>
-                </div>
 
                 <div className="tnc-section">
                     <h3>Governing Law</h3>
@@ -252,6 +239,138 @@ export default function TermsAndConditions() {
                         These Terms and Conditions are governed by and interpreted under the laws of the Republic of the Philippines.
                     </p>
                 </div>
+
+
+                <h3 className="main-subtitle">SILVERSTAR PORTAL - PAYMENT TERMS AND CONDITION</h3>
+                <div className="tnc-section">
+                    <h3>1. Acceptance of Payment Terms  </h3>
+                    <p>
+                        By registering and using the Silverstar Portal, you agree to comply with these Terms and Conditions. Please read them carefully before using the system. If you do not agree, you may stop using the portal at any time.
+                    </p>
+                </div>
+
+                <div className="tnc-section">
+                    <h3>2. Authorized Payment Methods    </h3>
+                    <p>
+                        Payments may be made using the following methods:
+                    </p>
+                    <ul>
+                        <li>Online transactions through approved payment gateways (e.g., PayMongo).</li>
+                        <li>Bank deposits, credit/debit card payments, or other methods authorized by Silverstar Insurance  Agency Inc.</li>
+                    </ul>
+                </div>
+
+                <div className="tnc-section">
+                    <h3>3. Payment Confirmation</h3>
+                    <ul>
+                        <li>After successful payment, a confirmation message or reference number will be displayed and sent to  your registered email or mobile number.</li>
+                        <li>If you do not receive confirmation within 24 hours, please contact Silverstar Insurance Agency Inc. for  verification.</li>
+                    </ul>
+                </div>
+                <div className="tnc-section">
+                    <h3>4. Accuracy of Payment Information  </h3>
+                    <p>
+                        You are responsible for entering the correct payment details, including your policy number, amount due, and  reference information.
+                        Silverstar Insurance Agency Inc. will not be held liable for delays or losses caused by incorrect information  provided by the client.
+                    </p>
+                </div>
+
+                <div className="tnc-section">
+                    <h3>5. Posting and Verification</h3>
+                    <ul>
+                        <li>Payments made online are subject to system and bank verification.</li>
+                        <li>Once verified, payments will be reflected in your Silverstar Portal account and applied to your corresponding insurance policy.</li>
+                        <li>Processing times may vary depending on the payment gateway or banking schedule.</li>
+                    </ul>
+                </div>
+
+                <div className="tnc-section">
+                    <h3>6. Refund Policy</h3>
+                    <p>
+                        All payments made through the Silverstar Portal are non-refundable once confirmed,
+                        unless the reason for the refund is valid and approved by Silverstar Insurance Agency Inc.
+                        Valid reasons may include:
+                    </p>
+                    <ul>
+                        <li>Duplicate payment (accidentally paying twice for the same transaction).</li>
+                        <li>System or technical error during the payment process.</li>
+                    </ul>
+                    <p>
+                        For any refund request, clients must contact the billing department and provide proof of payment and transaction details.
+                    </p>
+                </div>
+
+                <div className="tnc-section">
+                    <h3>7. Payment Due Dates and Penalties</h3>
+                    <ul>
+                        <li>Clients must pay on or before the indicated due date to maintain active policy coverage.</li>
+                        <li>Late payments may result in penalties or temporary suspension of insurance coverage, based on agency and insurer policies.</li>
+                    </ul>
+                </div>
+
+                <div className="tnc-section">
+                    <h3>8. Service Charges</h3>
+                    <ul>
+                        <li>Silverstar Insurance Agency Inc. does not charge additional service fees for online payments.</li>
+                        <li>Third-party payment gateways may apply transaction or convenience fees, which will be shown before finalizing your payment.</li>
+                        <li>By proceeding with payment, you agree to any applicable charges shown on the payment screen.</li>
+                    </ul>
+                </div>
+
+                <div className="tnc-section">
+                    <h3>9. Disputed or Failed Transactions</h3>
+                    <ul>
+                        <li>If your payment fails or you are charged without receiving confirmation, report it immediately to Silverstar Insurance Agency Inc.</li>
+                        <li>Include your payment details (transaction reference number, date, and amount) for investigation.</li>
+                        <li>Refunds for failed or duplicate transactions will be processed only after verification with the payment provider.</li>
+                    </ul>
+                </div>
+
+                <div className="tnc-section">
+                    <h3>10. Security of Payment Information</h3>
+                    <p>
+                        All payments made through the Silverstar Portal are processed via secure, encrypted channels.
+                        Silverstar Insurance Agency Inc. does not store your credit or debit card information.
+                        Our payment processors comply with the Data Privacy Act of 2012 (RA 10173) and PCI DSS
+                        (Payment Card Industry Data Security Standards).
+                    </p>
+                </div>
+
+                <div className="tnc-section">
+                    <h3>11. Limitation of Liability</h3>
+                    <p>Silverstar Insurance Agency Inc. shall not be liable for:</p>
+                    <ul>
+                        <li>Transaction failures caused by internet connectivity or system downtime.</li>
+                        <li>Delays from third-party payment gateways or banks.</li>
+                        <li>Incorrect or unauthorized transactions made by the client.</li>
+                    </ul>
+                </div>
+
+                <div className="tnc-section">
+                    <h3>12. Updates to Payment Terms</h3>
+                    <p>
+                        Silverstar Insurance Agency Inc. may update or modify these Payment Terms and Conditions as necessary.
+                        Changes will be posted on the Silverstar Portal, and continued use of the system signifies your acceptance of the updated terms.
+                    </p>
+                </div>
+
+                <div className="tnc-section">
+                    <h3>13. Contact Information</h3>
+                    <p>For payment or refund inquiries, please contact:</p>
+                    <p>Silverstar Insurance Agency Inc.<br />
+                        Room 210, 2nd Floor, No. 20, Shorthorn Street, Barangay Bahay Toro, Project 8, Quezon City<br />
+                        +6392 7406-8176<br />
+                        aira.mktg2@gmail.com
+                    </p>
+                </div>
+
+                <div className="tnc-section">
+                    <h3>14. Governing Law</h3>
+                    <p>
+                        These Payment Terms and Conditions are governed by and interpreted in accordance with the laws of the Republic of the Philippines.
+                    </p>
+                </div>
+
             </div>
 
 

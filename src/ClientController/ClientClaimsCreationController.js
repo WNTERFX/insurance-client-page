@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   getCurrentClient,
+  getCurrentModerator,
   fetchClientActivePolicies,
   fetchClientVoidedPolicies,
   createClientClaim,
@@ -10,8 +11,9 @@ import { enrichPoliciesWithClaimData, validateNewClaim } from '../Actions/claims
 import ClientClaimsCreationForm from '../ClientForms/ClientClaimsCreationForm';
 import DeleteConfirmationModal from '../ClientForms/DeleteConfirmationModal';
 import CustomAlertModal from '../ClientForms/CustomAlertModal';
+import { useDeclarePageHeader } from '../PageHeaderProvider'; 
 
-/** Local-timezone safe “today” -> "YYYY-MM-DD"
+/** Local-timezone safe "today" -> "YYYY-MM-DD"
  *  Hoisted function declaration avoids TDZ issues in useState init.
  */
 function todayISO() {
@@ -23,6 +25,7 @@ function todayISO() {
 export default function ClientClaimsCreationController({ onCancel, onClaimCreated }) {
   const navigate = useNavigate();
   const [currentClient, setCurrentClient] = useState(null);
+  const [currentModerator, setCurrentModerator] = useState(null);
   const [policies, setPolicies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedPolicyClaimableAmount, setSelectedPolicyClaimableAmount] = useState(0);
@@ -53,30 +56,63 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
     title: 'Alert',
   });
 
+  useDeclarePageHeader("My Claims", "Track and manage your insurance claims"); 
+
   // Load current client and their policies (both active and voided)
   useEffect(() => {
     let mounted = true;
     async function load() {
       try {
-        console.log('🔄 Loading client and policies...');
+        console.log('🔄 Loading user data...');
+        
+        // Check if user is a moderator first
+        const moderator = await getCurrentModerator();
         const client = await getCurrentClient();
 
-        if (!client) {
-          console.error('❌ No client found');
+        if (!moderator && !client) {
+          console.error('❌ No client or moderator found');
           setAlertModal({
             isOpen: true,
-            message: 'Unable to load client information. Please log in again.',
+            message: 'Unable to load user information. Please log in again.',
             title: 'Error',
           });
           return;
         }
 
-        console.log('✅ Client loaded:', client);
+        let clientUid;
+        let moderatorId = null;
 
-        // Fetch both active and voided policies
+        if (moderator) {
+          console.log('✅ Moderator logged in:', moderator.id);
+          setCurrentModerator(moderator);
+          
+          // For moderator, we need to get the client from context or props
+          // This assumes the moderator is viewing a specific client's page
+          if (client) {
+            clientUid = client.uid;
+            setCurrentClient(client);
+          } else {
+            console.error('❌ Moderator viewing but no client context');
+            setAlertModal({
+              isOpen: true,
+              message: 'Please select a client first.',
+              title: 'Error',
+            });
+            return;
+          }
+          
+          moderatorId = moderator.id;
+          
+        } else {
+          console.log('✅ Client logged in:', client.uid);
+          clientUid = client.uid;
+          setCurrentClient(client);
+        }
+
+        // Fetch both active and voided policies (filtered by moderator if applicable)
         const [activePolicies, voidedPolicies] = await Promise.all([
-          fetchClientActivePolicies(client.uid),
-          fetchClientVoidedPolicies(client.uid),
+          fetchClientActivePolicies(clientUid, moderatorId),
+          fetchClientVoidedPolicies(clientUid, moderatorId),
         ]);
 
         console.log('✅ Active policies loaded:', activePolicies);
@@ -101,7 +137,6 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
         console.log('✅ Policies enriched with claim data:', enrichedPolicies);
 
         if (mounted) {
-          setCurrentClient(client);
           setPolicies(enrichedPolicies || []);
         }
       } catch (err) {
@@ -330,6 +365,7 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
       claimAmount: estimatedDamage,
       photosCount: photos.length,
       documentsCount: documents.length,
+      isModerator: !!currentModerator,
     });
 
     setLoading(true);

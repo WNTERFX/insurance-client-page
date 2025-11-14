@@ -62,8 +62,8 @@ export default function Sidebar() {
           <span>Deliveries</span>
         </Link>
         <Link 
-          to="/insurance-client-page/main-portal/AccountSettings"
-          className={`menu-item menu-item-bottom${isActive("/insurance-client-page/main-portal/AccountSettings") ? " active" : ""}`}
+          to="/insurance-client-page/main-portal/About"
+          className={`menu-item menu-item-bottom${isActive("/insurance-client-page/main-portal/About") ? " active" : ""}`}
         >
           <Info className="menu-icon" />
           <span>About</span>

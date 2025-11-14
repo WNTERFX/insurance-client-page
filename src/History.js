@@ -265,7 +265,7 @@ export default function History() {
 
           <div className="header-right">
             <button className="notification-btn">
-              <FaBell className="notification-icon" />
+             {/* <FaBell className="notification-icon" />*/}
             </button>
 
             <div className="user-dropdown" ref={dropdownRef}>

@@ -21,22 +21,7 @@ import "./styles/profile-page-styles.css";
 import "./styles/account-settings-styles.css";
 
 /* ========= Helpers: mask for read-only display ========= */
-function maskEmail(email) {
-  if (!email) return "—";
-  const [local, domain] = String(email).split("@");
-  if (!domain) return "—";
-  if (local.length <= 1) return `*@${domain}`;
-  if (local.length === 2) return `${local[0]}*@${domain}`;
-  return `${local[0]}${"*".repeat(local.length - 1)}@${domain}`;
-}
-function maskPhone(raw) {
-  if (!raw) return "—";
-  const d = String(raw).replace(/[^\d]/g, "");
-  if (d.length < 4) return "—";
-  const head = d.slice(0, 2);       // e.g. "09"
-  const tail = d.slice(-2);         // last 2 digits
-  return `${head}${"*".repeat(Math.max(0, d.length - 4))}${tail}`;
-}
+// Masking functions removed - displaying full values now
 
 export default function ProfilePage() {
   // data
@@ -181,12 +166,10 @@ export default function ProfilePage() {
             <input className="field-input" value={fullName} readOnly />
 
             <label className="field-label">Contact Number</label>
-            {/* MASKED here */}
-            <input className="field-input" value={maskPhone(user?.phone_Number)} readOnly />
+            <input className="field-input" value={phonePretty(user?.phone_Number)} readOnly />
 
             <label className="field-label">Email Address</label>
-            {/* MASKED here */}
-            <input className="field-input" value={maskEmail(user?.email)} readOnly />
+            <input className="field-input" value={user?.email || "—"} readOnly />
 
             <label className="field-label">Address</label>
             <input className="field-input" value={addressPretty()} readOnly />
@@ -203,12 +186,10 @@ export default function ProfilePage() {
             <input className="field-input" value={agentName} readOnly />
 
             <label className="field-label">Contact Number</label>
-            {/* MASK agent phone too (optional) */}
-            <input className="field-input" value={maskPhone(agent?.phone_number)} readOnly />
+            <input className="field-input" value={phonePretty(agent?.phone_number)} readOnly />
 
             <label className="field-label">Email Address</label>
-            {/* MASK agent email too (optional) */}
-            <input className="field-input" value={maskEmail(agent?.employee_email)} readOnly />
+            <input className="field-input" value={agent?.employee_email || "—"} readOnly />
           </div>
         </section>
       ) : settingsView === "list" ? (
@@ -219,10 +200,11 @@ export default function ProfilePage() {
             <ChevronRight />
           </button>
 
-          <button className="settings-row" type="button" onClick={() => setSettingsView("account")}>
+          {/* ACCOUNT INFORMATION - COMMENTED OUT */}
+          {/* <button className="settings-row" type="button" onClick={() => setSettingsView("account")}>
             <span>Account Information</span>
             <ChevronRight />
-          </button>
+          </button> */}
         </section>
       ) : settingsView === "notifications" ? (
         <AccountSettings onSaved={() => setSettingsView("list")} onBack={() => setSettingsView("list")} />
@@ -319,7 +301,9 @@ function AccountSettings({ onSaved, onBack }) {
           </div>
           <p className="note-item">Configure Policy Expiry and Payments notifications.</p>
         </div>
-        <div className="notification-panel loading-skeleton" />
+        <div className="notification-panel" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '125px' }}>
+          <div className="spinner"></div>
+        </div>
       </div>
     );
   }
@@ -335,7 +319,7 @@ function AccountSettings({ onSaved, onBack }) {
       </div>
 
       <div className="notification-panel">
-        {/* SMS row — only the switch toggles */}
+        {/* SMS row – only the switch toggles */}
         <div className="setting-row">
           <span className="setting-label">Allow SMS Notifications</span>
           <label className="switch">
@@ -348,7 +332,7 @@ function AccountSettings({ onSaved, onBack }) {
           </label>
         </div>
 
-        {/* Email row — only the switch toggles */}
+        {/* Email row – only the switch toggles */}
         <div className="setting-row">
           <span className="setting-label">Allow Email Notifications</span>
           <label className="switch">

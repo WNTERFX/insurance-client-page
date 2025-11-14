@@ -1,7 +1,7 @@
 import "./styles/Balances-styles.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchPayments} from "./Actions/BalanceActions";
+import { fetchPayments } from "./Actions/BalanceActions";
 import { fetchPoliciesWithComputation } from "./Actions/PolicyActions";
 import { createPayMongoCheckout, checkPaymentTransaction } from "./Actions/PaymongoActions";
 import { useDeclarePageHeader } from "./PageHeaderProvider";
@@ -89,7 +89,27 @@ export default function Balances() {
   const [loading, setLoading] = useState(true);
   const [processingPayment, setProcessingPayment] = useState(null);
   const [paymentError, setPaymentError] = useState(null);
+
+  // === Modal state (added from old version) ===
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedPaymentId, setSelectedPaymentId] = useState(null);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [showCheckboxError, setShowCheckboxError] = useState(false);
+
   const navigate = useNavigate();
+
+  // Prevent closing the modal via Escape key while open
+  useEffect(() => {
+    function trapEsc(e) {
+      if (!showPaymentModal) return;
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }
+    document.addEventListener("keydown", trapEsc, true);
+    return () => document.removeEventListener("keydown", trapEsc, true);
+  }, [showPaymentModal]);
 
   useEffect(() => {
     loadAllData();
@@ -119,6 +139,33 @@ export default function Balances() {
     } finally {
       setLoading(false);
     }
+  }
+
+  // === Open modal first (added from old version) ===
+  function handlePayNowClick(paymentId) {
+    setSelectedPaymentId(paymentId);
+    setShowPaymentModal(true);
+    setAgreedToTerms(false);
+    setShowCheckboxError(false);
+  }
+
+  function handleCloseModal() {
+    setShowPaymentModal(false);
+    setSelectedPaymentId(null);
+    setAgreedToTerms(false);
+    setShowCheckboxError(false);
+  }
+
+  // === Confirm in modal → continue existing PayMongo flow ===
+  async function handleConfirmPayment() {
+    if (!agreedToTerms) {
+      setShowCheckboxError(true);
+      return;
+    }
+    if (!selectedPaymentId) return;
+
+    setShowPaymentModal(false);
+    await handlePayNow(selectedPaymentId);
   }
 
   async function handlePayNow(paymentId) {
@@ -321,12 +368,12 @@ export default function Balances() {
                             )}
                           </div>
 
-                          {/* Action third */}
+                          {/* Action third - Updated to use handlePayNowClick */}
                           <button
                             className={`pay-now-btn ${isOverdue ? "overdue-btn" : ""} ${
                               disabled ? "disabled-btn" : ""
                             }`}
-                            onClick={() => handlePayNow(p.id)}
+                            onClick={() => handlePayNowClick(p.id)}
                             disabled={processingPayment === p.id || disabled}
                             title={
                               disabled
@@ -354,6 +401,77 @@ export default function Balances() {
           );
         })}
       </div>
+
+      {/* Payment Confirmation Modal (added from old version) */}
+      {showPaymentModal && (
+        <div className="payment-modal-overlay" aria-hidden="true">
+          <div
+            className="payment-modal-content"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="payment-modal-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="payment-modal-header">
+              <h2 id="payment-modal-title">Paying payment</h2>
+              <button className="payment-modal-close" onClick={handleCloseModal}>
+                ✕
+              </button>
+            </div>
+
+            <div className="payment-modal-body">
+              <div className="payment-terms-container">
+                <input
+                  type="checkbox"
+                  id="payment-terms"
+                  className={agreedToTerms ? "checkbox-checked" : ""}
+                  checked={agreedToTerms}
+                  onChange={(e) => {
+                    setAgreedToTerms(e.target.checked);
+                    setShowCheckboxError(false);
+                  }}
+                />
+                <label htmlFor="payment-terms" className="payment-terms-text">
+                  <p className={showCheckboxError ? "error-text" : ""}>
+                    By proceeding, I confirm that all payment details I have provided are accurate and correct. I understand and agree to the{" "}
+                    <a 
+                      href="/insurance-client-page/TermsAndConditions" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Terms and Conditions
+                    </a>
+                    {" "}and the{" "}
+                    <a 
+                      href="/insurance-client-page/PrivacyPolicy" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Privacy Policy
+                    </a>
+                    {" "}of Silverstar Insurance Agency Inc. I acknowledge that all payments are final and non-refundable once processed.
+                  </p>
+
+                  <p className={showCheckboxError ? "error-text" : ""}>
+                    In accordance with the Data Privacy Act of 2012 and its Implementing Rules and Regulations effective September 9, 2016, I authorize Silverstar Insurance Agency Inc. to collect, store, and process my personal and payment information for the purpose of fulfilling my insurance transaction.
+                  </p>
+                </label>
+              </div>
+            </div>
+
+            <div className="payment-modal-footer">
+              <button 
+                className="payment-process-btn"
+                onClick={handleConfirmPayment}
+              >
+                Process payment
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

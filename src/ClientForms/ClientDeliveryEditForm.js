@@ -1,9 +1,10 @@
-// ClientForms/ClientDeliveryCreationForm.jsx
+// ClientForms/ClientDeliveryEditForm.jsx
 import React from "react";
 import "../styles/delivery-creation-styles-client.css";
 
-export default function ClientDeliveryCreationForm({
+export default function ClientDeliveryEditForm({
   formData,
+  originalData = {},
   policies = [],
   loading,
   onChange,
@@ -13,19 +14,6 @@ export default function ClientDeliveryCreationForm({
   addressMeta = { isDefault: false, isDelivered: false },
   onOpenAddressPicker,
 }) {
-  const selectedPolicy = policies.find((p) => String(p.id) === String(formData.policyId));
-  const selectedHasDelivery = !!selectedPolicy?.hasDelivery;
-
-  const handlePolicySelect = (e) => {
-    const val = e.target.value;
-    const p = policies.find((x) => String(x.id) === String(val));
-    if (p?.hasDelivery) {
-      alert("This policy already has a scheduled delivery. Please choose another policy.");
-      return;
-    }
-    if (typeof onChange === "function") onChange({ target: { name: "policyId", value: val } });
-  };
-
   return (
     <div className="delivery-modal-overlay-client">
       <div className="delivery-modal-container-client">
@@ -39,69 +27,59 @@ export default function ClientDeliveryCreationForm({
         </button>
 
         <form onSubmit={onSubmit} className="delivery-form-client">
-          <h2 className="delivery-form-title-client">Schedule Policy Delivery</h2>
+          <h2 className="delivery-form-title-client">Edit Delivery</h2>
 
-          {/* Policy */}
+          {/* Policy (disabled) */}
           <div className="delivery-form-group-client">
-            <label className="delivery-form-label-client">Policy *</label>
+            <label className="delivery-form-label-client">Policy</label>
             <select
               name="policyId"
               value={formData.policyId}
-              onChange={handlePolicySelect}
-              required
+              disabled
               className="delivery-form-select-client"
+              style={{ backgroundColor: "#f5f5f5", fontStyle: "italic", cursor: "not-allowed" }}
             >
-              <option value="">-- Select Policy --</option>
-              {policies.map((p) => {
-                const disabled = !!p.hasDelivery;
-                return (
-                  <option
-                    key={p.id}
-                    value={p.id}
-                    disabled={disabled}
-                    style={disabled ? { color: "#9b9b9b", fontStyle: "italic" } : {}}
-                  >
-                    {p.internal_id ? `#${p.internal_id}` : `Policy #${p.id}`}
-                    {disabled ? " — [Already Scheduled]" : ""}
-                  </option>
-                );
-              })}
+              {policies.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.internal_id ? `#${p.internal_id}` : `Policy #${p.id}`}
+                </option>
+              ))}
             </select>
-
-            {policies.some((p) => p.hasDelivery) && (
-              <div className="delivery-form-note-client">
-                Note: {policies.filter((p) => p.hasDelivery).length} policy(ies) already scheduled.
-              </div>
-            )}
           </div>
 
           {/* Dates */}
           <div className="delivery-form-grid-client">
             <div className="delivery-form-group-client">
-              <label className="delivery-form-label-client">Delivery Date</label>
+              <label className="delivery-form-label-client">Delivery Date (Original)</label>
               <input
                 type="date"
-                name="deliveryDate"
-                value={formData.deliveryDate}
+                value={originalData.deliveryDate || ""}
                 readOnly
                 className="delivery-form-input-client"
+                style={{ backgroundColor: "#f5f5f5", cursor: "not-allowed" }}
               />
             </div>
 
             <div className="delivery-form-group-client">
-              <label className="delivery-form-label-client">Estimated Delivery Date *</label>
+              <label className="delivery-form-label-client">Est. Delivery Date</label>
+              <input
+                type="date"
+                value={originalData.estDeliveryDate || ""}
+                readOnly
+                className="delivery-form-input-client"
+                style={{ backgroundColor: "#f5f5f5", marginBottom: "0.5rem", cursor: "not-allowed" }}
+              />
               <input
                 type="date"
                 name="estDeliveryDate"
-                value={formData.estDeliveryDate}
+                value={formData.estDeliveryDate || ""}
                 onChange={onChange}
-                required
                 className="delivery-form-input-client"
               />
             </div>
           </div>
 
-          {/* Address – styled like DeliveryCreationForm */}
+          {/* Address */}
           <div className="delivery-form-group-client">
             <label className="delivery-form-label-client">
               Address{" "}
@@ -130,14 +108,20 @@ export default function ClientDeliveryCreationForm({
             </div>
           </div>
 
-          {/* Special Instructions */}
+          {/* Remarks */}
           <div className="delivery-form-group-client">
             <label className="delivery-form-label-client">Special Instructions</label>
             <textarea
+              value={originalData.remarks || ""}
+              readOnly
+              className="delivery-form-textarea-client"
+              style={{ backgroundColor: "#f5f5f5", marginBottom: "0.5rem", cursor: "not-allowed" }}
+            />
+            <textarea
               name="remarks"
-              value={formData.remarks}
+              value={formData.remarks || ""}
               onChange={onChange}
-              placeholder="Enter any special delivery instruction"
+              placeholder="Update special instruction..."
               rows="4"
               className="delivery-form-textarea-client"
             />
@@ -155,9 +139,8 @@ export default function ClientDeliveryCreationForm({
 
             <button
               type="submit"
-              disabled={loading || selectedHasDelivery}
+              disabled={loading}
               className="delivery-form-btn-submit-client"
-              title={selectedHasDelivery ? "Selected policy already has a delivery" : ""}
             >
               {loading ? "Saving..." : "Submit"}
             </button>

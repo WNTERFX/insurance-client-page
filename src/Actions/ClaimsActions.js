@@ -7,7 +7,7 @@ import { db } from "../dbServer";
 export async function getCurrentClient() {
   try {
     const { data: { user }, error } = await db.auth.getUser();
-    
+
     if (error) throw error;
     if (!user) throw new Error("No active session found");
 
@@ -28,13 +28,38 @@ export async function getCurrentClient() {
 }
 
 /**
- * Fetch all active policies for this client
+ * Get the currently logged-in moderator/employee
  */
-export async function fetchClientActivePolicies(clientUid) {
+export async function getCurrentModerator() {
+  try {
+    const { data: { user }, error } = await db.auth.getUser();
+
+    if (error) throw error;
+    if (!user) return null;
+
+    const { data, error: empError } = await db
+      .from("employee_Accounts")
+      .select("id, is_Admin, employee_email, first_name, last_name")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (empError) throw empError;
+    return data || null;
+  } catch (err) {
+    console.error("getCurrentModerator error:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch all active policies for a client
+ * If moderatorId is provided, only return policies where the client is assigned to that moderator
+ */
+export async function fetchClientActivePolicies(clientUid, moderatorId = null) {
   if (!clientUid) return [];
 
   try {
-    const { data, error } = await db
+    let query = db
       .from("policy_Table")
       .select(`
         id, 
@@ -47,17 +72,40 @@ export async function fetchClientActivePolicies(clientUid) {
         partner_id,
         policy_status,
         void_reason,
-        voided_date
+        voided_date,
+        client_id
       `)
       .eq("client_id", clientUid)
       .eq("policy_is_active", true)
       .or("is_archived.is.null,is_archived.eq.false");
 
+    const { data, error } = await query;
+
     if (error) {
       console.error("fetchClientActivePolicies error:", error.message);
       return [];
     }
-    
+
+    // If moderatorId is provided, filter policies by checking client's agent_Id
+    if (moderatorId && data && data.length > 0) {
+      const { data: clientData, error: clientError } = await db
+        .from("clients_Table")
+        .select("uid, agent_Id")
+        .eq("uid", clientUid)
+        .single();
+
+      if (clientError) {
+        console.error("Error fetching client agent_Id:", clientError);
+        return [];
+      }
+
+      // If client is not assigned to this moderator, return empty
+      if (clientData.agent_Id !== moderatorId) {
+        console.log("🔒 Client not assigned to this moderator");
+        return [];
+      }
+    }
+
     return data || [];
   } catch (err) {
     console.error("fetchClientActivePolicies error:", err);
@@ -76,7 +124,7 @@ async function uploadFilesToStorage(files, clientAuthId, claimId) {
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
-    
+
     try {
       if (!file || !file.name) {
         failedFiles.push(`File ${i} (invalid)`);
@@ -88,16 +136,22 @@ async function uploadFilesToStorage(files, clientAuthId, claimId) {
       const sanitizedFileName = file.name
         .replace(/[^a-zA-Z0-9.-]/g, '_')
         .replace(/_{2,}/g, '_');
-      
+
       const fileName = `${timestamp}_${randomStr}_${sanitizedFileName}`;
       const filePath = `${clientAuthId}/${claimId}/${fileName}`;
+
+      // Determine content type - override text/plain for .txt files
+      let contentType = file.type;
+      if (file.name.toLowerCase().endsWith('.txt')) {
+        contentType = 'application/octet-stream'; // Use generic binary type for .txt files
+      }
 
       const { data, error } = await db.storage
         .from('claim-documents')
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: false,
-          contentType: file.type
+          contentType: contentType || 'application/octet-stream'
         });
 
       if (error) {
@@ -139,8 +193,10 @@ async function uploadFilesToStorage(files, clientAuthId, claimId) {
   return uploadedPaths;
 }
 
+
 /**
  * Create a new claim record
+ * Handles both client and moderator claim creation
  */
 export async function createClientClaim({
   policyId,
@@ -158,11 +214,60 @@ export async function createClientClaim({
     if (!incidentDate) throw new Error("Incident date is required");
     if (!claimDate) throw new Error("Claim date is required");
 
-    const client = await getCurrentClient();
-    if (!client) throw new Error("Unable to get current client");
-    if (!client.auth_id) throw new Error("Client auth_id not found");
+    // Get current user
+    const { data: { user } } = await db.auth.getUser();
+    if (!user) throw new Error("No authenticated user");
+
+    // Check if current user is a moderator/employee
+    const moderator = await getCurrentModerator();
+    
+    let clientAuthId;
+    
+    if (moderator) {
+      // Moderator creating claim - get the client's auth_id from the policy
+      console.log('✅ Moderator creating claim:', moderator.id);
+      
+      const { data: policyData, error: policyError } = await db
+        .from("policy_Table")
+        .select(`
+          id,
+          client_id
+        `)
+        .eq("id", parseInt(policyId))
+        .single();
+
+      if (policyError) throw new Error("Failed to fetch policy data: " + policyError.message);
+      if (!policyData) throw new Error("Policy not found");
+      
+      // Get client data to verify moderator access
+      const { data: clientData, error: clientError } = await db
+        .from("clients_Table")
+        .select("uid, auth_id, agent_Id")
+        .eq("uid", policyData.client_id)
+        .single();
+
+      if (clientError) throw new Error("Failed to fetch client data: " + clientError.message);
+      
+      // Verify moderator has access to this client
+      if (clientData.agent_Id !== moderator.id) {
+        throw new Error("You don't have permission to create claims for this client");
+      }
+      
+      clientAuthId = clientData.auth_id;
+      
+    } else {
+      // Client creating their own claim
+      const client = await getCurrentClient();
+      if (!client) throw new Error("Unable to get current client");
+      if (!client.auth_id) throw new Error("Client auth_id not found");
+      
+      console.log('✅ Client creating claim:', client.uid);
+      clientAuthId = client.auth_id;
+    }
 
     const now = new Date().toISOString();
+    
+    // Build claim data
     const claimData = {
       policy_id: parseInt(policyId),
       type_of_incident: typeOfIncident,
@@ -172,8 +277,11 @@ export async function createClientClaim({
       documents: [],
       status: 'Pending',
       is_approved: false,
-      created_at: now
+      created_at: now,
+      agent_id: moderator?.id || null  // Set agent_id if moderator, null if client
     };
+
+    console.log('📝 Claim data to insert:', claimData);
 
     const { data: claimRecord, error } = await db
       .from("claims_Table")
@@ -181,14 +289,19 @@ export async function createClientClaim({
       .select()
       .single();
 
-    if (error) throw new Error("Failed to insert claim: " + error.message);
+    if (error) {
+      console.error('❌ Database error:', error);
+      throw new Error("Failed to insert claim: " + error.message);
+    }
+
+    console.log('✅ Claim created successfully:', claimRecord);
 
     const allFiles = [...(photos || []), ...(documents || [])];
 
     if (allFiles.length > 0) {
       const uploadedFiles = await uploadFilesToStorage(
         allFiles, 
-        client.auth_id, 
+        clientAuthId, 
         claimRecord.id
       );
 
@@ -217,73 +330,217 @@ export async function createClientClaim({
 }
 
 /**
- * Fetch all claims for the current client
+ * Fetch claims for the current user
+ * - If client: fetch their own claims
+ * - If moderator: fetch claims for their assigned clients only
  */
-export async function fetchClientClaims(clientUid) {
-  if (!clientUid) return [];
-
+export async function fetchClientClaims(clientUid = null) {
   try {
-    const { data: policies, error: policyError } = await db
-      .from("policy_Table")
-      .select("id")
-      .eq("client_id", clientUid);
+    const { data: { user } } = await db.auth.getUser();
+    if (!user) throw new Error("No authenticated user");
 
-    if (policyError) throw policyError;
-    if (!policies?.length) return [];
+    // Check if user is a moderator
+    const moderator = await getCurrentModerator();
+    
+    if (moderator) {
+      // Moderator: fetch all clients assigned to them first
+      const { data: clients, error: clientsError } = await db
+        .from("clients_Table")
+        .select("uid")
+        .eq("agent_Id", moderator.id);
 
-    const policyIds = policies.map((p) => p.id);
+      if (clientsError) {
+        console.error("Error fetching moderator clients:", clientsError);
+        throw clientsError;
+      }
+      
+      if (!clients || clients.length === 0) {
+        console.log("🔒 No clients assigned to this moderator");
+        return [];
+      }
 
-    const { data: claims, error: claimsError } = await db
-      .from("claims_Table")
-      .select(`
-        id,
-        policy_id,
-        type_of_incident,
-        phone_number,
-        location_of_incident,
-        incident_date,
-        claim_date,
-        estimate_amount,
-        approved_amount,
-        description_of_incident, 
-        documents,
-        status,
-        is_approved,
-        message,
-        under_review_date,
-        reject_claim_date,
-        approved_claim_date,
-        completed_date,
-        created_at,
-        policy_Table (
+      const clientUids = clients.map(c => c.uid);
+
+      // Get all policies for these clients
+      const { data: policies, error: policiesError } = await db
+        .from("policy_Table")
+        .select("id, client_id")
+        .in("client_id", clientUids);
+
+      if (policiesError) {
+        console.error("Error fetching policies:", policiesError);
+        throw policiesError;
+      }
+      
+      if (!policies || policies.length === 0) return [];
+
+      const policyIds = policies.map(p => p.id);
+
+      // Fetch claims for these policies with minimal nested joins
+      const { data: claims, error: claimsError } = await db
+        .from("claims_Table")
+        .select(`
           id,
-          internal_id,
-          policy_type,
-          client_id,
-          partner_id,
-          insurance_Partners (
-            id,
-            insurance_Name
-          ),
-          clients_Table (
-            uid,
-            first_Name,
-            family_Name,
-            phone_Number,
-            auth_id
-          ),
-          policy_Computation_Table (
-            policy_claim_amount,
-            current_Value
-          )
-        )
-      `)
-      .in("policy_id", policyIds)
-      .order("created_at", { ascending: false });
+          policy_id,
+          type_of_incident,
+          incident_date,
+          claim_date,
+          estimate_amount,
+          approved_amount,
+          documents,
+          status,
+          is_approved,
+          under_review_date,
+          reject_claim_date,
+          approved_claim_date,
+          completed_date,
+          created_at,
+          agent_id
+        `)
+        .in("policy_id", policyIds)
+        .order("created_at", { ascending: false });
 
-    if (claimsError) throw claimsError;
+      if (claimsError) {
+        console.error("Error fetching claims:", claimsError);
+        throw claimsError;
+      }
 
-    return claims || [];
+      // Manually enrich claims with policy and client data
+      const enrichedClaims = await Promise.all(
+        (claims || []).map(async (claim) => {
+          const { data: policyData } = await db
+            .from("policy_Table")
+            .select(`
+              id,
+              internal_id,
+              policy_type,
+              client_id,
+              partner_id,
+              insurance_Partners (
+                id,
+                insurance_Name
+              ),
+              policy_Computation_Table (
+                policy_claim_amount,
+                current_Value
+              )
+            `)
+            .eq("id", claim.policy_id)
+            .single();
+
+          let clientData = null;
+          if (policyData?.client_id) {
+            const { data: client } = await db
+              .from("clients_Table")
+              .select("uid, first_Name, family_Name, phone_Number, auth_id")
+              .eq("uid", policyData.client_id)
+              .single();
+            clientData = client;
+          }
+
+          return {
+            ...claim,
+            policy_Table: {
+              ...policyData,
+              clients_Table: clientData
+            }
+          };
+        })
+      );
+
+      console.log(`✅ Fetched ${enrichedClaims?.length || 0} claims for moderator`);
+      return enrichedClaims;
+
+    } else if (clientUid) {
+      // Client: only show their own claims
+      console.log('🔒 Filtering claims for client:', clientUid);
+      
+      // Get policy IDs for this client
+      const { data: policies, error: policyError } = await db
+        .from("policy_Table")
+        .select("id")
+        .eq("client_id", clientUid);
+
+      if (policyError) throw policyError;
+      if (!policies?.length) return [];
+
+      const policyIds = policies.map((p) => p.id);
+
+      const { data: claims, error: claimsError } = await db
+        .from("claims_Table")
+        .select(`
+          id,
+          policy_id,
+          type_of_incident,
+          incident_date,
+          claim_date,
+          estimate_amount,
+          approved_amount,
+          documents,
+          status,
+          is_approved,
+          under_review_date,
+          reject_claim_date,
+          approved_claim_date,
+          completed_date,
+          created_at,
+          agent_id
+        `)
+        .in("policy_id", policyIds)
+        .order("created_at", { ascending: false });
+
+      if (claimsError) throw claimsError;
+
+      // Manually enrich claims with policy and client data
+      const enrichedClaims = await Promise.all(
+        (claims || []).map(async (claim) => {
+          const { data: policyData } = await db
+            .from("policy_Table")
+            .select(`
+              id,
+              internal_id,
+              policy_type,
+              client_id,
+              partner_id,
+              insurance_Partners (
+                id,
+                insurance_Name
+              ),
+              policy_Computation_Table (
+                policy_claim_amount,
+                current_Value
+              )
+            `)
+            .eq("id", claim.policy_id)
+            .single();
+
+          let clientData = null;
+          if (policyData?.client_id) {
+            const { data: client } = await db
+              .from("clients_Table")
+              .select("uid, first_Name, family_Name, phone_Number, auth_id")
+              .eq("uid", policyData.client_id)
+              .single();
+            clientData = client;
+          }
+
+          return {
+            ...claim,
+            policy_Table: {
+              ...policyData,
+              clients_Table: clientData
+            }
+          };
+        })
+      );
+
+      console.log(`✅ Fetched ${enrichedClaims?.length || 0} claims for client`);
+      return enrichedClaims;
+    } else {
+      // No client UID provided and not a moderator - return empty
+      return [];
+    }
+    
   } catch (err) {
     console.error("fetchClientClaims error:", err);
     return [];
@@ -368,24 +625,73 @@ export async function uploadAdditionalFiles(claimId, files) {
 
 /**
  * Fetch voided policies for client
+ * If moderatorId is provided, only return policies for clients assigned to that moderator
  */
-export async function fetchClientVoidedPolicies(clientId) {
+/**
+ * Fetch voided policies for client
+ * If moderatorId is provided, only return policies for clients assigned to that moderator
+ */
+export async function fetchClientVoidedPolicies(clientId, moderatorId = null) {
   try {
-    const { data, error } = await db
+    let query = db
       .from("policy_Table")
       .select("*")
       .eq("client_id", clientId)
       .eq("policy_status", "voided")
       .order("voided_date", { ascending: false });
 
+    const { data, error } = await query;
+
     if (error) {
       console.error("Error fetching voided policies:", error);
       return [];
     }
 
+    // If moderatorId is provided, verify client is assigned to this moderator
+    if (moderatorId && data && data.length > 0) {
+      const { data: clientData, error: clientError } = await db
+        .from("clients_Table")
+        .select("uid, agent_Id")
+        .eq("uid", clientId)
+        .single();
+
+      if (clientError) {
+        console.error("Error fetching client agent_Id:", clientError);
+        return [];
+      }
+
+      // If client is not assigned to this moderator, return empty
+      if (clientData.agent_Id !== moderatorId) {
+        console.log("🔒 Client not assigned to this moderator");
+        return [];
+      }
+    }
+
     return data || [];
   } catch (err) {
     console.error("fetchClientVoidedPolicies error:", err);
+    return [];
+  }
+}
+
+/**
+ * Fetch clients assigned to a specific moderator
+ */
+export async function fetchModeratorClients(moderatorId) {
+  try {
+    if (!moderatorId) return [];
+    
+    const { data, error } = await db
+      .from("clients_Table")
+      .select("*")
+      .eq("agent_Id", moderatorId)
+      .order("first_Name", { ascending: true });
+
+    if (error) throw error;
+    
+    return data || [];
+  } catch (err) {
+    console.error("fetchModeratorClients error:", err);
     return [];
   }
 }
