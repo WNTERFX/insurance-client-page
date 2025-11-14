@@ -102,7 +102,7 @@ export default function TopbarClient() {
 
         <div className="header-right">
           <button className="notification-btn" aria-label="Notifications">
-            <FaBell className="notification-icon" />
+            {/*<FaBell className="notification-icon" />*/}
           </button>
 
           <div className="user-dropdown" ref={dropdownRef}>
