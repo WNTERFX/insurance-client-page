@@ -475,3 +475,16 @@
     }
 }
 
+
+/* Make red error text normal-weight inside the modal */
+.payment-terms-container .error-text {
+  font-weight: 400 !important;
+}
+.payment-terms-container .error-text a {
+  font-weight: 400 !important;
+}
+
+/* Make only the checkbox clickable for incident type rows */
+.checkbox-container.no-label { cursor: default; }
+.checkbox-container.no-label span { pointer-events: none; }
+.checkbox-container.no-label input[type="checkbox"] { cursor: pointer; }

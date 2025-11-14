@@ -1,0 +1,85 @@
+/* Container */
+.dashboard-containerAbout {
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Content Area */
+.about-content {
+  flex: 1;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* About Card */
+.about-card {
+  background: white;
+  border-radius: 12px;
+  padding: 3rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.about-heading {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 1.5rem 0;
+}
+
+.about-description {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #4b5563;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Footer */
+.about-footer {
+  background: #1f2937;
+  color: white;
+  padding: 2rem;
+  text-align: center;
+  border-radius: 12px;
+  margin-top: auto;
+}
+
+.about-footer p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #d1d5db;
+}
+
+.about-footer p:first-child {
+  font-weight: 600;
+  font-size: 1rem;
+  color: white;
+  margin-bottom: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .about-content {
+    padding: 1rem;
+  }
+
+  .about-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .about-heading {
+    font-size: 1.5rem;
+  }
+
+  .about-description {
+    font-size: 1rem;
+  }
+}
