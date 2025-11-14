@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { signUpClient } from "./Actions/SignUpActions";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-// [!code focus]
-import { db } from "./dbServer"; // 1. Import your Supabase client
+import { db } from "./dbServer";
 
 export function SignUpForm() {
   const navigate = useNavigate();
@@ -14,24 +13,50 @@ export function SignUpForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(false);
   
-  // [!code focus:3]
-  // 2. Replace errorMessage with a new 'message' state
   const [message, setMessage] = useState({ text: "", type: "error" });
   
   const [loading, setLoading] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+  const [showResendButton, setShowResendButton] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
 
   const togglePasswordVisibility = () => setPasswordVisible(!passwordVisible);
   const toggleConfirmPasswordVisibility = () => setConfirmPasswordVisible(!confirmPasswordVisible);
 
+  const handleResendEmail = async () => {
+    setResendLoading(true);
+    setMessage({ text: "Resending verification email...", type: "info" });
+
+    const redirectUrl = window.location.hostname === 'localhost'
+      ? 'http://localhost:3000/insurance-client-page/email-verified'
+      : 'https://insurance-client-page.vercel.app/insurance-client-page/email-verified';
+
+    const { error: resendError } = await db.auth.resend({
+      type: 'signup',
+      email: email,
+      options: {
+        emailRedirectTo: redirectUrl
+      }
+    });
+
+    setResendLoading(false);
+
+    if (resendError) {
+      setMessage({ text: `Could not resend link: ${resendError.message}`, type: "error" });
+    } else {
+      setMessage({ 
+        text: "Verification email resent! Please check your inbox and spam folder.", 
+        type: "success" 
+      });
+    }
+  };
+
   const handleSignUp = async (e) => {
     e.preventDefault();
-    // [!code focus]
-    setMessage({ text: "", type: "error" }); // reset message
+    setMessage({ text: "", type: "error" });
 
-    // [!code focus:17]
-    // 3. Update all validation to use the new message state
+    // Validation
     if (!policyId || !email || !password || !confirmPassword) {
       setMessage({ text: "Please fill in all required fields.", type: "error" });
       return;
@@ -60,36 +85,32 @@ export function SignUpForm() {
     });
     setLoading(false);
 
-    // [!code focus:25]
-    // 4. THIS IS THE MAIN FIX
     if (!result.success) {
       // Check for the special verification error
       if (result.requiresVerification) {
-        
-        // Show a loading message
-        setMessage({ text: "Please verify your email. We are resending the link now...", type: "info" });
-        
-        // Call the client-side resend function
-        const { error: resendError } = await db.auth.resend({
-          type: 'signup',
-          email: email
+        // DON'T resend immediately - the edge function already sent the email!
+        // Just show success message and enable resend button
+        setMessage({ 
+          text: "Account created! Please check your email to verify your account before signing in. Check your spam folder if you don't see it.", 
+          type: "success" 
         });
-
-        if (resendError) {
-          setMessage({ text: `Could not resend link: ${resendError.message}`, type: "error" });
-        } else {
-          // Tell the user to check their spam folder!
-          setMessage({ text: "We've just sent you a new confirmation link. Please check your inbox and spam folder.", type: "info" });
-        }
-
+        setShowResendButton(true); // Show the resend button
       } else {
-        // This is a real sign-in error (e.g., "Invalid Policy ID")
-        setMessage({ text: "Sign In failed: " + (result.message || result.error || "Unknown error"), type: "error" });
+        // This is a real sign-up error (e.g., "Invalid Policy ID")
+        setMessage({ 
+          text: "Sign up failed: " + (result.message || result.error || "Unknown error"), 
+          type: "error" 
+        });
       }
       return;
     }
 
-    navigate("/insurance-client-page/login");
+    // Success message (this probably won't be reached since edge function returns requiresVerification)
+    setMessage({ 
+      text: "Account created! Please check your email to verify your account.", 
+      type: "success" 
+    });
+    setShowResendButton(true);
   };
 
   return (
@@ -109,11 +130,33 @@ export function SignUpForm() {
 
         <form className="SignIn-form" onSubmit={handleSignUp}>
           
-          {/* [!code focus:4] */}
-          {/* 5. Update the JSX to show the new message state */}
           {message.text && (
-            <div className={message.type === 'error' ? 'error-message' : 'info-message'}>
+            <div className={
+              message.type === 'error' ? 'error-message' : 
+              message.type === 'success' ? 'success-message' : 
+              'info-message'
+            }>
               {message.text}
+              {showResendButton && (
+                <button 
+                  type="button"
+                  onClick={handleResendEmail}
+                  disabled={resendLoading}
+                  style={{
+                    marginTop: '10px',
+                    padding: '8px 16px',
+                    background: 'transparent',
+                    border: '1px solid #7c3aed',
+                    color: '#7c3aed',
+                    borderRadius: '6px',
+                    cursor: resendLoading ? 'not-allowed' : 'pointer',
+                    fontSize: '0.9rem',
+                    fontWeight: '500'
+                  }}
+                >
+                  {resendLoading ? 'Sending...' : 'Resend Verification Email'}
+                </button>
+              )}
             </div>
           )}
 
@@ -147,7 +190,6 @@ export function SignUpForm() {
           </div>
 
           <div className="password-wrapper-client">
-            {/* This label seems wrong, it should be "Confirm password" */}
             <label>Confirm password <span className="required-star">*</span></label>
             <input
               type={confirmPasswordVisible ? "text" : "password"}
@@ -173,7 +215,7 @@ export function SignUpForm() {
           </div>
 
           <button type="submit" disabled={loading}>
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? "Signing up..." : "Sign up"}
           </button>
 
           <div className="login-prompt">

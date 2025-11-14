@@ -45,25 +45,44 @@ export default function LoginForm() {
     navigate("/insurance-client-page/main-portal/home");
   };
 
-
-
   // Send password reset email
   const handleSendResetEmail = async () => {
     setResetLoading(true);
     setResetError("");
     setResetSuccess("");
 
+    // Validate email format
+    if (!resetEmail || !resetEmail.includes('@')) {
+      setResetError("Please enter a valid email address");
+      setResetLoading(false);
+      return;
+    }
+
+    // Construct the redirect URL
+    const redirectUrl = window.location.hostname === 'localhost' 
+      ? 'http://localhost:3000/insurance-client-page/reset-password'
+      : 'https://insurance-client-page.vercel.app/insurance-client-page/reset-password';
+
+    console.log("Sending reset email to:", resetEmail);
+    console.log("Redirect URL:", redirectUrl);
+
     try {
       const { data, error } = await db.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: window.location.origin + "/insurance-client-page/reset-password",
+        redirectTo: redirectUrl,
       });
 
-      if (error) throw error;
+      console.log("Supabase response:", { data, error });
 
-      console.log("Reset link (test only):", data?.action_link);
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
 
-      setResetSuccess("Password reset link sent! Check your email inbox. (Check console for test link)");
+      // Success - even if email doesn't exist, Supabase returns success for security
+      setResetSuccess("If an account exists with this email, you'll receive a password reset link shortly.");
+      
     } catch (error) {
+      console.error("Caught error:", error);
       setResetError(error.message || "Failed to send password reset email.");
     } finally {
       setResetLoading(false);
@@ -123,7 +142,7 @@ export default function LoginForm() {
 
           {/* Login Controls */}
           <div className="login-controls">
-            <p>Don’t have an account?</p>
+            <p>Don't have an account?</p>
             <a href="/insurance-client-page/signup" type="button" >
               Sign Up
             </a>
@@ -131,9 +150,8 @@ export default function LoginForm() {
         </form>
       </div>
 
-
       {/* Password Reset Modal */}
- {showResetModal && (
+      {showResetModal && (
         <div
           className="rp-overlay"
           onClick={closeResetModal}
@@ -165,7 +183,7 @@ export default function LoginForm() {
             <hr className="rp-divider" />
 
             <div className="rp-body">
-              {/* TOP BANNER (like Policy ID) */}
+              {/* Error Banner */}
               {resetError && (
                 <div className="alert alert-error" role="alert" aria-live="assertive">
                   <strong>Error</strong>
@@ -183,8 +201,6 @@ export default function LoginForm() {
                 placeholder="you@gmail.com"
                 value={resetEmail}
                 onChange={(e) => {
-                  // optional: clear banner while typing
-                  // setResetError("");
                   setResetEmail(e.target.value);
                 }}
                 aria-describedby={resetError ? "reset-error-text" : undefined}
@@ -202,17 +218,11 @@ export default function LoginForm() {
                 </button>
               </div>
 
-              {/* (Optional) remove the old bottom messages to avoid duplicates */}
-              {/* {resetError && <p className="rp-msg rp-error">{resetError}</p>} */}
               {resetSuccess && <p className="rp-msg rp-success">{resetSuccess}</p>}
             </div>
           </div>
         </div>
       )}
-
-
     </div>
-
-
   );
 }

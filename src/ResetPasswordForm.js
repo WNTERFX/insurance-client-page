@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { db } from "./dbServer";
-import "./styles/login-styles.css";
+import "./styles/pass-reset-styles.css";
 
 export default function ResetPasswordForm() {
   const navigate = useNavigate();
@@ -74,7 +74,7 @@ export default function ResetPasswordForm() {
       });
       if (error) throw error;
 
-      setMessage("✅ Password successfully updated! Redirecting to login...");
+      setMessage("Password successfully updated! Redirecting to login...");
       setTimeout(() => navigate("/insurance-client-page/login"), 2000);
     } catch (err) {
       setMessage(`❌ ${err.message}`);
@@ -108,7 +108,7 @@ export default function ResetPasswordForm() {
               <p className="reset-user-info">
                 Resetting password for: <br />
                 <strong>{displayFullName(clientInfo)}</strong> <br />
-                <span style={{ fontSize: "13px", color: "#777" }}>
+                <span style={{ fontSize: "13px"}}>
                   {user.email}
                 </span>
               </p>
