@@ -21,6 +21,24 @@ export function SignUpForm() {
   const [showResendButton, setShowResendButton] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
 
+  // Field error states
+  const [fieldErrors, setFieldErrors] = useState({
+    policyId: false,
+    email: false,
+    password: false,
+    confirmPassword: false,
+    terms: false
+  });
+
+  // Field-specific error messages
+  const [fieldErrorMessages, setFieldErrorMessages] = useState({
+    policyId: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    terms: ""
+  });
+
   const togglePasswordVisibility = () => setPasswordVisible(!passwordVisible);
   const toggleConfirmPasswordVisibility = () => setConfirmPasswordVisible(!confirmPasswordVisible);
 
@@ -52,29 +70,89 @@ export function SignUpForm() {
     }
   };
 
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleSignUp = async (e) => {
     e.preventDefault();
+    e.stopPropagation(); // Stop the event from bubbling
+    
     setMessage({ text: "", type: "error" });
 
-    // Validation
-    if (!policyId || !email || !password || !confirmPassword) {
-      setMessage({ text: "Please fill in all required fields.", type: "error" });
-      return;
+    // Reset all field errors
+    const errors = {
+      policyId: false,
+      email: false,
+      password: false,
+      confirmPassword: false,
+      terms: false
+    };
+
+    const errorMessages = {
+      policyId: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      terms: ""
+    };
+
+    let hasErrors = false;
+
+    // Validate Policy ID
+    if (!policyId.trim()) {
+      errors.policyId = true;
+      errorMessages.policyId = "Policy ID is required";
+      hasErrors = true;
     }
 
-    if (password !== confirmPassword) {
-      setMessage({ text: "Passwords do not match!", type: "error" });
-      return;
+    // Validate Email
+    if (!email.trim()) {
+      errors.email = true;
+      errorMessages.email = "Email is required";
+      hasErrors = true;
+    } else if (!validateEmail(email)) {
+      errors.email = true;
+      errorMessages.email = "Please enter a valid email address";
+      hasErrors = true;
     }
 
-    if (password.length < 8) {
-      setMessage({ text: "Password must be at least 8 characters long.", type: "error" });
-      return;
+    // Validate Password
+    if (!password) {
+      errors.password = true;
+      errorMessages.password = "Password is required";
+      hasErrors = true;
+    } else if (password.length < 8) {
+      errors.password = true;
+      errorMessages.password = "Password must be at least 8 characters long";
+      hasErrors = true;
     }
 
+    // Validate Confirm Password
+    if (!confirmPassword) {
+      errors.confirmPassword = true;
+      errorMessages.confirmPassword = "Please confirm your password";
+      hasErrors = true;
+    } else if (password !== confirmPassword) {
+      errors.confirmPassword = true;
+      errorMessages.confirmPassword = "Passwords do not match";
+      hasErrors = true;
+    }
+
+    // Validate Terms
     if (!agreeTerms) {
-      setMessage({ text: "You must agree to the Terms and Conditions.", type: "error" });
-      return;
+      errors.terms = true;
+      errorMessages.terms = "You must agree to the Terms and Conditions";
+      hasErrors = true;
+    }
+
+    setFieldErrors(errors);
+    setFieldErrorMessages(errorMessages);
+
+    if (hasErrors) {
+      setMessage({ text: "Please fill in all required fields correctly.", type: "error" });
+      return false; // Explicitly return false to prevent submission
     }
 
     setLoading(true);
@@ -88,13 +166,11 @@ export function SignUpForm() {
     if (!result.success) {
       // Check for the special verification error
       if (result.requiresVerification) {
-        // DON'T resend immediately - the edge function already sent the email!
-        // Just show success message and enable resend button
         setMessage({ 
           text: "Account created! Please check your email to verify your account before signing in. Check your spam folder if you don't see it.", 
           type: "success" 
         });
-        setShowResendButton(true); // Show the resend button
+        setShowResendButton(true);
       } else {
         // This is a real sign-up error (e.g., "Invalid Policy ID")
         setMessage({ 
@@ -102,15 +178,21 @@ export function SignUpForm() {
           type: "error" 
         });
       }
-      return;
+      return false;
     }
 
-    // Success message (this probably won't be reached since edge function returns requiresVerification)
+    // Success message
     setMessage({ 
       text: "Account created! Please check your email to verify your account.", 
       type: "success" 
     });
     setShowResendButton(true);
+    return false;
+  };
+
+  const clearFieldError = (field) => {
+    setFieldErrors(prev => ({ ...prev, [field]: false }));
+    setFieldErrorMessages(prev => ({ ...prev, [field]: "" }));
   };
 
   return (
@@ -128,7 +210,7 @@ export function SignUpForm() {
           />
         </div>
 
-        <form className="SignIn-form" onSubmit={handleSignUp}>
+        <form className="SignIn-form" onSubmit={handleSignUp} noValidate>
           
           {message.text && (
             <div className={
@@ -164,55 +246,85 @@ export function SignUpForm() {
           <input
             type="text"
             value={policyId}
-            onChange={(e) => setPolicyId(e.target.value)}
-            required
+            onChange={(e) => {
+              setPolicyId(e.target.value);
+              clearFieldError('policyId');
+            }}
+            className={fieldErrors.policyId ? 'input-error' : ''}
           />
+          {fieldErrorMessages.policyId && (
+            <span className="field-error">{fieldErrorMessages.policyId}</span>
+          )}
 
           <label>Email <span className="required-star">*</span></label>
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
+            onChange={(e) => {
+              setEmail(e.target.value);
+              clearFieldError('email');
+            }}
+            className={fieldErrors.email ? 'input-error' : ''}
           />
+          {fieldErrorMessages.email && (
+            <span className="field-error">{fieldErrorMessages.email}</span>
+          )}
 
+          <label>Password <span className="required-star">*</span></label>
           <div className="password-wrapper-client">
-            <label>Password <span className="required-star">*</span></label>
             <input
               type={passwordVisible ? "text" : "password"}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              onChange={(e) => {
+                setPassword(e.target.value);
+                clearFieldError('password');
+              }}
+              className={fieldErrors.password ? 'input-error' : ''}
             />
             <span onClick={togglePasswordVisibility} className="eye-icon-client">
               {passwordVisible ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
+          {fieldErrorMessages.password && (
+            <span className="field-error">{fieldErrorMessages.password}</span>
+          )}
 
+          <label>Confirm password <span className="required-star">*</span></label>
           <div className="password-wrapper-client">
-            <label>Confirm password <span className="required-star">*</span></label>
             <input
               type={confirmPasswordVisible ? "text" : "password"}
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                clearFieldError('confirmPassword');
+              }}
+              className={fieldErrors.confirmPassword ? 'input-error' : ''}
             />
             <span onClick={toggleConfirmPasswordVisibility} className="eye-icon-client">
               {confirmPasswordVisible ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
+          {fieldErrorMessages.confirmPassword && (
+            <span className="field-error">{fieldErrorMessages.confirmPassword}</span>
+          )}
 
-          <div className="terms-container">
+          <div className={`terms-container ${fieldErrors.terms ? 'terms-error' : ''}`}>
             <input
               type="checkbox"
               id="terms"
               checked={agreeTerms}
-              onChange={(e) => setAgreeTerms(e.target.checked)}
+              onChange={(e) => {
+                setAgreeTerms(e.target.checked);
+                clearFieldError('terms');
+              }}
             />
             <label htmlFor="terms" className="terms-text">
-              I've read and agree to Silverstar <a href="/insurance-client-page/TermsAndConditions">Terms of service</a> and <a href="/insurance-client-page/PrivacyPolicy">Privacy Policy</a>.
+              I've read and agree to Silverstar <a href="/insurance-client-page/TermsAndConditions" target="_blank" rel="noopener noreferrer">Terms and Condition</a> and <a href="/insurance-client-page/PrivacyPolicy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
             </label>
           </div>
+          {fieldErrorMessages.terms && (
+            <span className="field-error">{fieldErrorMessages.terms}</span>
+          )}
 
           <button type="submit" disabled={loading}>
             {loading ? "Signing up..." : "Sign up"}

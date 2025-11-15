@@ -621,7 +621,10 @@ export default function ClientClaimsCreationForm({
 
             {/* ===== Submit Confirmation Modal ===== */}
             {showSubmitModal && (
-                <div className="payment-modal-overlay" aria-hidden="true">
+                <div 
+                    className="payment-modal-overlay"
+                    onClick={closeSubmitModal}
+                >
                     <div
                         className="payment-modal-content"
                         role="dialog"
@@ -631,7 +634,11 @@ export default function ClientClaimsCreationForm({
                     >
                         <div className="payment-modal-header">
                             <h2 id="claims-submit-modal-title">Terms And Conditions</h2>
-                            <button className="payment-modal-close" onClick={closeSubmitModal}>
+                            <button 
+                                className="payment-modal-close" 
+                                onClick={closeSubmitModal}
+                                aria-label="Close modal"
+                            >
                                 ✕
                             </button>
                         </div>

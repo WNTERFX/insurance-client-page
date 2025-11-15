@@ -421,9 +421,9 @@ export default function LandingPage() {
                 {/* Column 2: Categories */}
                 <div className="footer-column">
                     <h4>CATEGORIES</h4>
-                    <a href="/insurance-client-page">Home</a>
+                    <a href="/">Home</a>
                     <a href="/insurance-client-page/Partners">Partners</a>
-                    <a href="#faq">FAQs</a>
+                    <a href="/insurance-client-page/FAQs">FAQs</a>
                     <a href="/insurance-client-page/AboutUs">About Us</a>
                 </div>
 
@@ -461,7 +461,7 @@ export default function LandingPage() {
                     <hr className="footer-divider" />
                     <div className="footer-bottom-content">
                         <p>© 2025 Silverstar Insurance Agency Inc.</p>
-                        <a href="/insurance-client-page/TermsAndConditions">Terms and Condition</a>
+                        <a href="/insurance-client-page/TermsAndConditions">Terms and Conditions</a>
                         <a href="/insurance-client-page/PrivacyPolicy">Privacy Policy</a>
                     </div>
                 </div>

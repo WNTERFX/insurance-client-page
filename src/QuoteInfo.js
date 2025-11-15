@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./styles/QuoteInfo-styles.css";
-import SilverstarLOGO from "./images/SilverstarLOGO.png";
+import SilverstarLOGO from "./images/SilverStar.png";
 import { ArrowLeft, Download } from 'lucide-react';
 import { handleGenerateQuotePDF, generateQuotationNumber } from "./Actions/generateQuotePDF";
 
@@ -120,13 +120,18 @@ export default function QuoteInfo(){
     <div className="quote-info-page">
       {/* Header */}
       <header className="top-bar-container">
-        <div className="logo-container">
-          <img src={SilverstarLOGO} alt="Logo" className="logo" />
-          <p className="company-name">Silverstar Insurance Agency</p>
-        </div>
+          <Link
+            to="/"
+            className="logo-container"
+            aria-label="Go to Home — Silverstar Insurance Agency"
+          >
+            <img src={SilverstarLOGO} alt="Silverstar Insurance — Home" className="logo" />
+
+          </Link>
         <nav className="nav-links">
-          <Link to="/insurance-client-page" className="nav-link">Home</Link>
+          <Link to="/" className="nav-link">Home</Link>
           <Link to="/insurance-client-page/Partners" className="nav-link">Partners</Link>
+            <Link to="/insurance-client-page/Faqs" className="nav-link">FAQs</Link>
           <Link to="/insurance-client-page/AboutUs" className="nav-link">About Us</Link>
           <Link to="/insurance-client-page/Contact" className="nav-link">Contact</Link>
           <Link to="/insurance-client-page/login" className="login-button">Log in</Link>

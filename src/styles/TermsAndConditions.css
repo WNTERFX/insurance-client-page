@@ -48,3 +48,29 @@
   margin-bottom: 25px; /* Consistent spacing between paragraphs */
  
 }
+
+
+.copyright-footer {
+  margin-top: 60px;
+  margin-bottom: 40px;
+  padding: 0 10px; /* Add horizontal padding for small screens */
+  text-align: center;
+  width: 100%;
+}
+
+.copyright-footer .footer-divider {
+  border: none;
+  border-top: 1px solid #dee2e6;
+  margin: 0 auto 15px auto; /* Center the line and add bottom margin */
+  width: 100%;
+  max-width: 900px; /* Match your content max-width */
+}
+
+.copyright-footer p {
+  font-size: 14px;
+  color: #6c757d;
+  margin: 0 auto;
+  padding: 0; /* Remove padding-bottom for cleaner spacing */
+  text-align: center;
+  width: 100%;
+}

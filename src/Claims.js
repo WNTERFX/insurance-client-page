@@ -540,7 +540,7 @@ export default function Claims() {
                       </div>
                       <div className="document-actions">
                         {(doc.isImage || doc.isPDF) && (
-                          <button className="btn-preview" onClick={() => setExpandedDocument(doc)}>
+                          <button className="btn-preview" onClick={() => window.open(doc.url, '_blank')}>
                             <Eye size={16} /> Preview
                           </button>
                         )}
@@ -552,8 +552,7 @@ export default function Claims() {
 
                     <div
                       className="document-preview"
-                      onClick={() => (doc.isImage || doc.isPDF) && setExpandedDocument(doc)}
-                      style={{ cursor: (doc.isImage || doc.isPDF) ? 'pointer' : 'default' }}
+                      style={{ cursor: 'default' }}
                     >
                       {doc.isImage ? (
                         <img src={doc.url} alt={doc.name} className="preview-image" />

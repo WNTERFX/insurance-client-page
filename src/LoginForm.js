@@ -15,6 +15,10 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
+  
+  // Validation error states
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   // Password reset modal
   const [showResetModal, setShowResetModal] = useState(false);
@@ -33,16 +37,45 @@ export default function LoginForm() {
   // Login
   const handleLogin = async (e) => {
     e.preventDefault();
+    
+    // Clear previous errors
+    setEmailError("");
+    setPasswordError("");
+    
+    // Check for empty fields before making API call
+    if (!email.trim() || !password.trim()) {
+      setEmailError("Wrong Credentials - Invalid username or password");
+      return;
+    }
+    
     setLoading(true);
     const result = await loginClient({ email, password });
     setLoading(false);
 
     if (!result.success) {
-      alert("Login failed: " + result.error);
+      // Check the type of error
+      const errorMessage = result.error?.toLowerCase() || "";
+      
+      // If email doesn't exist or invalid credentials (generic)
+      if (errorMessage.includes("invalid login credentials") || 
+          errorMessage.includes("user not found") ||
+          errorMessage.includes("email not confirmed")) {
+        setEmailError("Wrong Credentials - Invalid username or password");
+      }
+      // If password is incorrect (when email exists but password is wrong)
+      else if (errorMessage.includes("invalid password") || 
+               errorMessage.includes("password")) {
+        setPasswordError("The password you've entered is incorrect");
+      }
+      // Generic fallback
+      else {
+        setEmailError("Wrong Credentials - Invalid username or password");
+      }
+      
       return;
     }
 
-    navigate("/insurance-client-page/main-portal/home");
+    navigate("/insurance-client-page/main-portal/Home");
   };
 
   // Send password reset email
@@ -109,13 +142,23 @@ export default function LoginForm() {
         </div>
 
         <form className="login-form" onSubmit={handleLogin}>
+          {/* Email Error Banner - Shows above Email Address field */}
+          {emailError && (
+            <div className="alert alert-error" role="alert" aria-live="assertive">
+              <strong>Wrong Credentials</strong>
+              <span>Invalid username or password</span>
+            </div>
+          )}
+
           <label>Email Address</label>
           <input
             type="email"
             placeholder="Enter your email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setEmailError(""); // Clear error when user types
+            }}
           />
 
           <label>Password</label>
@@ -124,13 +167,20 @@ export default function LoginForm() {
               type={passwordVisible ? "text" : "password"}
               placeholder="Enter your password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setPasswordError(""); // Clear error when user types
+              }}
             />
             <span onClick={togglePassword} className="eye-icon">
               {passwordVisible ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
+
+          {/* Password Error - Shows below Password field */}
+          {passwordError && (
+            <span className="field-error">{passwordError}</span>
+          )}
 
           <a href="#" className="forgot-password-client" onClick={(e) => {
             e.preventDefault();
@@ -138,7 +188,9 @@ export default function LoginForm() {
           }}>
             Forgot password?
           </a>
-          <button type="submit" className="login-button-client">Login</button>
+          <button type="submit" className="login-button-client" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
 
           {/* Login Controls */}
           <div className="login-controls">

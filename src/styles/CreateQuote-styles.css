@@ -364,9 +364,9 @@ select.error:focus {
 
 .cancel-quote-button {
   padding: 10px 24px;
-  background-color: white;
-  color: #dc2626;
-  border: 2px solid #dc2626;
+  background-color: #ffffff;
+  color: #000000;
+  border: 1px solid #000000;
   border-radius: 6px;
   font-size: 14px;
   font-weight: 600;
@@ -377,10 +377,10 @@ select.error:focus {
 }
 
 .cancel-quote-button:hover {
-  background-color: #dc2626;
-  color: white;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+  background-color: #e4e4e4;
+  color: rgb(0, 0, 0);
+ 
+
 }
 
 .cancel-quote-button:active {

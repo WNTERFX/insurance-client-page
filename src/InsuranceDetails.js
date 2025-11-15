@@ -305,7 +305,7 @@ export default function InsuranceDetails() {
                           </div>
                           <div>
                             <strong>Engine Serial Number:</strong>
-                            <span>{vehicle.engine_num || "N/A"}</span>
+                            <span>{vehicle.engine_serial_no || "N/A"}</span>
                           </div>
                         </div>
                       </div>

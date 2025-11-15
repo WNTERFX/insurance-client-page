@@ -697,58 +697,130 @@ export default function Home() {
                 <div className="loading-spinner-wrapper"><div className="spinner" /></div>
               ) : chartError ? (
                 <div className="chart-error-container">
-                  <div className="error-icon">⚠️</div>
+                  <div className="error-icon"></div>
                   <p className="error-text">{chartError}</p>
                 </div>
               ) : !chartData?.length ? (
                 <div className="no-data-container">
-                  <div className="no-data-icon">📊</div>
+                  <div className="no-data-icon"></div>
                   <p className="no-data-message">
                     No data available for {months.find(m => m.value === selectedMonth)?.label} {selectedYear}
                   </p>
                 </div>
               ) : (
-
-                <BarChart
-                  xAxis={[
-                    {
-                      scaleType: 'band',
-                      data: chartData.map(item => formatCompanyName(item.name)),
-                      colorMap: {
-                        type: 'ordinal',
-                        colors: chartData.map((_, index) => COLOR_SCHEME[index % COLOR_SCHEME.length]),
-                      },
-                    },
-                  ]}
-                  yAxis={[
-                    { label: 'Percentage (%)', min: 0, max: 100 },
-                  ]}
-                  series={[
-                    {
-                      data: chartData.map(item => item.percentage),
-                      label: 'Rating Percentage',
-                      valueFormatter: (value, context) => {
-                        if (context && context.dataIndex !== undefined) {
-                          const d = chartData[context.dataIndex];
-                          if (d) return `${d.name}: ${d.percentage.toFixed(2)}%`;
-                        }
-                        return `${value?.toFixed(2)}%`;
-                      },
-                    },
-                  ]}
-                  height={500}
-                  margin={{ top: 20, bottom: 80, left: 50, right: 20 }}
-                  colors={chartData.map((_, index) => COLOR_SCHEME[index % COLOR_SCHEME.length])}
-                  slotProps={{ legend: { hidden: true } }}
-                  sx={{
-                    '& .MuiBarElement-root': { cursor: 'pointer' },
-                    '& .MuiBarElement-root:hover': { opacity: 0.8 },
-                    '& .MuiChartsAxis-bottom .MuiChartsAxis-tickLabel': {
-                      fontSize: '11px',
-                      textAnchor: 'middle',
-                    },
-                  }}
-                />
+                <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                  <div style={{ width: '100%', height: '450px' }}>
+                    <BarChart
+                      xAxis={[
+                        {
+                          scaleType: 'band',
+                          data: chartData.map((_, index) => `${index + 1}`),
+                          colorMap: {
+                            type: 'ordinal',
+                            colors: chartData.map((_, index) => COLOR_SCHEME[index % COLOR_SCHEME.length]),
+                          },
+                        },
+                      ]}
+                      yAxis={[
+                        { label: 'Percentage (%)', min: 0, max: 100 },
+                      ]}
+                      series={[
+                        {
+                          data: chartData.map(item => item.percentage),
+                          label: 'Rating Percentage',
+                          valueFormatter: (value, context) => {
+                            if (context && context.dataIndex !== undefined && chartData[context.dataIndex]) {
+                              return `${chartData[context.dataIndex].name}: ${value?.toFixed(2)}%`;
+                            }
+                            return value ? `${value.toFixed(2)}%` : '';
+                          },
+                        },
+                      ]}
+                      height={400}
+                      margin={{ top: 10, bottom: 50, left: 1, right: 20 }}
+                      colors={chartData.map((_, index) => COLOR_SCHEME[index % COLOR_SCHEME.length])}
+                      slotProps={{ legend: { hidden: true } }}
+                      sx={{
+                        width: '100%',
+                        '& .MuiBarElement-root': { cursor: 'pointer' },
+                        '& .MuiBarElement-root:hover': { opacity: 0.8 },
+                        '& .MuiChartsAxis-bottom .MuiChartsAxis-tickLabel': {
+                          fontSize: '12px',
+                          textAnchor: 'middle',
+                        },
+                        '& .MuiChartsAxis-left .MuiChartsAxis-label': {
+                          fontSize: '13px',
+                        },
+                      }}
+                    />
+                  </div>
+                  
+                  {/* Custom Legend Below Chart */}
+                  <div style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    gap: '8px',
+                    padding: '0 20px 15px 20px'
+                  }}>
+                    {/* First Row */}
+                    <div style={{ 
+                      display: 'flex', 
+                      flexWrap: 'wrap',
+                      gap: '10px 25px',
+                      justifyContent: 'flex-start'
+                    }}>
+                      {chartData.slice(0, 4).map((item, index) => (
+                        <div key={index} style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '8px',
+                          fontSize: '12px'
+                        }}>
+                          <div style={{
+                            width: '14px',
+                            height: '14px',
+                            backgroundColor: COLOR_SCHEME[index % COLOR_SCHEME.length],
+                            borderRadius: '2px',
+                            flexShrink: 0
+                          }} />
+                          <span style={{ color: '#666', fontWeight: '400' }}>
+                            {item.name}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {/* Second Row */}
+                    {chartData.length > 4 && (
+                      <div style={{ 
+                        display: 'flex', 
+                        flexWrap: 'wrap',
+                        gap: '10px 25px',
+                        justifyContent: 'flex-start'
+                      }}>
+                        {chartData.slice(4).map((item, index) => (
+                          <div key={index + 4} style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '8px',
+                            fontSize: '12px'
+                          }}>
+                            <div style={{
+                              width: '14px',
+                              height: '14px',
+                              backgroundColor: COLOR_SCHEME[(index + 4) % COLOR_SCHEME.length],
+                              borderRadius: '2px',
+                              flexShrink: 0
+                            }} />
+                            <span style={{ color: '#666', fontWeight: '400' }}>
+                              {item.name}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               )}
             </div>
           </div>
