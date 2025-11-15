@@ -19,7 +19,7 @@ export default function PrivacyPolicy() {
     };
 
     return (
-        <div classNmae="PPolicy">
+        <div className="PPolicy">
             {/* Header */}
             <header className="top-bar-container">
                 {/* Brand row: logo + burger (burger sits to the RIGHT of the logo) */}
@@ -173,6 +173,10 @@ export default function PrivacyPolicy() {
                     +63 921 9605-8176<br />
                     sira.mktg2@gmail.com
                 </p>
+            </div>
+            <div className="copyright-footer">
+                <hr className="footer-divider" />
+                <p>Copyright © 2025 Silverstar Insurance Agency. All rights reserved.</p>
             </div>
 
 

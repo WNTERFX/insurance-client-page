@@ -78,9 +78,9 @@
 .SignIn-form input {
   padding: 0.8rem;
   border: 1px solid #ccc;
-  border-radius: 5px; /* Restored */
+  border-radius: 5px;
   font-size: 0.95rem;
-  background-color: #f3f5ff; /* Restored */
+  background-color: #f3f5ff;
   outline: none;
   transition: all 0.3s ease;
   margin-bottom: 0.75rem;
@@ -90,11 +90,10 @@
 
 .SignIn-form input:focus {
   border-color: #7c3aed;
- 
 }
 
 .required-star {
-    color: red;
+  color: red;
 }
 
 /* Terms and Privacy Policy */
@@ -163,35 +162,47 @@
 
 .login-prompt a {
   margin-left: 5px;
-  color: #673b92; /* Changed to purple */
-  text-decoration: none; /* Removed underline */
+  color: #673b92;
+  text-decoration: none;
   font-weight: 600;
   transition: all 0.3s ease;
 }
 
 .login-prompt a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
-/* Password wrapper */
+/* Password wrapper - Fixed eye icon positioning */
 .password-wrapper-client {
   position: relative;
-  display: flex;
-  flex-direction: column;
+  display: block;
+  width: 100%;
 }
 
 .password-wrapper-client input {
   width: 100%;
   padding-right: 2.5rem;
+  box-sizing: border-box;
 }
 
 .eye-icon-client {
   position: absolute;
   right: 12px;
-  top: 38px; /* Adjusted for better vertical alignment */
+  top: 50%;
+  transform: translateY(-70%);
   cursor: pointer;
-  color: black;
+  color: #000000;
   font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  z-index: 10;
+  transition: color 0.2s ease;
+}
+
+.eye-icon-client:hover {
+  color: #333;
 }
 
 /* Responsive */
@@ -205,28 +216,15 @@
   }
 }
 
-.error-message,
+/* Info message */
 .info-message {
-  display: block;
-  width: 100%;
-  text-align: center;      /* center the text */
-  color: #000;             /* black text */
-  background: #fdecec;     /* keep subtle background for visibility; adjust if needed */
-  border: 1px solid #e57373;
-  border-radius: 8px;
-  padding: 12px 14px;
-  margin-bottom: 14px;
-  font-size: 0.95rem;
-  font-weight: 600;        /* slightly bolder for readability */
-}
-
-.info-message {
-  padding: 10px;
-  background-color: #e6f7ff; /* Light blue */
-  border: 1px solid #91d5ff;
-  color: #0056b3;
-  border-radius: 4px;
+  padding: 12px;
+  border-radius: 6px;
   margin-bottom: 15px;
+  font-size: 14px;
+  border-left: 4px solid #2563eb;
+  background-color: #eff6ff;
+  color: #1e40af;
   text-align: center;
 }
 
@@ -240,9 +238,9 @@
 
 /* ===== Invalid field styling (CreateQuote-style) ===== */
 .SignIn-form input.invalid {
-  border: 1px solid #e53935 !important;     /* red border */
-  background: #fff8f8 !important;           /* faint red fill */
-  box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.08); /* soft halo */
+  border: 1px solid #e53935 !important;
+  background: #fff8f8 !important;
+  box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.08);
 }
 
 .SignIn-form .password-wrapper-client input.invalid {
@@ -250,8 +248,72 @@
   background: #fff8f8 !important;
 }
 
-
 /* keep placeholder readable on the light red background */
 .SignIn-form input.invalid::placeholder {
   color: #b85b5b;
+}
+
+/* Red border for invalid inputs */
+.SignIn-form input.input-error,
+.SignIn-form .password-wrapper-client input.input-error {
+  border: 2px solid #dc2626 !important;
+  background-color: #fef2f2 !important;
+}
+
+.SignIn-form input.input-error:focus,
+.SignIn-form .password-wrapper-client input.input-error:focus {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15) !important;
+  background-color: #fff !important;
+}
+
+/* Field error message (below input) */
+.field-error {
+  display: block;
+  margin-top: -8px;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+/* Terms checkbox error styling */
+.terms-container.terms-error {
+  border: 2px solid #dc2626;
+  border-radius: 6px;
+  padding: 10px;
+  background-color: #fef2f2;
+}
+
+.terms-container.terms-error .terms-text {
+  color: #dc2626;
+}
+
+/* Success message */
+.success-message {
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  border-left: 4px solid #16a34a;
+  background-color: #f0fdf4;
+  color: #166534;
+}
+
+/* Error message banner - NO left border color */
+.error-message {
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  border: 1px solid #dc2626;
+  background-color: #fef2f2;
+  color: #991b1b;
+  text-align: center;
+}
+
+/* Password wrapper error handling */
+.password-wrapper-client.input-error input {
+  border: 2px solid #dc2626 !important;
+  background-color: #fef2f2 !important;
 }

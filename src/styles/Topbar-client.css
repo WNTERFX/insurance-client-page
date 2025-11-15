@@ -97,7 +97,7 @@
 }
 .user-dropdown-toggle:hover{ background-color: rgba(241,245,249,.6); }
 .user-name{ font-size: 1rem; font-weight: 700; color: #0f172a; font-family: inherit; }
-.user-avatar-icon{ font-size: 2rem; color: #6b7280; }
+.user-avatar-icon{ font-size: 2rem; color: #6b7280;}
 
 .dropdown-menu{
   position: absolute;
@@ -120,6 +120,7 @@
   text-align: left; white-space: nowrap;
   transition: background-color .15s;
   font-family: inherit;
+  text-decoration: none;
 }
 .dropdown-item:hover{ background: #f3f4f6; }
 .logout-item{ color: #111827; }

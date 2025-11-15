@@ -19,12 +19,23 @@ export default function Contact() {
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   // form state
-  const [name, setName] = useState("");       // required
-  const [email, setEmail] = useState("");     // required, must be valid
-  const [subject, setSubject] = useState(""); // optional
-  const [message, setMessage] = useState(""); // required
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
   const [formMessage, setFormMessage] = useState({ text: "", type: "" });
   const [loading, setLoading] = useState(false);
+
+  // Validation state - tracks which fields have errors
+  const [errors, setErrors] = useState({
+    name: false,
+    email: false,
+    subject: false,
+    message: false
+  });
+
+  // Track if form has been submitted at least once
+  const [touched, setTouched] = useState(false);
 
   // simple honeypot (anti-bot)
   const [botTrap, setBotTrap] = useState("");
@@ -40,6 +51,31 @@ export default function Contact() {
   };
 
   const isActiveLink = (path) => location.pathname === path;
+
+  // Validate individual field
+  const validateField = (fieldName, value) => {
+    if (!touched) return; // Don't show errors until form is submitted once
+
+    switch (fieldName) {
+      case 'name':
+        setErrors(prev => ({ ...prev, name: !value.trim() }));
+        break;
+      case 'email':
+        setErrors(prev => ({ 
+          ...prev, 
+          email: !value.trim() || !EMAIL_REGEX.test(value.trim()) 
+        }));
+        break;
+      case 'subject':
+        setErrors(prev => ({ ...prev, subject: !value.trim() }));
+        break;
+      case 'message':
+        setErrors(prev => ({ ...prev, message: !value.trim() }));
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <div className="landing-page-container">
@@ -134,22 +170,33 @@ export default function Contact() {
             <h3>Send a Message</h3>
             <form
               className="contact-form"
+              noValidate
               onSubmit={async (e) => {
                 e.preventDefault();
                 setFormMessage({ text: "", type: "" });
+                setTouched(true); // Mark form as touched on submit
 
                 // bot honeypot
                 if (botTrap) return;
 
-                if (!name.trim() || !email.trim() || !message.trim()) {
+                // Validate all fields
+                const nameError = !name.trim();
+                const emailError = !email.trim() || !EMAIL_REGEX.test(email.trim());
+                const subjectError = !subject.trim();
+                const messageError = !message.trim();
+
+                setErrors({
+                  name: nameError,
+                  email: emailError,
+                  subject: subjectError,
+                  message: messageError
+                });
+
+                if (nameError || emailError || subjectError || messageError) {
                   setFormMessage({
-                    text: "Name, Email, and Message are required.",
+                    text: "Please fill in all required fields correctly.",
                     type: "error",
                   });
-                  return;
-                }
-                if (!EMAIL_REGEX.test(email.trim())) {
-                  setFormMessage({ text: "Please enter a valid email address.", type: "error" });
                   return;
                 }
 
@@ -161,7 +208,6 @@ export default function Contact() {
                     body: JSON.stringify({ name, email, subject, message }),
                   });
 
-                  // Some failures may return non-JSON; handle both.
                   const text = await res.text();
                   let data = {};
                   try {
@@ -177,6 +223,8 @@ export default function Contact() {
                     setEmail("");
                     setSubject("");
                     setMessage("");
+                    setErrors({ name: false, email: false, subject: false, message: false });
+                    setTouched(false);
                   } else {
                     const friendly =
                       data?.error ||
@@ -212,44 +260,87 @@ export default function Contact() {
                 onChange={(e) => setBotTrap(e.target.value)}
               />
 
-              <input
-                className="form-input"
-                type="text"
-                placeholder="Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                autoComplete="name"
-                disabled={loading}
-              />
-              <input
-                className="form-input"
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-                disabled={loading}
-              />
-              <input
-                className="form-input"
-                type="text"
-                placeholder="Subject"
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                autoComplete="off"
-                disabled={loading}
-              />
-              <textarea
-                className="form-textarea"
-                rows="6"
-                placeholder="Message:"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                required
-                disabled={loading}
-              />
+              <div style={{ width: '100%' }}>
+                <input
+                  className={`form-input ${errors.name ? 'input-error' : ''}`}
+                  type="text"
+                  placeholder="Name"
+                  value={name}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    validateField('name', e.target.value);
+                  }}
+                  onBlur={() => validateField('name', name)}
+                  autoComplete="name"
+                  disabled={loading}
+                  style={{ width: '100%' }}
+                />
+                {errors.name && touched && (
+                  <span className="error-text">Name is required</span>
+                )}
+              </div>
+
+              <div style={{ width: '100%' }}>
+                <input
+                  className={`form-input ${errors.email ? 'input-error' : ''}`}
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    validateField('email', e.target.value);
+                  }}
+                  onBlur={() => validateField('email', email)}
+                  autoComplete="email"
+                  disabled={loading}
+                  style={{ width: '100%' }}
+                />
+                {errors.email && touched && (
+                  <span className="error-text">
+                    {!email.trim() ? 'Email is required' : 'Email is invalid'}
+                  </span>
+                )}
+              </div>
+
+              <div style={{ width: '100%' }}>
+                <input
+                  className={`form-input ${errors.subject ? 'input-error' : ''}`}
+                  type="text"
+                  placeholder="Subject"
+                  value={subject}
+                  onChange={(e) => {
+                    setSubject(e.target.value);
+                    validateField('subject', e.target.value);
+                  }}
+                  onBlur={() => validateField('subject', subject)}
+                  autoComplete="off"
+                  disabled={loading}
+                  style={{ width: '100%' }}
+                />
+                {errors.subject && touched && (
+                  <span className="error-text">Subject is required</span>
+                )}
+              </div>
+
+              <div style={{ width: '100%' }}>
+                <textarea
+                  className={`form-textarea ${errors.message ? 'input-error' : ''}`}
+                  rows="6"
+                  placeholder="Message:"
+                  value={message}
+                  onChange={(e) => {
+                    setMessage(e.target.value);
+                    validateField('message', e.target.value);
+                  }}
+                  onBlur={() => validateField('message', message)}
+                  disabled={loading}
+                  style={{ width: '100%' }}
+                />
+                {errors.message && touched && (
+                  <span className="error-text">Message is required</span>
+                )}
+              </div>
+
               <button type="submit" className="submit-button" disabled={loading}>
                 {loading ? "Sending..." : "Submit"}
               </button>
@@ -286,7 +377,7 @@ export default function Contact() {
               </div>
               <div className="contact-item">
                 <Mail className="contact-icon" />
-                <span>holandes.angelo9@gmail.com</span>
+                <span>aira.mktg2@gmail.com</span>
               </div>
               <div className="contact-item">
                 <Phone className="contact-icon" />
@@ -319,9 +410,9 @@ export default function Contact() {
         {/* Column 2: Categories */}
         <div className="footer-column">
           <h4>CATEGORIES</h4>
-          <a href="/insurance-client-page">Home</a>
+          <a href="/">Home</a>
           <a href="/insurance-client-page/Partners">Partners</a>
-          <a href="#faq">FAQs</a>
+          <a href="/insurance-client-page/FAQs">FAQs</a>
           <a href="/insurance-client-page/AboutUs">About Us</a>
         </div>
 
@@ -336,7 +427,7 @@ export default function Contact() {
             <strong>Phone number:</strong> +632 7406-8176
           </p>
           <p>
-            <strong>Email:</strong> holandes.angelo9@gmail.com
+            <strong>Email:</strong> aira.mktg2@gmail.com
           </p>
           <p>
             <strong>Office Hours:</strong> Monday - Saturday 8AM - 5PM
@@ -359,8 +450,8 @@ export default function Contact() {
           <hr className="footer-divider" />
           <div className="footer-bottom-content">
             <p>© 2025 Silverstar Insurance Agency Inc.</p>
-            <a href="#TermsandCondiiton">Terms and Condition</a>
-            <a href="#Privacy Policy">Privacy Policy</a>
+            <a href="/insurance-client-page/TermsAndConditions">Terms and Conditions</a>
+            <a href="/insurance-client-page/PrivacyPolicy">Privacy Policy</a>
           </div>
         </div>
       </footer>

@@ -370,8 +370,13 @@ export default function TermsAndConditions() {
                         These Payment Terms and Conditions are governed by and interpreted in accordance with the laws of the Republic of the Philippines.
                     </p>
                 </div>
+                            <div className="copyright-footer">
+                <hr className="footer-divider" />
+                <p>Copyright © 2025 Silverstar Insurance Agency. All rights reserved.</p>
+            </div>
 
             </div>
+
 
 
 

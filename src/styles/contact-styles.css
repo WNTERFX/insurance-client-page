@@ -261,3 +261,43 @@
     gap: 1.5rem;
   }
 }
+
+
+/* Make sure the contact form has proper spacing */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+/* Input error styling - red border when invalid */
+.form-input.input-error,
+.form-textarea.input-error {
+  border: 2px solid #dc3545 !important;
+  width: 100%;
+}
+
+.form-input.input-error:focus,
+.form-textarea.input-error:focus {
+  border-color: #dc3545 !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2);
+}
+
+/* Make sure all inputs are full width */
+.form-input,
+.form-textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Error message text below fields */
+.error-text {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+  font-weight: 500;
+  text-align: left;
+}

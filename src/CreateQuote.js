@@ -78,6 +78,9 @@ export default function CreateQuote() {
     })();
   }, [formData.vehicleType]);
 
+  // Allowed PH mobile formats: 09123456789 or +639123456789
+  const PHONE_REGEX = /^(?:\+?63|0)9\d{9}$/;
+
   // Validation functions
   const validateField = (name, value) => {
     switch (name) {
@@ -250,11 +253,17 @@ export default function CreateQuote() {
 
     // Validate all fields
     if (!validateForm()) {
-      setAlertModal({
-        isOpen: true,
-        title: 'Alert',
-        message: 'Please fill in all required fields correctly'
-      });
+      // Check if only the consent checkbox is missing
+      const onlyConsentMissing = Object.keys(errors).length === 1 && errors.dataPrivacyConsent;
+      
+      if (!onlyConsentMissing) {
+        setAlertModal({
+          isOpen: true,
+          title: 'Alert',
+          message: 'Please fill in all required fields correctly'
+        });
+      }
+      // If only consent is missing, the red highlight will show but no modal
       return;
     }
 
@@ -338,9 +347,6 @@ export default function CreateQuote() {
     });
   };
 
-  // Allowed PH mobile formats: 09123456789 or +639123456789
-  const PHONE_REGEX = /^(?:\+?63|0)9\d{9}$/;
-
   const VEHICLE_MAKES = [
     "Toyota", "Mitsubishi", "Honda", "Ford", "Nissan", "Hyundai", "Isuzu", "Suzuki",
     "Subaru", "Geely", "Yamaha", "Kawasaki", "KTM", "DUCATI", "CFMOTO"
@@ -351,7 +357,7 @@ export default function CreateQuote() {
       {/* Header */}
       <header className="top-bar-container">
           <Link
-            to="/insurance-client-page"
+            to="/"
             className="logo-container"
             aria-label="Go to Home — Silverstar Insurance Agency"
           >
@@ -361,6 +367,7 @@ export default function CreateQuote() {
         <nav className="nav-links">
           <Link to="/" className="nav-link">Home</Link>
           <Link to="/insurance-client-page/Partners" className="nav-link">Partners</Link>
+          <Link to="/insurance-client-page/Faqs" className="nav-link">FAQs</Link>
           <Link to="/insurance-client-page/AboutUs" className="nav-link">About Us</Link>
           <Link to="/insurance-client-page/Contact" className="nav-link">Contact</Link>
           <Link to="/insurance-client-page/login" className="login-button">Log in</Link>
