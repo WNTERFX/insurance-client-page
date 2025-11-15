@@ -242,7 +242,7 @@ export default function CreateQuote() {
     setTouched({});
 
     // Navigate to home page
-    navigate("/insurance-client-page");
+    navigate("/");
   };
 
   const handleSubmit = (e) => {
@@ -359,7 +359,7 @@ export default function CreateQuote() {
 
           </Link>
         <nav className="nav-links">
-          <Link to="/insurance-client-page" className="nav-link">Home</Link>
+          <Link to="/" className="nav-link">Home</Link>
           <Link to="/insurance-client-page/Partners" className="nav-link">Partners</Link>
           <Link to="/insurance-client-page/AboutUs" className="nav-link">About Us</Link>
           <Link to="/insurance-client-page/Contact" className="nav-link">Contact</Link>

@@ -83,7 +83,7 @@ function isPaymentDisabled(payments, currentPaymentIndex) {
 
 export default function Balances() {
   // Declare global page header (Topbar renders this)
-  useDeclarePageHeader("Balances", "Manage your payment balances and schedule.");
+  useDeclarePageHeader("Payments", "Manage your payment balances and schedule.");
 
   const [policiesWithPayments, setPoliciesWithPayments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -413,7 +413,7 @@ export default function Balances() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="payment-modal-header">
-              <h2 id="payment-modal-title">Paying payment</h2>
+              <h2 id="payment-modal-title">Terms and Conditions</h2>
               <button className="payment-modal-close" onClick={handleCloseModal}>
                 ✕
               </button>
@@ -466,7 +466,7 @@ export default function Balances() {
                 className="payment-process-btn"
                 onClick={handleConfirmPayment}
               >
-                Process payment
+                Agree
               </button>
             </div>
           </div>

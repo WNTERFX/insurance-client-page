@@ -5,8 +5,9 @@ import { getCurrentClient } from "./Actions/PolicyActions";
 import { logoutClient } from "./Actions/LoginActions";
 import { fetchPartners } from "./Actions/PartnersActions";
 import { fetchPaymentReceipts } from "./Actions/ReceiptActions";
-import { FaBell, FaSignOutAlt, FaUserCircle, FaReceipt, FaTimes, FaDownload, FaFileAlt, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaBell, FaSignOutAlt, FaUserCircle, FaReceipt, FaTimes, FaDownload, FaFileAlt, FaChevronLeft, FaChevronRight, FaHistory } from "react-icons/fa";
 import "./styles/History-styles.css";
+import { useDeclarePageHeader } from "./PageHeaderProvider";
 
 export default function History() {
   const [historyData, setHistoryData] = useState([]);
@@ -20,7 +21,7 @@ export default function History() {
 
   // --- Pagination states ---
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5);
+  const [itemsPerPage] = useState(10);
 
   // --- User dropdown states ---
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -36,6 +37,8 @@ export default function History() {
   const [receiptCounts, setReceiptCounts] = useState({});
 
   const navigate = useNavigate();
+
+    useDeclarePageHeader("Transaction History", "View and manage all your payment transactions");
 
   useEffect(() => {
     loadPaymentHistory();
@@ -255,40 +258,7 @@ export default function History() {
 
   return (
     <div className="dashboard-containerHistory">
-      {/* Header with Profile and Notification */}
-      <header className="topbar-client">
-        <div className="header-content">
-          <div className="header-left">
-            <h1 className="page-title">History</h1>
-            <p className="page-subtitle">Track and manage all your payment transactions</p>
-          </div>
-
-          <div className="header-right">
-            <button className="notification-btn">
-             {/* <FaBell className="notification-icon" />*/}
-            </button>
-
-            <div className="user-dropdown" ref={dropdownRef}>
-              <button
-                className="user-dropdown-toggle"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-                <span className="user-name">{displayName()}</span>
-                <FaUserCircle className="user-avatar-icon" />
-              </button>
-
-              {dropdownOpen && (
-                <div className="dropdown-menu">
-                  <button className="dropdown-item logout-item" onClick={handleLogout}>
-                    <FaSignOutAlt className="dropdown-icon" />
-                    <span>Log out</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Header matching Home component style */}
 
       {/* Content Area */}
       <div className="history-content">
@@ -307,12 +277,12 @@ export default function History() {
             {/* Controls */}
             <div className="controls">
               <span className="transaction-text">
-                Payment Transactions ({filteredData.length})
+                All Transactions ({filteredData.length})
               </span>
               <div className="search-container">
                 <input
                   type="text"
-                  placeholder="Search by date, method, company, client..."
+                  placeholder="Search by reference, date, method, company..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -332,14 +302,14 @@ export default function History() {
               </select>
             </div>
 
-            {/* Table */}
+            {/* Single Table for All Transactions */}
             <div className="history-table">
               <div className="history-grid header">
                 <div>Date</div>
                 <div>Payment Method</div>
                 <div>Amount</div>
                 <div>Company</div>
-                <div>Client</div>
+                <div>Reference #</div>
                 <div>Receipt</div>
               </div>
 
@@ -357,7 +327,7 @@ export default function History() {
                       )}
                     </div>
                     <div>{row.company}</div>
-                    <div>{row.clientName}</div>
+                    <div className="reference-cell">{row.referenceNumber}</div>
                     <div>
                       {receiptCounts[row.payment_id] > 0 ? (
                         <button

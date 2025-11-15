@@ -5,11 +5,11 @@ export default function About() {
   // Declare the page header (this shows up in TopbarClient)
   useDeclarePageHeader(
     "About",
-    "Built for security, compliance, and customer care"
+    "Built for clarity, compliance, and customer care"
   );
 
   return (
-    <div className="dashboard-containerAbout">
+    <div className="dashboard-containerAbout" style={{margin: 0, padding: 0}}>
       {/* Content Area */}
       <div className="about-content">
         <div className="about-card">
@@ -21,14 +21,14 @@ export default function About() {
             ensure timely payments and renewals.
           </p>
         </div>
-
-        <footer className="about-footer">
-          <p>Software Information</p>
-          <p>Version: 1.0.0</p>
-          <p>Developed by: Silverstar Insurance Inc.</p>
-          <p>© Silverstar Insurance Inc.. All rights reserved.</p>
-        </footer>
       </div>
+
+      <footer className="about-footer">
+        <p className="footer-title">Software Information</p>
+        <p>Version: 1.0.0</p>
+        <p>Developed by: Silverstar Insurance Inc.</p>
+        <p>© Silverstar Insurance Inc.. All rights reserved.</p>
+      </footer>
     </div>
   );
 }

@@ -66,6 +66,7 @@ export default function ProfilePage() {
   const addressPretty = () => {
     if (!user) return "—";
     const composed = [
+      user?.address,
       user?.barangay_address,
       user?.city_address,
       user?.province_address,

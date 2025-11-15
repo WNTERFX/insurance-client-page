@@ -200,28 +200,28 @@ export default function Delivery() {
 
       <div className="policy-delivery-container">
         <div className="delivery-content-wrapper">
-          <div className="policy-header">
-            <div className="active-deliveries">
+          <div className="policy-header-delivery">
+            <div className="active-deliveries-delivery">
               <h4>Active Deliveries</h4>
               <p>Here are your delivery updates</p>
             </div>
 
-            <button className="schedule-btn" onClick={() => setShowCreateModal(true)}>
-              <FaPlus className="btn-icon" /> Schedule Delivery
+            <button className="schedule-btn-delivery" onClick={() => setShowCreateModal(true)}>
+              <FaPlus className="btn-icon-delivery" /> Schedule Delivery
             </button>
           </div>
 
           {/* Active Deliveries List */}
           {deliveriesLoading ? (
-            <div className="balances-container">
-              <div className="loading-message">
-                Loading Deliveries <span className="spinner"></span>
+            <div className="balances-container-delivery">
+              <div className="loading-message-delivery">
+                Loading Deliveries <span className="spinner-delivery"></span>
               </div>
             </div>
           ) : deliveries.length === 0 ? (
-            <p className="no-delivery-text">No deliveries found</p>
+            <p className="no-delivery-text-delivery">No deliveries found</p>
           ) : (
-            <div className="delivery-list">
+            <div className="delivery-list-delivery">
               {deliveries.map((d) => {
                 const status = d.status?.toLowerCase() || "pending";
                 const isPending = status === "pending";
@@ -252,21 +252,21 @@ export default function Delivery() {
                 const showReceiveButton = isDelivered && !isCompleted;
 
                 return (
-                  <div className="delivery-card" key={d.id}>
-                    <div className="delivery-header">
+                  <div className="delivery-card-delivery" key={d.id}>
+                    <div className="delivery-header-delivery">
                       <h3>
                         Policy Number:{" "}
-                        <span className="policy-num">{d.policy_number || "N/A"}</span> —{" "}
+                        <span className="policy-num-delivery">{d.policy_number || "N/A"}</span> —{" "}
                         <span
-                          className="status"
+                          className="status-delivery"
                           style={{ color: getStatusColor(d.status) }}
                         >
                           {d.status || "Pending"}
                         </span>
                       </h3>
 
-                      {/*  FIX: Updated action buttons logic */}
-                      <div className="delivery-header-actions">
+                      {/* FIX: Updated action buttons logic */}
+                      <div className="delivery-header-actions-delivery">
                         {/* Show Edit + Cancel for Pending or Rescheduled */}
                         {showEditCancel && (
                           <>
@@ -287,10 +287,10 @@ export default function Delivery() {
                           </>
                         )}
 
-                        {/*  Show Proof for both Delivered and Completed (if proof exists) */}
+                        {/* Show Proof for both Delivered and Completed (if proof exists) - CLASS NAME KEPT */}
                         {showProofButton && (
                           <button
-                            className="btn-proof-delivery"
+                            className="client-btn-proof"
                             onClick={() => handleProofOfDelivery(d)}
                             title="View Proof of Delivery"
                           >
@@ -298,10 +298,10 @@ export default function Delivery() {
                           </button>
                         )}
 
-                        {/*  Show Receive only for Delivered (not Completed) */}
+                        {/* Show Receive only for Delivered (not Completed) - CLASS NAME KEPT */}
                         {showReceiveButton && (
                           <button
-                            className="btn-policy-receive"
+                            className="client-btn-policy-receive"
                             onClick={() => handlePolicyReceive(d)}
                             title="Confirm Policy Receipt"
                           >
@@ -311,13 +311,13 @@ export default function Delivery() {
                       </div>
                     </div>
 
-                    <div className="delivery-info">
+                    <div className="delivery-info-delivery">
                       <p><FaUser /> {d.client_name || "N/A"}</p>
                       <p><FaPhoneAlt /> {d.phone_number || "N/A"}</p>
                       <p><FaMapMarkerAlt /> {d.full_address || "N/A"}</p>
                     </div>
 
-                    <div className="delivery-date">
+                    <div className="delivery-date-delivery">
                       <p>
                         <BsCalendarDate />{" "}
                         {isCompleted
@@ -356,8 +356,8 @@ export default function Delivery() {
 
           {/* Modal for Creating Delivery */}
           {showCreateModal && (
-            <div className="delivery-creation-modal-overlay-client">
-              <div className="delivery-creation-modal-content-client">
+            <div className="delivery-creation-modal-overlay-delivery">
+              <div className="delivery-creation-modal-content-delivery">
                 <ClientDeliveryCreationController onCancel={handleDeliveryCreated} />
               </div>
             </div>
