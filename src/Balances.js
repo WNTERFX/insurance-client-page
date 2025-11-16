@@ -36,31 +36,45 @@ function policyOrderKey(p) {
   return Number(p?.id || 0);
 }
 
+// --- Date/Timezone Helpers ---
+
 function parsePHDate(dateStr) {
   if (!dateStr) return null;
   const d = new Date(dateStr);
   const utcTime = d.getTime();
-  const phOffset = 8 * 60; // +08:00 in minutes
-  const localOffset = d.getTimezoneOffset(); // in minutes
-  const adjusted = new Date(utcTime + (localOffset) * 60 * 1000);
+  const phOffset = 8 * 60;
+  const localOffset = d.getTimezoneOffset();
+  const adjusted = new Date(utcTime + (phOffset + localOffset) * 60 * 1000);
   return adjusted;
 }
 
 function isPaymentOverdue(paymentDate) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
   const due = parsePHDate(paymentDate);
-  due.setHours(0, 0, 0, 0);
-  return due < today;
+  if (!due) return false;
+
+  const today = new Date();
+  const phToday = new Date(today.toLocaleString("en-US", { timeZone: "Asia/Manila" }));
+
+  const dueMidnight = new Date(due.getFullYear(), due.getMonth(), due.getDate());
+  const todayMidnight = new Date(phToday.getFullYear(), phToday.getMonth(), phToday.getDate());
+
+  return dueMidnight.getTime() < todayMidnight.getTime();
 }
 
 function getDaysOverdue(paymentDate) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
   const due = parsePHDate(paymentDate);
-  due.setHours(0, 0, 0, 0);
-  const days = Math.floor((today - due) / (1000 * 60 * 60 * 24));
-  return days > 0 ? days : 0;
+  if (!due) return 0;
+
+  const today = new Date();
+  const phToday = new Date(today.toLocaleString("en-US", { timeZone: "Asia/Manila" }));
+
+  const dueMidnight = new Date(due.getFullYear(), due.getMonth(), due.getDate());
+  const todayMidnight = new Date(phToday.getFullYear(), phToday.getMonth(), phToday.getDate());
+
+  const timeDiff = todayMidnight.getTime() - dueMidnight.getTime();
+  const daysOverdue = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+  return daysOverdue > 0 ? daysOverdue : 0;
 }
 
 function calculatePenalty(paymentDate, baseAmount) {
@@ -68,8 +82,8 @@ function calculatePenalty(paymentDate, baseAmount) {
   if (daysOverdue === 0) return 0;
 
   const effectiveDays = Math.min(daysOverdue, 31);
-  const penaltyRate = 0.01; // 1% per day
-  const penaltyMultiplier = penaltyRate * effectiveDays; // Simple interest
+  const penaltyRate = 0.01;
+  const penaltyMultiplier = penaltyRate * effectiveDays;
   return baseAmount * penaltyMultiplier;
 }
 
@@ -82,7 +96,6 @@ function isPaymentDisabled(payments, currentPaymentIndex) {
 }
 
 export default function Balances() {
-  // Declare global page header (Topbar renders this)
   useDeclarePageHeader("Payments", "Manage your payment balances and schedule.");
 
   const [policiesWithPayments, setPoliciesWithPayments] = useState([]);
@@ -90,7 +103,6 @@ export default function Balances() {
   const [processingPayment, setProcessingPayment] = useState(null);
   const [paymentError, setPaymentError] = useState(null);
 
-  // === Modal state ===
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedPaymentId, setSelectedPaymentId] = useState(null);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -98,20 +110,38 @@ export default function Balances() {
 
   const navigate = useNavigate();
 
-  // ✅ Memoize expensive calculations
   const policiesWithCalculations = useMemo(() => {
     return policiesWithPayments.map(policy => {
-      const totalBalance = policy.payments.reduce(
+      const paymentsCleaned = policy.payments.map(p => {
+        const isResolved =
+          p.is_paid === true ||
+          (p.paid_amount && p.paid_amount > 0) ||
+          p.is_refunded === true ||
+          p.is_archive === true ||
+          p.payment_status === "refunded" ||
+          p.payment_status === "voided" ||
+          p.payment_status === "canceled" ||
+          p.payment_status === "cancelled";
+
+        return {
+          ...p,
+          is_paid: isResolved,
+          is_resolved: isResolved
+        };
+      });
+
+      const totalBalance = paymentsCleaned.reduce(
         (sum, p) => sum + (Number(p.amount_to_be_paid) || 0),
         0
       );
-      const pendingPayments = policy.payments.filter((p) => !p.is_paid);
-      
-      // Pre-calculate all penalties once
-      const paymentsWithPenalties = policy.payments.map(p => {
-        const penalty = !p.is_paid 
+
+      const pendingPayments = paymentsCleaned.filter((p) => !p.is_paid);
+
+      const paymentsWithPenalties = paymentsCleaned.map(p => {
+        const penalty = !p.is_paid
           ? calculatePenalty(p.payment_date, Number(p.amount_to_be_paid) || 0)
           : 0;
+
         return {
           ...p,
           penalty,
@@ -119,7 +149,7 @@ export default function Balances() {
           hasPenalty: !p.is_paid && penalty > 0
         };
       });
-      
+
       const totalPenalties = pendingPayments.reduce((sum, p) => {
         const penalty = calculatePenalty(p.payment_date, Number(p.amount_to_be_paid) || 0);
         return sum + penalty;
@@ -135,7 +165,6 @@ export default function Balances() {
     });
   }, [policiesWithPayments]);
 
-  // Prevent closing the modal via Escape key while open
   useEffect(() => {
     function trapEsc(e) {
       if (!showPaymentModal) return;
@@ -168,7 +197,6 @@ export default function Balances() {
         })
       );
 
-      // LIFO ordering for whole policy list
       policiesData.sort((a, b) => policyOrderKey(b) - policyOrderKey(a));
       setPoliciesWithPayments(policiesData);
     } catch (error) {
@@ -178,7 +206,6 @@ export default function Balances() {
     }
   }
 
-  // ✅ Use useCallback for event handlers
   const handlePayNowClick = useCallback((paymentId) => {
     setSelectedPaymentId(paymentId);
     setShowPaymentModal(true);
@@ -263,7 +290,6 @@ export default function Balances() {
                       {policy.paymentsWithPenalties.map((p) => {
                         return (
                           <div key={p.id} className="schedule-row">
-                            {/* Date → Amount → Status */}
                             <span className="schedule-date">
                               {formatDateLong(p.payment_date)}
                             </span>
@@ -274,10 +300,12 @@ export default function Balances() {
                               </span>
                               {p.hasPenalty && (
                                 <span className="schedule-penalty-text">
-                                  + ₱{p.penalty.toLocaleString(undefined, {
+                                  + ₱
+                                  {p.penalty.toLocaleString(undefined, {
                                     minimumFractionDigits: 2,
                                     maximumFractionDigits: 2
-                                  })} penalty
+                                  })}{" "}
+                                  penalty
                                 </span>
                               )}
                             </div>
@@ -294,7 +322,16 @@ export default function Balances() {
                                     : ""
                                 }
                               >
-                                {p.is_paid ? "✓ Paid" : "Pending"}
+                                {p.is_paid
+                                  ? p.is_refunded
+                                    ? "✓ Refunded"
+                                    : p.is_archive
+                                    ? "Archived"
+                                    : p.payment_status === "cancelled" ||
+                                      p.payment_status === "canceled"
+                                    ? "Cancelled"
+                                    : "✓ Paid"
+                                  : "Pending"}
                               </span>
                             </div>
                           </div>
@@ -309,10 +346,13 @@ export default function Balances() {
                       {policy.totalPenalties > 0 && (
                         <div className="schedule-penalties">
                           <span>Total Penalties</span>
-                          <span>₱ {policy.totalPenalties.toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                          })}</span>
+                          <span>
+                            ₱{" "}
+                            {policy.totalPenalties.toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2
+                            })}
+                          </span>
                         </div>
                       )}
                     </>
@@ -332,7 +372,9 @@ export default function Balances() {
 
                   {policy.pendingPayments.length > 0 ? (
                     policy.pendingPayments.map((p) => {
-                      const paymentData = policy.paymentsWithPenalties.find(pw => pw.id === p.id);
+                      const paymentData = policy.paymentsWithPenalties.find(
+                        (pw) => pw.id === p.id
+                      );
                       const isOverdue = isPaymentOverdue(p.payment_date);
                       const daysOverdue = getDaysOverdue(p.payment_date);
                       const originalIndex = policy.payments.findIndex(
@@ -345,19 +387,18 @@ export default function Balances() {
 
                       return (
                         <div key={p.id} className="pending-info">
-                          {/* Date first */}
                           <div className="date-col">
                             <span className={isOverdue ? "overdue-date" : ""}>
                               {formatDateLong(p.payment_date)}
                             </span>
                             {isOverdue && (
                               <span className="overdue-badge">
-                                {daysOverdue} day{daysOverdue > 1 ? "s" : ""} overdue
+                                {daysOverdue} day
+                                {daysOverdue > 1 ? "s" : ""} overdue
                               </span>
                             )}
                           </div>
 
-                          {/* Amount second */}
                           <div className="payment-amount-col">
                             <span className="base-amount">
                               ₱ {(Number(p.amount_to_be_paid) || 0).toLocaleString()}
@@ -365,13 +406,16 @@ export default function Balances() {
                             {paymentData.penalty > 0 && (
                               <>
                                 <span className="penalty-amount">
-                                  + ₱{paymentData.penalty.toLocaleString(undefined, {
+                                  + ₱
+                                  {paymentData.penalty.toLocaleString(undefined, {
                                     minimumFractionDigits: 2,
                                     maximumFractionDigits: 2
-                                  })} penalty
+                                  })}{" "}
+                                  penalty
                                 </span>
                                 <span className="total-amount">
-                                  Total: ₱{paymentData.totalWithPenalty.toLocaleString(undefined, {
+                                  Total: ₱
+                                  {paymentData.totalWithPenalty.toLocaleString(undefined, {
                                     minimumFractionDigits: 2,
                                     maximumFractionDigits: 2
                                   })}
@@ -380,11 +424,10 @@ export default function Balances() {
                             )}
                           </div>
 
-                          {/* Action third */}
                           <button
-                            className={`pay-now-btn ${isOverdue ? "overdue-btn" : ""} ${
-                              disabled ? "disabled-btn" : ""
-                            }`}
+                            className={`pay-now-btn ${
+                              isOverdue ? "overdue-btn" : ""
+                            } ${disabled ? "disabled-btn" : ""}`}
                             onClick={() => handlePayNowClick(p.id)}
                             disabled={processingPayment === p.id || disabled}
                             title={
@@ -414,9 +457,9 @@ export default function Balances() {
         })}
       </div>
 
-      {/* Payment Confirmation Modal - FIXED */}
+      {/* Payment Confirmation Modal */}
       {showPaymentModal && (
-        <div 
+        <div
           className="payment-modal-overlay"
           onClick={handleCloseModal}
         >
@@ -429,8 +472,8 @@ export default function Balances() {
           >
             <div className="payment-modal-header">
               <h2 id="payment-modal-title">Terms and Conditions</h2>
-              <button 
-                className="payment-modal-close" 
+              <button
+                className="payment-modal-close"
                 onClick={handleCloseModal}
                 aria-label="Close modal"
               >
@@ -453,24 +496,24 @@ export default function Balances() {
                 <label htmlFor="payment-terms" className="payment-terms-text">
                   <p className={showCheckboxError ? "error-text" : ""}>
                     By proceeding, I confirm that all payment details I have provided are accurate and correct. I understand and agree to the{" "}
-                    <a 
-                      href="/insurance-client-page/TermsAndConditions" 
-                      target="_blank" 
+                    <a
+                      href="/insurance-client-page/TermsAndConditions"
+                      target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
                     >
                       Terms and Conditions
-                    </a>
-                    {" "}and the{" "}
-                    <a 
-                      href="/insurance-client-page/PrivacyPolicy" 
-                      target="_blank" 
+                    </a>{" "}
+                    and the{" "}
+                    <a
+                      href="/insurance-client-page/PrivacyPolicy"
+                      target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
                     >
                       Privacy Policy
-                    </a>
-                    {" "}of Silverstar Insurance Agency Inc. I acknowledge that all payments are final and non-refundable once processed.
+                    </a>{" "}
+                    of Silverstar Insurance Agency Inc. I acknowledge that all payments are final and non-refundable once processed.
                   </p>
 
                   <p className={showCheckboxError ? "error-text" : ""}>
@@ -481,7 +524,7 @@ export default function Balances() {
             </div>
 
             <div className="payment-modal-footer">
-              <button 
+              <button
                 className="payment-process-btn"
                 onClick={handleConfirmPayment}
               >

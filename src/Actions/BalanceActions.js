@@ -4,7 +4,7 @@ import { db } from "../dbServer";
  * 🔹 Get all payments for a policy
  */
 export async function fetchPayments(policyId) {
-  console.log("🔍 Looking for payments with policy_id:", policyId, typeof policyId);
+  console.log("🔍 Looking for active payments with policy_id:", policyId, typeof policyId);
   
   // Check if any payments exist at all
   const { data: allPayments } = await db.from("payment_Table").select("policy_id").limit(5);
@@ -12,8 +12,9 @@ export async function fetchPayments(policyId) {
   
   const { data, error } = await db
     .from("payment_Table")
-    .select("id, payment_date, amount_to_be_paid, is_paid, paid_amount, policy_id")
+    .select("id, payment_date, amount_to_be_paid, is_paid, paid_amount, policy_id, is_refunded, is_archive, payment_status")
     .eq("policy_id", policyId)
+    .or("is_archive.eq.false,is_archive.is.null") // <-- CRITICAL FIX: Ensures records that are FALSE or NULL are fetched
     .order("payment_date", { ascending: true });
     
   console.log("Found payments:", data?.length || 0);
