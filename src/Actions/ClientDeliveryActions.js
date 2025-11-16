@@ -25,7 +25,8 @@ export async function getCurrentClient() {
 }
 
 /**
- * Fetch all active policies for this client
+ * ✅ UPDATED: Fetch all policies for this client (both active and inactive)
+ * Excludes only archived and voided policies
  */
 export async function fetchClientActivePolicies(clientUid) {
   if (!clientUid) return [];
@@ -33,10 +34,10 @@ export async function fetchClientActivePolicies(clientUid) {
   try {
     const { data, error } = await db
       .from("policy_Table")
-      .select("id, internal_id, policy_type, policy_inception, policy_expiry, policy_is_active, is_archived")
+      .select("id, internal_id, policy_type, policy_inception, policy_expiry, policy_is_active, is_archived, policy_status, void_reason, voided_date")
       .eq("client_id", clientUid)
-      .eq("policy_is_active", true)
-      .or("is_archived.is.null,is_archived.eq.false");
+      .or("is_archived.is.null,is_archived.eq.false") // Exclude archived policies
+      .or("policy_status.is.null,policy_status.neq.voided"); // ✅ Exclude voided policies
 
     if (error) {
       console.error("fetchClientActivePolicies error:", error.message);
