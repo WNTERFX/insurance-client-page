@@ -155,7 +155,7 @@ export default function ClientDeliveryCreationController({ onCancel, onDeliveryC
         ...addressPayload,
       });
 
-      showAlert("✅ Delivery scheduled successfully!", "Success");
+      showAlert(" Delivery scheduled successfully!", "Success");
 
       setTimeout(() => {
         if (typeof onDeliveryCreated === "function") onDeliveryCreated(created);
@@ -163,7 +163,7 @@ export default function ClientDeliveryCreationController({ onCancel, onDeliveryC
         else navigate("/appinsurance/ClientArea/Delivery");
       }, 1500);
     } catch (err) {
-      showAlert("❌ Failed to create delivery: " + (err?.message || err), "Error");
+      showAlert(" Failed to create delivery: " + (err?.message || err), "Error");
       console.error(err);
     } finally {
       setLoading(false);
