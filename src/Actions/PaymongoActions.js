@@ -1,132 +1,190 @@
-// Actions/PayMongoActions.js
 import { db } from "../dbServer";
 
 /**
- * Create a PayMongo payment intent and get checkout URL
+ * Create a PayMongo payment intent and get checkout URL.
+ * This will ALWAYS create checkout URLs matching the current environment.
  */
 export async function createPayMongoCheckout(paymentId) {
   try {
-    console.log("Creating checkout for payment ID:", paymentId);
-    
-    // ✅ Smart origin detection
-    const isLocalhost = window.location.hostname === 'localhost' || 
-                        window.location.hostname === '127.0.0.1';
-    
-    // If on localhost AND no env var set, use localhost
-    // If on production OR env var is set, use that
-    let finalOrigin;
-    
-    if (isLocalhost) {
-      // Check if we want to test with production URLs from localhost
-      finalOrigin = process.env.REACT_APP_PRODUCTION_URL || window.location.origin;
-    } else {
-      // In production, always use production URL (never localhost)
-      finalOrigin = process.env.REACT_APP_PRODUCTION_URL || 
-                    'https://insurance-client-page.vercel.app';
-    }
-    
-    // Construct URLs
+    console.log("=== CREATE PAYMONGO CHECKOUT ===");
+    console.log("Payment ID:", paymentId);
+
+    // Detect current environment
+    const isLocalhost =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+
+    // Determine origin based on environment
+    let finalOrigin = window.location.origin;
+    console.log(
+      isLocalhost
+        ? "✅ Running on LOCALHOST"
+        : `✅ Running on PRODUCTION (Origin: ${finalOrigin})`
+    );
+
+    // Construct redirect URLs
     const successUrl = `${finalOrigin}/insurance-client-page/main-portal/payment/success`;
     const failureUrl = `${finalOrigin}/insurance-client-page/main-portal/payment/failure`;
-    
- /*    console.log("=== Payment URLs ===");
-    console.log("Current Location:", window.location.href);
-    console.log("Hostname:", window.location.hostname);
-    console.log("Is Localhost:", isLocalhost);
-    console.log("Env Variable:", process.env.REACT_APP_PRODUCTION_URL);
+
+    console.log("Environment:", isLocalhost ? "LOCALHOST" : "PRODUCTION");
     console.log("Final Origin:", finalOrigin);
     console.log("Success URL:", successUrl);
     console.log("Failure URL:", failureUrl);
-     */
 
-    
+    // Safety check
+    if (
+      !isLocalhost &&
+      (successUrl.includes("localhost") || failureUrl.includes("localhost"))
+    ) {
+      console.error(
+        "🚨 CRITICAL ERROR: Production trying to use localhost URLs!"
+      );
+      throw new Error("Invalid redirect URLs detected");
+    }
+
     const requestBody = {
       payment_id: paymentId,
-      payment_method_allowed: ['gcash', 'paymaya', 'grab_pay', 'card'],
+      payment_method_allowed: ["gcash", "paymaya", "grab_pay", "card"],
       success_url: successUrl,
       failure_url: failureUrl,
     };
-    
-    console.log("Request body:", JSON.stringify(requestBody, null, 2));
-    
-    const { data, error } = await db.functions.invoke('paymongo-create-payment', {
-      body: requestBody
-    });
-    
-    console.log('=== Supabase Function Invoke Result ===');
-    console.log('data:', data);
-    console.log('error:', error);
-    
-    if (!data) {
-      throw new Error('No data returned from Supabase function');
-    }
-    if (!data.success) {
-      throw new Error(data.error || 'Function did not succeed');
-    }
-    if (!data.checkout_url) {
-      throw new Error('No checkout URL returned');
-    }
-    
+
+    console.log("Calling Edge Function with:", requestBody);
+
+    const { data, error } = await db.functions.invoke(
+      "paymongo-create-payment",
+      { body: requestBody }
+    );
+
+    console.log("Edge Function Response:", { data, error });
+
+    if (error) throw new Error(`Edge Function error: ${error.message}`);
+    if (!data) throw new Error("No data returned from Edge Function");
+    if (!data.success) throw new Error(data.error || "Function did not succeed");
+    if (!data.checkout_url) throw new Error("No checkout URL returned");
+
+    console.log("✅ Checkout created successfully:", data.checkout_url);
+
     return data;
   } catch (err) {
-    console.error('createPayMongoCheckout() failed:', err);
+    console.error("❌ createPayMongoCheckout() failed:", err);
     throw err;
   }
 }
 
 /**
- * Attach payment method to payment intent (for card payments)
+ * Check payment transaction status.
+ * Only returns transactions from the SAME environment.
  */
-export async function attachPaymentMethod(paymentIntentId, paymentMethodId, clientKey) {
+export async function checkPaymentTransaction(paymentId) {
   try {
-    const { data, error } = await db.functions.invoke('paymongo-attach-payment', {
-      body: {
-        payment_intent_id: paymentIntentId,
-        payment_method_id: paymentMethodId,
-        client_key: clientKey,
-      }
+    const { data, error } = await db
+      .from("paymongo_transactions")
+      .select("*")
+      .eq("payment_id", paymentId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Error checking transaction:", error);
+      return null;
+    }
+
+    if (!data) {
+      console.log("ℹ️ No existing transaction found");
+      return null;
+    }
+
+    console.log("🔍 Found existing transaction:", {
+      id: data.id,
+      status: data.status,
+      created_at: data.created_at,
+      checkout_url: data.checkout_url?.substring(0, 50) + "...",
     });
-    
-    if (error) throw error;
-    if (!data.success) throw new Error(data.error || 'Failed to attach payment method');
-    
+
+    // Environment check
+    const isLocalhost =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+
+    const savedUrlIsLocalhost =
+      data.checkout_url?.includes("localhost") ||
+      data.checkout_url?.includes("127.0.0.1");
+
+    const storedOrigin = data.raw_response?._metadata?.request_origin;
+    const storedOriginIsLocalhost =
+      storedOrigin?.includes("localhost") ||
+      storedOrigin?.includes("127.0.0.1");
+
+    console.log("🌐 Environment Check:", {
+      currentEnv: isLocalhost ? "LOCALHOST" : "PRODUCTION",
+      savedEnv: savedUrlIsLocalhost ? "LOCALHOST" : "PRODUCTION",
+      storedOrigin: storedOrigin || "not available",
+    });
+
+    // Reject if different environments
+    if (isLocalhost !== savedUrlIsLocalhost) {
+      console.log("❌ ENVIRONMENT MISMATCH - Creating new checkout");
+      return null;
+    }
+
+    // Check if payment is pending
+    const pendingStatuses = [
+      "awaiting_payment_method",
+      "awaiting_next_action",
+      "processing",
+    ];
+
+    if (!pendingStatuses.includes(data.status)) {
+      console.log("⏭️ Payment status changed:", data.status);
+      return null;
+    }
+
+    // Check expiration (1 hour)
+    const createdAt = new Date(data.created_at);
+    const now = new Date();
+    const hoursSinceCreation = (now - createdAt) / (1000 * 60 * 60);
+
+    if (hoursSinceCreation > 1) {
+      console.log("⏰ Checkout expired:", hoursSinceCreation.toFixed(2), "hours old");
+      return null;
+    }
+
+    console.log("✅ Transaction valid for reuse (same environment)");
     return data;
   } catch (error) {
-    console.error('PayMongo attach error:', error);
-    throw error;
+    console.error("Error in checkPaymentTransaction:", error);
+    return null;
   }
 }
 
 /**
- * Check payment transaction status
+ * Attach payment method to payment intent (for cards)
  */
-export async function checkPaymentTransaction(paymentId) {
-  const { data, error } = await db
-    .from('paymongo_transactions')
-    .select('*')
-    .eq('payment_id', paymentId)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  
-  if (error) {
-    console.error('Error checking transaction:', error);
-    return null;
+export async function attachPaymentMethod(
+  paymentIntentId,
+  paymentMethodId,
+  clientKey
+) {
+  try {
+    const { data, error } = await db.functions.invoke(
+      "paymongo-attach-payment",
+      {
+        body: {
+          payment_intent_id: paymentIntentId,
+          payment_method_id: paymentMethodId,
+          client_key: clientKey,
+        },
+      }
+    );
+
+    if (error) throw error;
+    if (!data.success) throw new Error(data.error || "Failed to attach payment method");
+
+    return data;
+  } catch (error) {
+    console.error("PayMongo attach error:", error);
+    throw error;
   }
-  
-  // ✅ Don't reuse checkout URLs if they're from a different origin
-  if (data?.checkout_url) {
-    const isLocalhost = window.location.hostname === 'localhost' || 
-                        window.location.hostname === '127.0.0.1';
-    const savedUrlIsLocalhost = data.checkout_url.includes('localhost') || 
-                                 data.checkout_url.includes('127.0.0.1');
-    
-    // If origins don't match, treat as no existing transaction
-    if (isLocalhost !== savedUrlIsLocalhost) {
-      console.log('🔄 Existing transaction has wrong origin, creating new checkout');
-      return null;
-    }
-  }
-  
-  return data;
 }
