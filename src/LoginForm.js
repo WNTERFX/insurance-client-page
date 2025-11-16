@@ -16,9 +16,8 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   
-  // Validation error states
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
+  // Single error state for login
+  const [loginError, setLoginError] = useState(false);
 
   // Password reset modal
   const [showResetModal, setShowResetModal] = useState(false);
@@ -39,12 +38,11 @@ export default function LoginForm() {
     e.preventDefault();
     
     // Clear previous errors
-    setEmailError("");
-    setPasswordError("");
+    setLoginError(false);
     
     // Check for empty fields before making API call
     if (!email.trim() || !password.trim()) {
-      setEmailError("Wrong Credentials - Invalid username or password");
+      setLoginError(true);
       return;
     }
     
@@ -53,25 +51,8 @@ export default function LoginForm() {
     setLoading(false);
 
     if (!result.success) {
-      // Check the type of error
-      const errorMessage = result.error?.toLowerCase() || "";
-      
-      // If email doesn't exist or invalid credentials (generic)
-      if (errorMessage.includes("invalid login credentials") || 
-          errorMessage.includes("user not found") ||
-          errorMessage.includes("email not confirmed")) {
-        setEmailError("Wrong Credentials - Invalid username or password");
-      }
-      // If password is incorrect (when email exists but password is wrong)
-      else if (errorMessage.includes("invalid password") || 
-               errorMessage.includes("password")) {
-        setPasswordError("The password you've entered is incorrect");
-      }
-      // Generic fallback
-      else {
-        setEmailError("Wrong Credentials - Invalid username or password");
-      }
-      
+      // Always show generic error message for any login failure
+      setLoginError(true);
       return;
     }
 
@@ -141,9 +122,9 @@ export default function LoginForm() {
           <img className="header-logo" src={require("./images/logo_.png")} alt="silverstar_insurance_inc_Logo" />
         </div>
 
-        <form className="login-form" onSubmit={handleLogin}>
-          {/* Email Error Banner - Shows above Email Address field */}
-          {emailError && (
+        <form className="login-form" onSubmit={handleLogin} noValidate>
+          {/* Generic Error Banner - Shows for any login error */}
+          {loginError && (
             <div className="alert alert-error" role="alert" aria-live="assertive">
               <strong>Wrong Credentials</strong>
               <span>Invalid username or password</span>
@@ -152,13 +133,14 @@ export default function LoginForm() {
 
           <label>Email Address</label>
           <input
-            type="email"
+            type="text"
             placeholder="Enter your email"
             value={email}
             onChange={(e) => {
               setEmail(e.target.value);
-              setEmailError(""); // Clear error when user types
+              setLoginError(false); // Clear error when user types
             }}
+            autoComplete="email"
           />
 
           <label>Password</label>
@@ -169,18 +151,14 @@ export default function LoginForm() {
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
-                setPasswordError(""); // Clear error when user types
+                setLoginError(false); // Clear error when user types
               }}
+              autoComplete="current-password"
             />
             <span onClick={togglePassword} className="eye-icon">
               {passwordVisible ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
-
-          {/* Password Error - Shows below Password field */}
-          {passwordError && (
-            <span className="field-error">{passwordError}</span>
-          )}
 
           <a href="#" className="forgot-password-client" onClick={(e) => {
             e.preventDefault();

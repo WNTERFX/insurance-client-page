@@ -13,7 +13,7 @@ export async function getCurrentClient() {
 
     const { data, error: clientError } = await db
       .from("clients_Table")
-      .select("uid, first_Name, family_Name, email, phone_Number, auth_id")
+      .select("uid, first_Name, family_Name, email, phone_Number, auth_id, agent_Id")
       .eq("auth_id", user.id)
       .maybeSingle();
 
@@ -212,6 +212,7 @@ async function uploadFilesToStorage(files, clientAuthId, claimId) {
 /**
  * Create a new claim record
  * Handles both client and moderator claim creation
+ * FIXED: Now properly assigns agent_id for both client and moderator claims
  */
 export async function createClientClaim({
   policyId,
@@ -237,6 +238,7 @@ export async function createClientClaim({
     const moderator = await getCurrentModerator();
     
     let clientAuthId;
+    let assignedAgentId = null;
     
     if (moderator) {
       // Moderator creating claim - get the client's auth_id from the policy
@@ -269,6 +271,7 @@ export async function createClientClaim({
       }
       
       clientAuthId = clientData.auth_id;
+      assignedAgentId = clientData.agent_Id; // Use the client's assigned agent
       
     } else {
       // Client creating their own claim
@@ -278,11 +281,15 @@ export async function createClientClaim({
       
       console.log('✅ Client creating claim:', client.uid);
       clientAuthId = client.auth_id;
+      
+      // FIXED: Get the client's assigned agent_Id
+      assignedAgentId = client.agent_Id;
+      console.log('📋 Client assigned agent:', assignedAgentId);
     }
 
     const now = new Date().toISOString();
     
-    // Build claim data
+    // Build claim data with proper agent_id
     const claimData = {
       policy_id: parseInt(policyId),
       type_of_incident: typeOfIncident,
@@ -293,7 +300,7 @@ export async function createClientClaim({
       status: 'Pending',
       is_approved: false,
       created_at: now,
-      agent_id: moderator?.id || null  // Set agent_id if moderator, null if client
+      agent_id: assignedAgentId  // FIXED: Always set the agent_id from client's agent_Id
     };
 
     console.log('📝 Claim data to insert:', claimData);
@@ -309,7 +316,7 @@ export async function createClientClaim({
       throw new Error("Failed to insert claim: " + error.message);
     }
 
-    console.log('✅ Claim created successfully:', claimRecord);
+    console.log('✅ Claim created successfully with agent_id:', claimRecord.agent_id);
 
     const allFiles = [...(photos || []), ...(documents || [])];
 
@@ -638,10 +645,6 @@ export async function uploadAdditionalFiles(claimId, files) {
   }
 }
 
-/**
- * Fetch voided policies for client
- * If moderatorId is provided, only return policies for clients assigned to that moderator
- */
 /**
  * Fetch voided policies for client
  * If moderatorId is provided, only return policies for clients assigned to that moderator
