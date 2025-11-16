@@ -186,8 +186,8 @@ export default function ProfilePage() {
             <label className="field-label">Name</label>
             <input className="field-input" value={agentName} readOnly />
 
-            <label className="field-label">Contact Number</label>
-            <input className="field-input" value={phonePretty(agent?.phone_number)} readOnly />
+          {/*  <label className="field-label">Contact Number</label>
+            <input className="field-input" value={phonePretty(agent?.phone_number)} readOnly />*/}
 
             <label className="field-label">Email Address</label>
             <input className="field-input" value={agent?.employee_email || "—"} readOnly />
