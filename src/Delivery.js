@@ -100,7 +100,7 @@ export default function Delivery() {
   //  Handle Policy Receive
   const handlePolicyReceive = (delivery) => {
     showConfirm(
-      "Are you sure you want to confirm receipt of this policy? This action cannot be undone.",
+      "Are you sure you want to confirm the proof of delivery for this policy? This action cannot be undone.",
       async () => {
         try {
           await markDeliveryCompleted(delivery.id);
@@ -110,7 +110,7 @@ export default function Delivery() {
           showAlert(` Failed to mark as completed: ${err.message}`, "Error");
         }
       },
-      "Confirm Policy Receipt"
+      "Confirm Proof of Delivery"
     );
   };
 
@@ -305,7 +305,7 @@ export default function Delivery() {
                             onClick={() => handlePolicyReceive(d)}
                             title="Confirm Policy Receipt"
                           >
-                            ✅ Policy Receive
+                            ✅ Policy Received
                           </button>
                         )}
                       </div>
