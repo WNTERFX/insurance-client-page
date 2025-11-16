@@ -167,7 +167,7 @@ export default function LoginForm() {
             Forgot password?
           </a>
           <button type="submit" className="login-button-client" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
+            Login
           </button>
 
           {/* Login Controls */}
