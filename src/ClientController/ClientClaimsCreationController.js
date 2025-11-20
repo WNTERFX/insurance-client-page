@@ -13,9 +13,7 @@ import DeleteConfirmationModal from '../ClientForms/DeleteConfirmationModal';
 import CustomAlertModal from '../ClientForms/CustomAlertModal';
 import { useDeclarePageHeader } from '../PageHeaderProvider'; 
 
-/** Local-timezone safe "today" -> "YYYY-MM-DD"
- *  Hoisted function declaration avoids TDZ issues in useState init.
- */
+/** Local-timezone safe "today" -> "YYYY-MM-DD" */
 function todayISO() {
   const d = new Date();
   const offsetMs = d.getTimezoneOffset() * 60 * 1000;
@@ -36,7 +34,7 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
   const [contactNumber, setContactNumber] = useState('');
   const [incidentLocation, setIncidentLocation] = useState('');
   const [incidentDate, setIncidentDate] = useState('');
-  const [claimDate, setClaimDate] = useState(() => todayISO()); // auto today
+  const [claimDate, setClaimDate] = useState(() => todayISO());
   const [estimatedDamage, setEstimatedDamage] = useState('');
   const [photos, setPhotos] = useState([]);
   const [documents, setDocuments] = useState([]);
@@ -56,16 +54,30 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
     title: 'Alert',
   });
 
+  // ===== FILE SIZE CONSTANTS =====
+  const MAX_TOTAL_SIZE = 20 * 1024 * 1024; // 20MB in bytes
+
   useDeclarePageHeader("My Claims", "Track and manage your insurance claims"); 
 
-  // Load current client and their policies (both active and voided)
+  // Calculate total file size
+  const getTotalFileSize = () => {
+    const photoSize = photos.reduce((sum, file) => sum + file.size, 0);
+    const docSize = documents.reduce((sum, file) => sum + file.size, 0);
+    return photoSize + docSize;
+  };
+
+  // Format bytes to MB
+  const formatBytes = (bytes) => {
+    return (bytes / (1024 * 1024)).toFixed(2);
+  };
+
+  // Load current client and their policies
   useEffect(() => {
     let mounted = true;
     async function load() {
       try {
         console.log('🔄 Loading user data...');
         
-        // Check if user is a moderator first
         const moderator = await getCurrentModerator();
         const client = await getCurrentClient();
 
@@ -86,8 +98,6 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
           console.log('✅ Moderator logged in:', moderator.id);
           setCurrentModerator(moderator);
           
-          // For moderator, we need to get the client from context or props
-          // This assumes the moderator is viewing a specific client's page
           if (client) {
             clientUid = client.uid;
             setCurrentClient(client);
@@ -109,7 +119,6 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
           setCurrentClient(client);
         }
 
-        // Fetch both active and voided policies (filtered by moderator if applicable)
         const [activePolicies, voidedPolicies] = await Promise.all([
           fetchClientActivePolicies(clientUid, moderatorId),
           fetchClientVoidedPolicies(clientUid, moderatorId),
@@ -118,7 +127,6 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
         console.log('✅ Active policies loaded:', activePolicies);
         console.log('✅ Voided policies loaded:', voidedPolicies);
 
-        // Filter out expired active policies
         const now = new Date();
         const nonExpiredActivePolicies = activePolicies.filter((policy) => {
           if (!policy.policy_expiry) return true;
@@ -128,11 +136,9 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
 
         console.log(`✅ Filtered ${nonExpiredActivePolicies.length} non-expired active policies`);
 
-        // Combine active and voided policies
         const allPolicies = [...nonExpiredActivePolicies, ...voidedPolicies];
         console.log(`✅ Total policies to display: ${allPolicies.length}`);
 
-        // Enrich all policies with claim data
         const enrichedPolicies = await enrichPoliciesWithClaimData(allPolicies);
         console.log('✅ Policies enriched with claim data:', enrichedPolicies);
 
@@ -167,6 +173,7 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
     }
   }, [selectPolicy, policies]);
 
+  // ===== UPDATED: Photo upload with file size validation =====
   const handlePhotoUpload = (event) => {
     const files = event.target.files;
 
@@ -178,6 +185,7 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
     console.log(`Selected ${files.length} photo(s)`);
     const filesArray = Array.from(files);
 
+    // Validate file types
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     const invalidFiles = filesArray.filter((file) => !validTypes.includes(file.type));
 
@@ -191,9 +199,26 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
       return;
     }
 
+    // Calculate new total size
+    const currentTotalSize = getTotalFileSize();
+    const newFilesSize = filesArray.reduce((sum, file) => sum + file.size, 0);
+    const newTotalSize = currentTotalSize + newFilesSize;
+
+    // Check if it exceeds 20MB
+    if (newTotalSize > MAX_TOTAL_SIZE) {
+      setAlertModal({
+        isOpen: true,
+        message: 'Max file size of 20MB exceeded.',
+        title: 'Alert',
+      });
+      event.target.value = null;
+      return;
+    }
+
     setPhotos((prevPhotos) => {
       const newPhotos = [...prevPhotos, ...filesArray];
       console.log(`Total photos: ${newPhotos.length}`);
+      console.log(`Total size: ${formatBytes(getTotalFileSize())} MB`);
       return newPhotos;
     });
 
@@ -207,44 +232,62 @@ export default function ClientClaimsCreationController({ onCancel, onClaimCreate
     setIsModalOpen(true);
   };
 
-const handleDocumentUpload = (event) => {
-  const files = event.target.files;
+  // ===== UPDATED: Document upload with file size validation =====
+  const handleDocumentUpload = (event) => {
+    const files = event.target.files;
 
-  if (!files || files.length === 0) {
-    console.log('No documents selected');
-    return;
-  }
+    if (!files || files.length === 0) {
+      console.log('No documents selected');
+      return;
+    }
 
-  console.log(`Selected ${files.length} document(s)`);
-  const filesArray = Array.from(files);
+    console.log(`Selected ${files.length} document(s)`);
+    const filesArray = Array.from(files);
 
-  // UPDATED: Only PDF and Word documents allowed (removed text/plain)
-  const validTypes = [
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-  ];
-  
-  const invalidFiles = filesArray.filter((file) => !validTypes.includes(file.type));
+    // Only PDF and Word documents allowed
+    const validTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    
+    const invalidFiles = filesArray.filter((file) => !validTypes.includes(file.type));
 
-  if (invalidFiles.length > 0) {
-    setAlertModal({
-      isOpen: true,
-      message: `Invalid file type(s): ${invalidFiles.map((f) => f.name).join(', ')}\n\nPlease upload only PDF or Word documents (.pdf, .doc, .docx)`,
-      title: 'Invalid File Type',
+    if (invalidFiles.length > 0) {
+      setAlertModal({
+        isOpen: true,
+        message: `Invalid file type(s): ${invalidFiles.map((f) => f.name).join(', ')}\n\nPlease upload only PDF or Word documents (.pdf, .doc, .docx)`,
+        title: 'Invalid File Type',
+      });
+      event.target.value = null;
+      return;
+    }
+
+    // Calculate new total size
+    const currentTotalSize = getTotalFileSize();
+    const newFilesSize = filesArray.reduce((sum, file) => sum + file.size, 0);
+    const newTotalSize = currentTotalSize + newFilesSize;
+
+    // Check if it exceeds 20MB
+    if (newTotalSize > MAX_TOTAL_SIZE) {
+      setAlertModal({
+        isOpen: true,
+        message: 'Max file size of 20MB exceeded.',
+        title: 'Alert',
+      });
+      event.target.value = null;
+      return;
+    }
+
+    setDocuments((prevDocuments) => {
+      const newDocuments = [...prevDocuments, ...filesArray];
+      console.log(`Total documents: ${newDocuments.length}`);
+      console.log(`Total size: ${formatBytes(getTotalFileSize())} MB`);
+      return newDocuments;
     });
+
     event.target.value = null;
-    return;
-  }
-
-  setDocuments((prevDocuments) => {
-    const newDocuments = [...prevDocuments, ...filesArray];
-    console.log(`Total documents: ${newDocuments.length}`);
-    return newDocuments;
-  });
-
-  event.target.value = null;
-};
+  };
 
   const handleDeleteDocument = (fileToDelete) => {
     console.log(`Requesting to delete document: ${fileToDelete.name}`);
@@ -285,14 +328,13 @@ const handleDocumentUpload = (event) => {
   const validateForm = () => {
     const newErrors = {};
 
-    // Validate incident types
     if (incidentTypes.length === 0) {
       newErrors.incidentTypes = true;
     }
 
     if (!selectPolicy) newErrors.selectPolicy = true;
     if (!incidentDate) newErrors.incidentDate = true;
-    if (!claimDate) newErrors.claimDate = true; // should always be present
+    if (!claimDate) newErrors.claimDate = true;
     if (!estimatedDamage || estimatedDamage === '') newErrors.estimatedDamage = true;
 
     setErrors(newErrors);
@@ -310,6 +352,17 @@ const handleDocumentUpload = (event) => {
       setAlertModal({
         isOpen: true,
         message: 'There is no Attachment of Documents!',
+        title: 'Alert',
+      });
+      return false;
+    }
+
+    // ===== ADDED: Validate total file size before submission =====
+    const totalSize = getTotalFileSize();
+    if (totalSize > MAX_TOTAL_SIZE) {
+      setAlertModal({
+        isOpen: true,
+        message: 'Max file size of 20MB exceeded.',
         title: 'Alert',
       });
       return false;
@@ -366,6 +419,7 @@ const handleDocumentUpload = (event) => {
       claimAmount: estimatedDamage,
       photosCount: photos.length,
       documentsCount: documents.length,
+      totalSize: formatBytes(getTotalFileSize()) + ' MB',
       isModerator: !!currentModerator,
     });
 
@@ -392,13 +446,13 @@ const handleDocumentUpload = (event) => {
 
       console.log('✅ Claim created successfully:', createdClaim);
 
-      // Reset form (keep claim date auto today)
+      // Reset form
       setIncidentTypes([]);
       setSelectPolicy('');
       setDescription('');
       setIncidentLocation('');
       setIncidentDate('');
-      setClaimDate(todayISO()); // auto again
+      setClaimDate(todayISO());
       setEstimatedDamage('');
       setPhotos([]);
       setDocuments([]);

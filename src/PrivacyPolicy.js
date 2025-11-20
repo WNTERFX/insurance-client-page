@@ -1,100 +1,26 @@
-import React, { useState } from "react";
-import { Link, useLocation } from 'react-router-dom';
-import './styles/PrivacyPolicy.css'; // CSS for styling this page
-import SilverstarLOGO from "./images/SilverStar.png";
+import React, { useState, useEffect } from "react";
+import './styles/PrivacyPolicy.css';
+import SharedHeader from "./SharedHeader"; // Use shared header
+import { db } from "./dbServer";
 
 export default function PrivacyPolicy() {
-    const [menuOpen, setMenuOpen] = useState(false);
-    const location = useLocation();
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-    // Function to handle navigation link clicks and scroll to top
-    const handleNavClick = () => {
-        setMenuOpen(false);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    // Function to check if a nav link is active
-    const isActiveLink = (path) => {
-        return location.pathname === path;
-    };
+    useEffect(() => {
+        const checkAuth = async () => {
+            try {
+                const { data: { user } } = await db.auth.getUser();
+                setIsAuthenticated(!!user);
+            } catch (error) {
+                setIsAuthenticated(false);
+            }
+        };
+        checkAuth();
+    }, []);
 
     return (
         <div className="PPolicy">
-            {/* Header */}
-            <header className="top-bar-container">
-                {/* Brand row: logo + burger (burger sits to the RIGHT of the logo) */}
-                <div className="brand">
-                    <Link
-                        to="/"
-                        className="logo-container"
-                        onClick={handleNavClick}
-                        aria-label="Go to Home — Silverstar Insurance Agency"
-                    >
-                        <img src={SilverstarLOGO} alt="Silverstar Insurance — Home" className="logo" />
-
-                    </Link>
-
-                    {/* Burger right of the logo */}
-                    <button
-                        className={`hamburger ${menuOpen ? "is-open" : ""}`}
-                        onClick={() => setMenuOpen(!menuOpen)}
-                        aria-label="Toggle menu"
-                        aria-expanded={menuOpen}
-                        aria-controls="primary-navigation"
-                    >
-                        ☰
-                    </button>
-                </div>
-
-                {/* Nav Links */}
-                <nav
-                    id="primary-navigation"
-                    className={`nav-links ${menuOpen ? "active" : ""}`}
-                >
-                    <Link
-                        to="/"
-                        className={`nav-link ${isActiveLink('/') ? 'active' : ''}`}
-                        onClick={handleNavClick}
-                    >
-                        Home
-                    </Link>
-                    <Link
-                        to="/insurance-client-page/Partners"
-                        className={`nav-link ${isActiveLink('/insurance-client-page/Partners') ? 'active' : ''}`}
-                        onClick={handleNavClick}
-                    >
-                        Partners
-                    </Link>
-                    <Link
-                        to="/insurance-client-page/FAQs"
-                        className={`nav-link ${isActiveLink('/insurance-client-page/FAQs') ? 'active' : ''}`}
-                        onClick={handleNavClick}
-                    >
-                        FAQs
-                    </Link>
-                    <Link
-                        to="/insurance-client-page/AboutUs"
-                        className={`nav-link ${isActiveLink('/insurance-client-page/AboutUs') ? 'active' : ''}`}
-                        onClick={handleNavClick}
-                    >
-                        About Us
-                    </Link>
-                    <Link
-                        to="/insurance-client-page/Contact"
-                        className={`nav-link ${isActiveLink('/insurance-client-page/Contact') ? 'active' : ''}`}
-                        onClick={handleNavClick}
-                    >
-                        Contact
-                    </Link>
-                    <a
-                        href="/insurance-client-page/login"
-                        className="login-button"
-                        onClick={handleNavClick}
-                    >
-                        Log in
-                    </a>
-                </nav>
-            </header>
+            <SharedHeader showFullNav={!isAuthenticated} />
 
             <div className="PrivacyP">
                 <h1>Privacy Policy – Silverstar Insurance Agency Inc.</h1>
@@ -161,9 +87,8 @@ export default function PrivacyPolicy() {
                     <li>To exercise these rights, contact our Data Protection Officer (details below).</li>
                 </ul>
 
-
                 <h2>IX. Changes to This Policy</h2>
-                <p >We may update this Privacy Policy from time to time. Changes will be posted on the portal and communicated via email or SMS. Continued use of the portal implies acceptance of the updated policy.</p>
+                <p>We may update this Privacy Policy from time to time. Changes will be posted on the portal and communicated via email or SMS. Continued use of the portal implies acceptance of the updated policy.</p>
 
                 <h2>X. Contact Information</h2>
                 <p>For privacy concerns or data access requests, contact:</p>
@@ -171,18 +96,14 @@ export default function PrivacyPolicy() {
                     Data Protection Officer Silverstar Insurance Agency Inc.<br />
                     Room 210, 2nd Floor, No. 20 Shorthorn Street, Barangay Bahay Toro, Project 8, Quezon City<br />
                     +63 921 9605-8176<br />
-                    sira.mktg2@gmail.com
+                    aira.mktg2@gmail.com
                 </p>
             </div>
+
             <div className="copyright-footer">
                 <hr className="footer-divider" />
                 <p>Copyright © 2025 Silverstar Insurance Agency. All rights reserved.</p>
             </div>
-
-
         </div>
     );
-
-
 }
-

@@ -6,15 +6,13 @@ import { fetchClientClaims, getClaimDocumentUrls } from "./Actions/ClaimsActions
 import { db } from "./dbServer";
 import UploadFilesModal from "./ClientForms/UploadFilesModal";
 import { MapPin, Calendar, Phone, FileText, Upload, User, Building2, Banknote, AlertTriangle, X, Eye, Download } from "lucide-react";
-import { useDeclarePageHeader } from "./PageHeaderProvider"; // <-- global header
+import { useDeclarePageHeader } from "./PageHeaderProvider";
 
 export default function Claims() {
-  // Declare page header for the global Topbar
   useDeclarePageHeader("My Claims", "Track and manage your insurance claims");
 
   const navigate = useNavigate();
 
-  // Claims display state
   const [authUser, setAuthUser] = useState(null);
   const [claims, setClaims] = useState([]);
   const [clientData, setClientData] = useState(null);
@@ -24,8 +22,6 @@ export default function Claims() {
   const [expandedDocument, setExpandedDocument] = useState(null);
   const [loadingDocuments, setLoadingDocuments] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [showMessageModal, setShowMessageModal] = useState(false);
-  const [currentMessage, setCurrentMessage] = useState('');
   const [loading, setLoading] = useState(true);
 
   // Load auth user for claims
@@ -72,10 +68,6 @@ export default function Claims() {
         setClaims(data);
         if (data.length > 0 && !selectedClaim) {
           setSelectedClaim(data[0]);
-          if (data[0].message && data[0].message.trim() !== '') {
-            setCurrentMessage(data[0].message);
-            setShowMessageModal(true);
-          }
         }
       } catch (err) {
         console.error("Error loading claims:", err);
@@ -165,7 +157,6 @@ export default function Claims() {
 
   const formatDate = (dateString) => (!dateString ? "N/A" : new Date(dateString).toLocaleDateString("en-CA"));
 
-  // Determine which progress items to show based on status
   const getProgressItems = (claim) => {
     const items = [];
 
@@ -323,9 +314,7 @@ export default function Claims() {
 
   return (
     <div className="claims-page-container">
-      {/* Content Section */}
       <div className="claims-content">
-        {/* Action Button */}
         <div className="claims-action-section">
           <div className="claims-header-row">
             <h2 className="claims-count-title">Claims ({claims.length})</h2>
@@ -338,7 +327,6 @@ export default function Claims() {
           </div>
         </div>
 
-        {/* Claims Display Section */}
         <div className="claims-display-container">
           {loading ? (
             <div className="loading-message">
@@ -348,7 +336,6 @@ export default function Claims() {
             <p className="no-claims-text">No claims found</p>
           ) : (
             <>
-              {/* Claims List */}
               <div className="claims-list-section">
                 {claims.map((claim) => (
                   <div
@@ -384,14 +371,12 @@ export default function Claims() {
                 ))}
               </div>
 
-              {/* Selected Claim Details */}
               {selectedClaim && (
                 <div className="claim-details-section">
                   <div className="claim-overview-middle">
                     <h2 className="claim-id-header">Claim ID: {selectedClaim.id}</h2>
                     <hr className="claim-id-divider" />
 
-                    {/* Client Information Card */}
                     <div className="info-card-claims">
                       <h3>Client Information</h3>
                       <div className="info-grid-claims">
@@ -423,7 +408,6 @@ export default function Claims() {
                       </div>
                     </div>
 
-                    {/* Vehicle Information Card */}
                     <div className="info-card-claims">
                       <h3>Vehicle Information</h3>
                       <div className="info-grid-claims">
@@ -447,7 +431,6 @@ export default function Claims() {
                     </div>
                   </div>
 
-                  {/* Claim Progress Section */}
                   <div className="claim-details-right">
                     <h3>Claim Progress</h3>
                     <div className="claim-progress-timeline">
@@ -485,16 +468,6 @@ export default function Claims() {
                         <Upload size={20} /> Upload Files
                       </button>
                     </div>
-
-                    {/* Notice Message Section */}
-                    {selectedClaim.message && selectedClaim.message.trim() !== '' && (
-                      <div className="notice-message-section">
-                        <h4>Notice Message:</h4>
-                        <div className="notice-message-box">
-                          {selectedClaim.message}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
               )}
@@ -503,7 +476,6 @@ export default function Claims() {
         </div>
       </div>
 
-      {/* Upload Files Modal */}
       {showUploadModal && (
         <UploadFilesModal
           isOpen={showUploadModal}
@@ -513,7 +485,6 @@ export default function Claims() {
         />
       )}
 
-      {/* Documents Modal */}
       {showDocumentsModal && (
         <div className="modal-overlay-view-document" onClick={closeModal}>
           <div className="modal-content-view-document" onClick={(e) => e.stopPropagation()}>
@@ -550,10 +521,7 @@ export default function Claims() {
                       </div>
                     </div>
 
-                    <div
-                      className="document-preview"
-                      style={{ cursor: 'default' }}
-                    >
+                    <div className="document-preview" style={{ cursor: 'default' }}>
                       {doc.isImage ? (
                         <img src={doc.url} alt={doc.name} className="preview-image" />
                       ) : doc.isPDF ? (
@@ -584,7 +552,6 @@ export default function Claims() {
         </div>
       )}
 
-      {/* Expanded Document Modal */}
       {expandedDocument && (
         <div className="expanded-modal-overlay" onClick={() => setExpandedDocument(null)}>
           <div className="expanded-modal-content" onClick={(e) => e.stopPropagation()}>

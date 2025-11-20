@@ -1,11 +1,8 @@
 import "./styles/login-styles.css";
-import logo from "./images/logo.png";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { loginClient } from "./Actions/LoginActions";
-import { db } from "./dbServer"; // Supabase client
-import "./images/logo_.png"
-
+import { db } from "./dbServer";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function LoginForm() {
@@ -13,34 +10,52 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   
-  // Single error state for login
+  // Error states
   const [loginError, setLoginError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("Invalid username or password");
+  const [isAlreadyLoggedInError, setIsAlreadyLoggedInError] = useState(false);
 
-  // Password reset modal
+  // Password reset modal states
   const [showResetModal, setShowResetModal] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
-  const [userName, setUserName] = useState("");
   const [resetLoading, setResetLoading] = useState(false);
   const [resetError, setResetError] = useState("");
   const [resetSuccess, setResetSuccess] = useState("");
 
-  const toggleShowPassword = () => setShowPassword((prev) => !prev);
+  useEffect(() => {
+    async function checkExistingSession() {
+      try {
+        const { data: { session }, error } = await db.auth.getSession();
+        
+        if (session && !error) {
+          console.log("✅ User already logged in, redirecting to portal");
+          navigate("/insurance-client-page/main-portal/Home", { replace: true });
+        }
+      } catch (err) {
+        console.error("Error checking session:", err);
+      } finally {
+        setCheckingAuth(false);
+      }
+    }
+
+    checkExistingSession();
+  }, [navigate]);
 
   const togglePassword = () => {
     setPasswordVisible(!passwordVisible);
   };
 
-  // Login
   const handleLogin = async (e) => {
     e.preventDefault();
     
     // Clear previous errors
     setLoginError(false);
+    setErrorMessage("Invalid username or password");
+    setIsAlreadyLoggedInError(false);
     
-    // Check for empty fields before making API call
     if (!email.trim() || !password.trim()) {
       setLoginError(true);
       return;
@@ -51,52 +66,46 @@ export default function LoginForm() {
     setLoading(false);
 
     if (!result.success) {
-      // Always show generic error message for any login failure
       setLoginError(true);
+      
+      // ✅ Show specific error message for already logged in
+      if (result.isAlreadyLoggedIn) {
+        setErrorMessage(result.error);
+        setIsAlreadyLoggedInError(true);
+      } else {
+        setErrorMessage("Invalid username or password");
+        setIsAlreadyLoggedInError(false);
+      }
       return;
     }
 
     navigate("/insurance-client-page/main-portal/Home");
   };
 
-  // Send password reset email
   const handleSendResetEmail = async () => {
     setResetLoading(true);
     setResetError("");
     setResetSuccess("");
 
-    // Validate email format
     if (!resetEmail || !resetEmail.includes('@')) {
       setResetError("Please enter a valid email address");
       setResetLoading(false);
       return;
     }
 
-    // Construct the redirect URL
     const redirectUrl = window.location.hostname === 'localhost' 
       ? 'http://localhost:3000/insurance-client-page/reset-password'
       : 'https://insurance-client-page.vercel.app/insurance-client-page/reset-password';
-
-    console.log("Sending reset email to:", resetEmail);
-    console.log("Redirect URL:", redirectUrl);
 
     try {
       const { data, error } = await db.auth.resetPasswordForEmail(resetEmail, {
         redirectTo: redirectUrl,
       });
 
-      console.log("Supabase response:", { data, error });
+      if (error) throw error;
 
-      if (error) {
-        console.error("Supabase error:", error);
-        throw error;
-      }
-
-      // Success - even if email doesn't exist, Supabase returns success for security
       setResetSuccess("If an account exists with this email, you'll receive a password reset link shortly.");
-      
     } catch (error) {
-      console.error("Caught error:", error);
       setResetError(error.message || "Failed to send password reset email.");
     } finally {
       setResetLoading(false);
@@ -106,10 +115,23 @@ export default function LoginForm() {
   const closeResetModal = () => {
     setShowResetModal(false);
     setResetEmail("");
-    setUserName("");
     setResetError("");
     setResetSuccess("");
   };
+
+  if (checkingAuth) {
+    return (
+      <div style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+        fontFamily: "'Montserrat', sans-serif"
+      }}>
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <div className="login-page">
@@ -123,11 +145,11 @@ export default function LoginForm() {
         </div>
 
         <form className="login-form" onSubmit={handleLogin} noValidate>
-          {/* Generic Error Banner - Shows for any login error */}
+          {/* Error Banner */}
           {loginError && (
-            <div className="alert alert-error" role="alert" aria-live="assertive">
-              <strong>Wrong Credentials</strong>
-              <span>Invalid username or password</span>
+            <div className={`alert ${isAlreadyLoggedInError ? 'alert-warning' : 'alert-error'}`} role="alert" aria-live="assertive">
+              <strong>{isAlreadyLoggedInError ? 'Already Logged In' : 'Wrong Credentials'}</strong>
+              <span>{errorMessage}</span>
             </div>
           )}
 
@@ -138,7 +160,7 @@ export default function LoginForm() {
             value={email}
             onChange={(e) => {
               setEmail(e.target.value);
-              setLoginError(false); // Clear error when user types
+              setLoginError(false);
             }}
             autoComplete="email"
           />
@@ -151,7 +173,7 @@ export default function LoginForm() {
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
-                setLoginError(false); // Clear error when user types
+                setLoginError(false);
               }}
               autoComplete="current-password"
             />
@@ -166,77 +188,42 @@ export default function LoginForm() {
           }}>
             Forgot password?
           </a>
+          
           <button type="submit" className="login-button-client" disabled={loading}>
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
 
-          {/* Login Controls */}
           <div className="login-controls">
             <p>Don't have an account?</p>
-            <a href="/insurance-client-page/signup" type="button" >
-              Sign Up
-            </a>
+            <a href="/insurance-client-page/signup">Sign Up</a>
           </div>
         </form>
       </div>
 
       {/* Password Reset Modal */}
       {showResetModal && (
-        <div
-          className="rp-overlay"
-          onClick={closeResetModal}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="rp-title"
-        >
-          <div
-            className="rp-modal"
-            onClick={(e) => e.stopPropagation()}
-            tabIndex={-1}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") closeResetModal();
-              if (e.key === "Enter" && !resetLoading) handleSendResetEmail();
-            }}
-          >
+        <div className="rp-overlay" onClick={closeResetModal}>
+          <div className="rp-modal" onClick={(e) => e.stopPropagation()}>
             <div className="rp-header">
-              <h3 id="rp-title">Reset password</h3>
-              <button
-                type="button"
-                className="rp-close"
-                aria-label="Close"
-                onClick={closeResetModal}
-              >
-                ×
-              </button>
+              <h3>Reset password</h3>
+              <button type="button" className="rp-close" onClick={closeResetModal}>×</button>
             </div>
-
             <hr className="rp-divider" />
-
             <div className="rp-body">
-              {/* Error Banner */}
               {resetError && (
-                <div className="alert alert-error" role="alert" aria-live="assertive">
+                <div className="alert alert-error">
                   <strong>Error</strong>
-                  <span id="reset-error-text">{resetError}</span>
+                  <span>{resetError}</span>
                 </div>
               )}
-
-              <label className="rp-label">
-                Email Address <span className="rp-star">*</span>
-              </label>
-
+              <label className="rp-label">Email Address <span className="rp-star">*</span></label>
               <input
                 type="email"
                 className="rp-input"
                 placeholder="you@gmail.com"
                 value={resetEmail}
-                onChange={(e) => {
-                  setResetEmail(e.target.value);
-                }}
-                aria-describedby={resetError ? "reset-error-text" : undefined}
-                required
+                onChange={(e) => setResetEmail(e.target.value)}
               />
-
               <div className="rp-actions">
                 <button
                   type="button"
@@ -247,7 +234,6 @@ export default function LoginForm() {
                   {resetLoading ? "Sending..." : "Send reset link"}
                 </button>
               </div>
-
               {resetSuccess && <p className="rp-msg rp-success">{resetSuccess}</p>}
             </div>
           </div>

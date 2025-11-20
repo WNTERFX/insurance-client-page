@@ -37,7 +37,8 @@ export async function fetchClientActivePolicies(clientUid) {
       .select("id, internal_id, policy_type, policy_inception, policy_expiry, policy_is_active, is_archived, policy_status, void_reason, voided_date")
       .eq("client_id", clientUid)
       .or("is_archived.is.null,is_archived.eq.false") // Exclude archived policies
-      .or("policy_status.is.null,policy_status.neq.voided"); // ✅ Exclude voided policies
+      .or("policy_status.is.null,policy_status.neq.voided") //  Exclude voided policies
+      .order("created_at", { ascending: false });
 
     if (error) {
       console.error("fetchClientActivePolicies error:", error.message);

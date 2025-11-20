@@ -2,6 +2,179 @@
  * Styling for the Terms and Conditions Page
  * Replicates the style from the Standard Insurance image.
  */
+
+:root {
+  --primary-purple: #402158;
+  --white: #ffffff;
+  --dark-grey: #333333;
+  --light-grey: #f5f5f5;
+}
+
+/* --- TopBar / Header --- */
+.top-bar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 3rem;
+  background-color: #402158;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  top: auto;
+  z-index: 1000;
+  height: 70px;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  text-decoration: none;
+}
+
+.logo {
+  height: 55px;
+  width: auto;
+}
+
+.company-name {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--white);
+  letter-spacing: 0.8px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2.2rem;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: var(--white);
+  font-weight: 500;
+  font-size: 1.05rem;
+  position: relative;
+  padding-bottom: 5px;
+  transition: color 0.2s ease-out, transform 0.1s ease-out;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--white);
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--white);
+  transform: translateY(-2px);
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.nav-link.active::after {
+  width: 100%;
+}
+
+.login-button {
+  padding: 0.6rem 1.2rem;
+  background-color: var(--white);
+  color: var(--dark-grey);
+  text-decoration: none;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.login-button:hover {
+  background-color: var(--light-grey);
+  color: var(--primary-purple);
+  transform: translateY(-2px);
+}
+
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--white);
+  font-size: 2.5rem;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+/* Mobile nav dropdown under header */
+@media (max-width: 768px) {
+  .top-bar-container {
+    padding: 1rem 1.5rem;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: var(--primary-purple);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    padding: 20px 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-12px);
+    transition: opacity .3s ease, visibility .3s ease, transform .3s ease;
+    z-index: 999;
+    gap: 0;
+  }
+
+  .nav-links.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .nav-link {
+    width: 100%;
+    padding: 1rem 2rem;
+    text-align: left;
+  }
+
+  .nav-link::after {
+    display: none;
+  }
+
+  .login-button {
+    margin: 1rem 2rem;
+    width: calc(100% - 4rem);
+    text-align: center;
+  }
+
+  .hamburger {
+    display: block;
+  }
+}
+
+@media (max-width: 480px) {
+  .top-bar-container {
+    padding: 0.75rem 1rem;
+    height: 60px;
+  }
+
+  .logo {
+    height: 45px;
+  }
+}
+
+
+
 .TNCPolicy {
   /* Use a modern, clean sans-serif font. 'Roboto' or 'Lato' are good web-safe alternatives. */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;

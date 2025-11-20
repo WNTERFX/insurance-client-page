@@ -1,101 +1,12 @@
-import React, { useState } from "react";
-import { Link, useLocation } from 'react-router-dom';
-import './styles/TermsAndConditions.css'; // CSS for styling this page
-import SilverstarLOGO from "./images/SilverStar.png";
-
+import React from "react";
+import './styles/TermsAndConditions.css';
+import SharedHeader from "./SharedHeader"; // Import the shared header
 
 export default function TermsAndConditions() {
-    const [menuOpen, setMenuOpen] = useState(false);
-    const location = useLocation();
-
-    // Function to handle navigation link clicks and scroll to top
-    const handleNavClick = () => {
-        setMenuOpen(false);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    // Function to check if a nav link is active
-    const isActiveLink = (path) => {
-        return location.pathname === path;
-    };
     return (
         <div className="TNC">
-
-            {/* Header */}
-            <header className="top-bar-container">
-                {/* Brand row: logo + burger (burger sits to the RIGHT of the logo) */}
-                <div className="brand">
-                    <Link
-                        to="/"
-                        className="logo-container"
-                        onClick={handleNavClick}
-                        aria-label="Go to Home — Silverstar Insurance Agency"
-                    >
-                        <img src={SilverstarLOGO} alt="Silverstar Insurance — Home" className="logo" />
-
-                    </Link>
-
-                    {/* Burger right of the logo */}
-                    <button
-                        className={`hamburger ${menuOpen ? "is-open" : ""}`}
-                        onClick={() => setMenuOpen(!menuOpen)}
-                        aria-label="Toggle menu"
-                        aria-expanded={menuOpen}
-                        aria-controls="primary-navigation"
-                    >
-                        ☰
-                    </button>
-                </div>
-
-                {/* Nav Links */}
-                <nav
-                    id="primary-navigation"
-                    className={`nav-links ${menuOpen ? "active" : ""}`}
-                >
-                    <Link
-                        to="/"
-                        className={`nav-link ${isActiveLink('/') ? 'active' : ''}`}
-                        onClick={handleNavClick}
-                    >
-                        Home
-                    </Link>
-                    <Link
-                        to="/insurance-client-page/Partners"
-                        className={`nav-link ${isActiveLink('/insurance-client-page/Partners') ? 'active' : ''}`}
-                        onClick={handleNavClick}
-                    >
-                        Partners
-                    </Link>
-                    <Link
-                        to="/insurance-client-page/FAQs"
-                        className={`nav-link ${isActiveLink('/insurance-client-page/FAQs') ? 'active' : ''}`}
-                        onClick={handleNavClick}
-                    >
-                        FAQs
-                    </Link>
-                    <Link
-                        to="/insurance-client-page/AboutUs"
-                        className={`nav-link ${isActiveLink('/insurance-client-page/AboutUs') ? 'active' : ''}`}
-                        onClick={handleNavClick}
-                    >
-                        About Us
-                    </Link>
-                    <Link
-                        to="/insurance-client-page/Contact"
-                        className={`nav-link ${isActiveLink('/insurance-client-page/Contact') ? 'active' : ''}`}
-                        onClick={handleNavClick}
-                    >
-                        Contact
-                    </Link>
-                    <a
-                        href="/insurance-client-page/login"
-                        className="login-button"
-                        onClick={handleNavClick}
-                    >
-                        Log in
-                    </a>
-                </nav>
-            </header>
+            {/* SharedHeader automatically detects authentication and shows/hides nav */}
+            <SharedHeader showFullNav={true} />
 
             <div className="TNCPolicy">
                 <h2>Terms and Conditions</h2>
@@ -200,20 +111,6 @@ export default function TermsAndConditions() {
                 </div>
 
                 <div className="tnc-section">
-                    {/* This "Limitation of Liability" section appears duplicated in the source image. */}
-                    {/* I have included it twice to be accurate, but you may want to remove one. */}
-                    <h3>Limitation of Liability</h3>
-                    <p>
-                        The Silverstar Portal is provided to help clients manage insurance transactions efficiently. Silverstar Insurance Agency Inc. will not be responsible for:
-                    </p>
-                    <ul>
-                        <li>Losses due to incorrect client input or negligence.</li>
-                        <li>Unsuccessful payments caused by third-party providers.</li>
-                        <li>Damages resulting from unauthorized account use or internet connection issues.</li>
-                    </ul>
-                </div>
-
-                <div className="tnc-section">
                     <h3>Limitation of Liability</h3>
                     <p>
                         The Silverstar Portal is provided to help clients manage insurance transactions efficiently. Silverstar Insurance Agency Inc. will not be responsible for:
@@ -232,7 +129,6 @@ export default function TermsAndConditions() {
                     </p>
                 </div>
 
-
                 <div className="tnc-section">
                     <h3>Governing Law</h3>
                     <p>
@@ -240,38 +136,37 @@ export default function TermsAndConditions() {
                     </p>
                 </div>
 
-
                 <h3 className="main-subtitle">SILVERSTAR PORTAL - PAYMENT TERMS AND CONDITION</h3>
+                
                 <div className="tnc-section">
-                    <h3>1. Acceptance of Payment Terms  </h3>
+                    <h3>1. Acceptance of Payment Terms</h3>
                     <p>
-                        By registering and using the Silverstar Portal, you agree to comply with these Terms and Conditions. Please read them carefully before using the system. If you do not agree, you may stop using the portal at any time.
+                        By using the payment features of the Silverstar Portal, you acknowledge that you have read, understood, and agreed to these Payment Terms and Conditions.
                     </p>
                 </div>
 
                 <div className="tnc-section">
-                    <h3>2. Authorized Payment Methods    </h3>
-                    <p>
-                        Payments may be made using the following methods:
-                    </p>
+                    <h3>2. Authorized Payment Methods</h3>
+                    <p>Payments may be made using the following methods:</p>
                     <ul>
                         <li>Online transactions through approved payment gateways (e.g., PayMongo).</li>
-                        <li>Bank deposits, credit/debit card payments, or other methods authorized by Silverstar Insurance  Agency Inc.</li>
+                        <li>Bank deposits, credit/debit card payments, or other methods authorized by Silverstar Insurance Agency Inc.</li>
                     </ul>
                 </div>
 
                 <div className="tnc-section">
                     <h3>3. Payment Confirmation</h3>
                     <ul>
-                        <li>After successful payment, a confirmation message or reference number will be displayed and sent to  your registered email or mobile number.</li>
-                        <li>If you do not receive confirmation within 24 hours, please contact Silverstar Insurance Agency Inc. for  verification.</li>
+                        <li>After successful payment, a confirmation message or reference number will be displayed and sent to your registered email or mobile number.</li>
+                        <li>If you do not receive confirmation within 24 hours, please contact Silverstar Insurance Agency Inc. for verification.</li>
                     </ul>
                 </div>
+
                 <div className="tnc-section">
-                    <h3>4. Accuracy of Payment Information  </h3>
+                    <h3>4. Accuracy of Payment Information</h3>
                     <p>
-                        You are responsible for entering the correct payment details, including your policy number, amount due, and  reference information.
-                        Silverstar Insurance Agency Inc. will not be held liable for delays or losses caused by incorrect information  provided by the client.
+                        You are responsible for entering the correct payment details, including your policy number, amount due, and reference information.
+                        Silverstar Insurance Agency Inc. will not be held liable for delays or losses caused by incorrect information provided by the client.
                     </p>
                 </div>
 
@@ -357,7 +252,8 @@ export default function TermsAndConditions() {
                 <div className="tnc-section">
                     <h3>13. Contact Information</h3>
                     <p>For payment or refund inquiries, please contact:</p>
-                    <p>Silverstar Insurance Agency Inc.<br />
+                    <p>
+                        Silverstar Insurance Agency Inc.<br />
                         Room 210, 2nd Floor, No. 20, Shorthorn Street, Barangay Bahay Toro, Project 8, Quezon City<br />
                         +6392 7406-8176<br />
                         aira.mktg2@gmail.com
@@ -370,22 +266,12 @@ export default function TermsAndConditions() {
                         These Payment Terms and Conditions are governed by and interpreted in accordance with the laws of the Republic of the Philippines.
                     </p>
                 </div>
-                            <div className="copyright-footer">
-                <hr className="footer-divider" />
-                <p>Copyright © 2025 Silverstar Insurance Agency. All rights reserved.</p>
+
+                <div className="copyright-footer">
+                    <hr className="footer-divider" />
+                    <p>Copyright © 2025 Silverstar Insurance Agency. All rights reserved.</p>
+                </div>
             </div>
-
-            </div>
-
-
-
-
         </div>
-
-
-
     );
-
-
 }
-
