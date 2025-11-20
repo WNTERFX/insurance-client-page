@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from 'react-router-dom';
-import "./styles/landing-page-styles.css";
-import CreateQuote from "./CreateQuote";
 import { useNavigate } from "react-router-dom";
+import "./styles/landing-page-styles.css";
+import SharedHeader from "./SharedHeader";
+import { db } from "./dbServer"; // ✅ Import Supabase client
 
-// Import images and icons (omitted for brevity, assume they are correct)
+// Import images and icons
 import lanpage from "./images/lanpage.png";
 import carBlur from "./images/car-blur.png";
 import InsuranceJourney from "./images/InsuranceJourney.png";
@@ -26,133 +26,104 @@ import trustedExperienceIcon from "./images/trusted-experience.png";
 import personalizedAssistanceIcon from "./images/personalized-assistance.png";
 import reliableProtectionIcon from "./images/reliable-protection.png";
 
-import SilverstarLOGO from "./images/SilverStar.png";
-
-import { Home, Info, Phone, Mail, MapPin, Users, Handshake } from 'lucide-react';
 import fb from "./images/fb.png";
 
 import useViewportMeta from "./ClientController/useViewportMeta";
 
-
 export default function LandingPage() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
-
   const observerRef = useRef(null);
-  const faqAnswerRefs = useRef([]);
-
   const navigate = useNavigate();
-  const location = useLocation();
+  const [checkingAuth, setCheckingAuth] = useState(true); // ✅ Add auth checking state
 
   useViewportMeta();
 
+  // ✅ Check if user is already authenticated FIRST
+  useEffect(() => {
+    async function checkExistingSession() {
+      try {
+        const { data: { session }, error } = await db.auth.getSession();
+        
+        if (session && !error) {
+          console.log("✅ User already logged in, redirecting to portal");
+          navigate("/insurance-client-page/main-portal/Home", { replace: true });
+          return;
+        }
+      } catch (err) {
+        console.error("Error checking session:", err);
+      } finally {
+        setCheckingAuth(false);
+      }
+    }
+
+    checkExistingSession();
+  }, [navigate]);
+
   // Scroll to top when component mounts
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    if (!checkingAuth) {
+      window.scrollTo(0, 0);
+    }
+  }, [checkingAuth]);
 
   useEffect(() => {
-    // Select elements to animate.
-    // CHANGED: Removed individual .faq-item, added .faq-section to animate as whole
+    if (checkingAuth) return; // ✅ Don't run animations while checking auth
+
     const elementsToAnimate = document.querySelectorAll(
       '.hero-content h1, .hero-content p, .hero-content .quote-btn, ' +
       '.silverstar-features-section h2, .feature-item, ' +
       '.company-partners-section h2, ' +
       '.how-it-works-section h2, .how-it-works-step-container, .arrow-1-2, .arrow-2-3, .arrow-3-4, ' +
-      '.faq-section, ' + // Changed: observe entire FAQ section instead of individual items
+      '.faq-section, ' +
       '.insurance-journey-section h2, .insurance-journey-section p, .insurance-journey-section .contact-us-btn'
     );
 
-    // Special observation for the partners logos container
     const partnerLogosContainer = document.querySelector('.partners-logos-container');
 
     const observerOptions = {
-      root: null, // viewport
+      root: null,
       rootMargin: '0px',
-      threshold: 0.1 // Trigger when 10% of the element is visible
+      threshold: 0.1
     };
 
     observerRef.current = new IntersectionObserver((entries, observer) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           if (entry.target.classList.contains('partners-logos-container')) {
-            // Special handling for partner logos: animate children
             const partnerLogos = entry.target.querySelectorAll('img');
             partnerLogos.forEach((logo, index) => {
-              // Add 'is-visible' to each image with a delay for staggered effect
               setTimeout(() => {
                 logo.classList.add('is-visible');
-              }, index * 150); // Stagger delay for each logo
+              }, index * 150);
             });
-            observer.unobserve(entry.target); // Stop observing once animated
+            observer.unobserve(entry.target);
           } else {
-            // For all other observed elements, just add 'is-visible'
             entry.target.classList.add('is-visible');
-            observer.unobserve(entry.target); // Stop observing once animated
+            observer.unobserve(entry.target);
           }
         }
       });
     }, observerOptions);
 
-    // Observe all general elements
     elementsToAnimate.forEach(element => {
       observerRef.current.observe(element);
     });
 
-    // Observe the partner logos container specifically
     if (partnerLogosContainer) {
       observerRef.current.observe(partnerLogosContainer);
     }
 
-    // Also observe the top bar (if it has an animation)
     const topBar = document.querySelector('.top-bar-container');
     if (topBar) {
       observerRef.current.observe(topBar);
     }
-
 
     return () => {
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
     };
-  }, []);
-
-  const toggleFaq = (index) => {
-    setOpenFaqIndex(openFaqIndex === index ? null : index);
-  };
-
-  const faqItems = [
-    {
-      question: "What types of vehicles do you insure?",
-      answer: "Silverstar Insurance Agency Inc. provides insurance for four-wheel vehicles, motorcycles, big bikes, cargo trucks, and delivery vehicles."
-    },
-    {
-      question: "What are the requirements to apply for car insurance?",
-      answer: "You'll need to provide your vehicle's official receipt (OR), certificate of registration (CR), and a valid government ID. Some cases may require a photo of the vehicle for documentation."
-    },
-    {
-      question: "How can I get a quotation for my vehicle?",
-      answer: "Simply submit your vehicle details (brand, model, and year) to any of our agents or through our web app. A quotation with complete premium computations and charges will be generated for you."
-    },
-    {
-      question: "How do I pay for my insurance policy?",
-      answer: "Once you agree with the quotation, you can complete your payment through our secure online payment system or visit our office to settle in person."
-    },
-    {
-      question: "How long does it take to process my policy?",
-      answer: "Processing usually takes one to two business days after payment confirmation. You will receive your policy details through email or SMS notifications once it's approved."
-    },
-    {
-      question: "How do I file an insurance claim?",
-      answer: "To file a claim, contact your assigned agent or visit our office. You'll be guided through the steps and required documents to ensure quick and smooth processing."
-    },
-    {
-      question: "Can I renew my car insurance online?",
-      answer: "Yes. Renewal reminders are automatically sent before your policy expires. You can update, renew, and pay online using your client account on the Silverstar web app."
-    }
-  ];
+  }, [checkingAuth]);
 
   const companyPartners = [
     { name: "Standard Insurance", logo: standard, url: "https://www.standard-insurance.com/" },
@@ -176,94 +147,25 @@ export default function LandingPage() {
     </a>
   );
 
-  // Function to handle navigation link clicks and scroll to top
-  const handleNavClick = () => {
-    setMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  // Function to check if a nav link is active
-  const isActiveLink = (path) => {
-    return location.pathname === path;
-  };
+  // ✅ Show loading while checking authentication
+  if (checkingAuth) {
+    return (
+      <div style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+        fontFamily: "'Montserrat', sans-serif"
+      }}>
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <div className="landing-page-container">
-      <header className="top-bar-container">
-        {/* Brand row: logo + burger (burger sits to the RIGHT of the logo) */}
-        <div className="brand">
-          <Link
-            to="/"
-            className="logo-container"
-            onClick={handleNavClick}
-            aria-label="Go to Home — Silverstar Insurance Agency"
-          >
-            <img src={SilverstarLOGO} alt="Silverstar Insurance — Home" className="logo" />
-
-          </Link>
-
-          {/* Burger right of the logo */}
-          <button
-            className={`hamburger ${menuOpen ? "is-open" : ""}`}
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle menu"
-            aria-expanded={menuOpen}
-            aria-controls="primary-navigation"
-          >
-            ☰
-          </button>
-        </div>
-
-        {/* Nav Links */}
-        <nav
-          id="primary-navigation"
-          className={`nav-links ${menuOpen ? "active" : ""}`}
-        >
-          <Link
-            to="/"
-            className={`nav-link ${isActiveLink('/') ? 'active' : ''}`}
-            onClick={handleNavClick}
-          >
-            Home
-          </Link>
-          <Link
-            to="/insurance-client-page/Partners"
-            className={`nav-link ${isActiveLink('/insurance-client-page/Partners') ? 'active' : ''}`}
-            onClick={handleNavClick}
-          >
-            Partners
-          </Link>
-          <Link
-            to="/insurance-client-page/FAQs"
-            className={`nav-link ${isActiveLink('/insurance-client-page/FAQs') ? 'active' : ''}`}
-            onClick={handleNavClick}
-          >
-            FAQs
-          </Link>
-          <Link
-            to="/insurance-client-page/AboutUs"
-            className={`nav-link ${isActiveLink('/insurance-client-page/AboutUs') ? 'active' : ''}`}
-            onClick={handleNavClick}
-          >
-            About Us
-          </Link>
-          <Link
-            to="/insurance-client-page/Contact"
-            className={`nav-link ${isActiveLink('/insurance-client-page/Contact') ? 'active' : ''}`}
-            onClick={handleNavClick}
-          >
-            Contact
-          </Link>
-          <a
-            href="/insurance-client-page/login"
-            className="login-button"
-            onClick={handleNavClick}
-          >
-            Log in
-          </a>
-        </nav>
-      </header>
-
+      {/* Use SharedHeader with full navigation */}
+      <SharedHeader showFullNav={true} />
 
       {/* Hero Section */}
       <section id="home" className="landing-page-hero" style={{ backgroundImage: `url(${lanpage})` }}>
@@ -273,12 +175,9 @@ export default function LandingPage() {
             Comprehensive <br /> Car Insurance
           </h1>
           <p>
-            Get instant quotes, manage your policy, and file <br /> claims with
-            ease.
+            Get instant quotes, manage your policy, and file <br /> claims with ease.
           </p>
-          <button className="quote-btn" onClick={() =>
-            navigate("/insurance-client-page/CreateQuote")
-          }>
+          <button className="quote-btn" onClick={() => navigate("/insurance-client-page/CreateQuote")}>
             GET A QUOTE
           </button>
         </div>
@@ -293,30 +192,21 @@ export default function LandingPage() {
               <img src={trustedExperienceIcon} alt="Trusted Experience Icon" />
             </div>
             <h3>Trusted Experience</h3>
-            <p>
-              Serving you since 2012 with a proven track record for
-              great service.
-            </p>
+            <p>Serving you since 2012 with a proven track record for great service.</p>
           </div>
           <div className="feature-item animate-on-scroll">
             <div className="feature-icon">
               <img src={personalizedAssistanceIcon} alt="Personalized Assistance Icon" />
             </div>
             <h3>Personalized Assistance</h3>
-            <p>
-              Friendly experienced agents to help you every step of the
-              way.
-            </p>
+            <p>Friendly experienced agents to help you every step of the way.</p>
           </div>
           <div className="feature-item animate-on-scroll">
             <div className="feature-icon">
               <img src={reliableProtectionIcon} alt="Reliable Protection Icon" />
             </div>
             <h3>Reliable Protection</h3>
-            <p>
-              Extensive coverage options, 24/7 support, and hassle-free
-              claims.
-            </p>
+            <p>Extensive coverage options, 24/7 support, and hassle-free claims.</p>
           </div>
         </div>
       </section>
@@ -387,8 +277,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-
-
       {/* Your Insurance Journey Starts Here Section */}
       <section className="insurance-journey-section" style={{ backgroundImage: `url(${InsuranceJourney})` }}>
         <div className="journey-overlay"></div>
@@ -399,75 +287,55 @@ export default function LandingPage() {
         </div>
       </section>
 
-            {/* Footer */}
-            <footer id="about" className="footer">
-                {/* Column 1: Company Info */}
-                <div className="footer-column">
-                    <h4>Silverstar Insurance Agency Inc.</h4>
-                    <p>
-                        At Silverstar, we deliver car insurance with quality, protection, and
-                        service you can trust.
-                    </p>
-                    <a
-                        href="https://www.facebook.com/profile.php/?id=61576375235366"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="footer-social-link"
-                    >
-                        <img src={fb} alt="Facebook Page" className="facebook-icon" />
-                    </a>
-                </div>
+      {/* Footer */}
+      <footer id="about" className="footer">
+        <div className="footer-column">
+          <h4>Silverstar Insurance Agency Inc.</h4>
+          <p>At Silverstar, we deliver car insurance with quality, protection, and service you can trust.</p>
+          <a
+            href="https://www.facebook.com/profile.php/?id=61576375235366"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footer-social-link"
+          >
+            <img src={fb} alt="Facebook Page" className="facebook-icon" />
+          </a>
+        </div>
 
-                {/* Column 2: Categories */}
-                <div className="footer-column">
-                    <h4>CATEGORIES</h4>
-                    <a href="/">Home</a>
-                    <a href="/insurance-client-page/Partners">Partners</a>
-                    <a href="/insurance-client-page/FAQs">FAQs</a>
-                    <a href="/insurance-client-page/AboutUs">About Us</a>
-                </div>
+        <div className="footer-column">
+          <h4>CATEGORIES</h4>
+          <a href="/">Home</a>
+          <a href="/insurance-client-page/Partners">Partners</a>
+          <a href="/insurance-client-page/FAQs">FAQs</a>
+          <a href="/insurance-client-page/AboutUs">About Us</a>
+        </div>
 
-                {/* Column 3: Reach Us */}
-                <div className="footer-column">
-                    <h4>REACH US</h4>
-                    <p>
-                        <strong>Address:</strong>Room 210, 2nd floor, 16 Shorthorn Street, Bahay Toro, Project 8, Quezon City Metro Manila
-                    </p>
-                    <p>
-                        <strong>Phone number:</strong>+632 7406-8176
-                    </p>
-                    <p>
-                        <strong>Email:</strong>aira.mktg2@gmail.com
-                    </p>
-                    <p>
-                        <strong>Office Hours:</strong>Monday - Saturday 8AM - 5PM
-                    </p>
-                </div>
+        <div className="footer-column">
+          <h4>REACH US</h4>
+          <p><strong>Address:</strong> Room 210, 2nd floor, 16 Shorthorn Street, Bahay Toro, Project 8, Quezon City Metro Manila</p>
+          <p><strong>Phone number:</strong> +632 7406-8176</p>
+          <p><strong>Email:</strong> aira.mktg2@gmail.com</p>
+          <p><strong>Office Hours:</strong> Monday - Saturday 8AM - 5PM</p>
+        </div>
 
-                {/* Column 4: About Us */}
-                <div className="footer-column">
-                    <h4>ABOUT US</h4>
-                    <p>
-                        Silverstar Insurance Agency Inc. is a trusted insurance provider
-                        established in 2013 and based in Project 8, Quezon City. The company
-                        offers reliable vehicle insurance services for cars, motorcycles, and
-                        cargo trucks, focusing on transparency, accuracy, and customer care to
-                        ensure every client's peace of mind.
-                    </p>
-                </div>
+        <div className="footer-column">
+          <h4>ABOUT US</h4>
+          <p>
+            Silverstar Insurance Agency Inc. is a trusted insurance provider established in 2013 and based in Project 8, Quezon City. 
+            The company offers reliable vehicle insurance services for cars, motorcycles, and cargo trucks, focusing on transparency, 
+            accuracy, and customer care to ensure every client's peace of mind.
+          </p>
+        </div>
 
-                {/* --- This creates the horizontal line and the bottom row --- */}
-                <div className="footer-bottom">
-                    <hr className="footer-divider" />
-                    <div className="footer-bottom-content">
-                        <p>© 2025 Silverstar Insurance Agency Inc.</p>
-                        <a href="/insurance-client-page/TermsAndConditions">Terms and Conditions</a>
-                        <a href="/insurance-client-page/PrivacyPolicy">Privacy Policy</a>
-                    </div>
-                </div>
-            </footer>
-
-      {/*<CreateQuote isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />*/}
+        <div className="footer-bottom">
+          <hr className="footer-divider" />
+          <div className="footer-bottom-content">
+            <p>© 2025 Silverstar Insurance Agency Inc.</p>
+            <a href="/insurance-client-page/TermsAndConditions">Terms and Conditions</a>
+            <a href="/insurance-client-page/PrivacyPolicy">Privacy Policy</a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

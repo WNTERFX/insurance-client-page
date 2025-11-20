@@ -22,6 +22,9 @@ export default function UploadFilesModal({
     message: ''
   });
 
+  // ===== FILE SIZE CONSTANTS =====
+  const MAX_TOTAL_SIZE = 20 * 1024 * 1024; // 20MB in bytes
+
   const openAlert = (message, title = 'Alert') =>
     setAlertModal({ isOpen: true, title, message });
   const closeAlert = () =>
@@ -31,6 +34,18 @@ export default function UploadFilesModal({
   const documentInputRef = useRef(null);
 
   if (!isOpen || !claimData) return null;
+
+  // Calculate total file size
+  const getTotalFileSize = () => {
+    const photoSize = photos.reduce((sum, file) => sum + file.size, 0);
+    const docSize = documents.reduce((sum, file) => sum + file.size, 0);
+    return photoSize + docSize;
+  };
+
+  // Format bytes to MB
+  const formatBytes = (bytes) => {
+    return (bytes / (1024 * 1024)).toFixed(2);
+  };
 
   const handlePhotoUpload = (event) => {
     const files = event.target.files;
@@ -44,6 +59,21 @@ export default function UploadFilesModal({
       openAlert(
         `Invalid file type(s): ${invalidFiles.map(f => f.name).join(', ')}\n\nPlease upload only images (JPG, PNG, GIF, WebP)`,
         'Invalid File Type'
+      );
+      event.target.value = null;
+      return;
+    }
+
+    // Calculate new total size
+    const currentTotalSize = getTotalFileSize();
+    const newFilesSize = filesArray.reduce((sum, file) => sum + file.size, 0);
+    const newTotalSize = currentTotalSize + newFilesSize;
+
+    // Check if it exceeds 20MB
+    if (newTotalSize > MAX_TOTAL_SIZE) {
+      openAlert(
+        'Max file size of 20MB exceeded.',
+        'Alert'
       );
       event.target.value = null;
       return;
@@ -69,6 +99,21 @@ export default function UploadFilesModal({
       openAlert(
         `Invalid file type(s): ${invalidFiles.map(f => f.name).join(', ')}\n\nPlease upload only PDFs or Word documents (.pdf, .doc, .docx)`,
         'Invalid File Type'
+      );
+      event.target.value = null;
+      return;
+    }
+
+    // Calculate new total size
+    const currentTotalSize = getTotalFileSize();
+    const newFilesSize = filesArray.reduce((sum, file) => sum + file.size, 0);
+    const newTotalSize = currentTotalSize + newFilesSize;
+
+    // Check if it exceeds 20MB
+    if (newTotalSize > MAX_TOTAL_SIZE) {
+      openAlert(
+        'Max file size of 20MB exceeded.',
+        'Alert'
       );
       event.target.value = null;
       return;
@@ -106,38 +151,36 @@ export default function UploadFilesModal({
     setDeleteType('');
   };
 
-const handleSubmit = async () => {
-  if (photos.length === 0 && documents.length === 0) {
-    openAlert('Please select at least one file to upload.', 'No Files Selected');
-    return;
-  }
+  const handleSubmit = async () => {
+    if (photos.length === 0 && documents.length === 0) {
+      openAlert('Please select at least one file to upload.', 'No Files Selected');
+      return;
+    }
 
-  setUploading(true);
+    // Final validation before submission
+    const totalSize = getTotalFileSize();
+    if (totalSize > MAX_TOTAL_SIZE) {
+      openAlert('Max file size of 20MB exceeded.', 'Alert');
+      return;
+    }
 
-  // Temporarily silence any window.alert fired inside onUploadComplete
-  const originalAlert = window.alert;
-  window.alert = () => {};
+    setUploading(true);
 
-  try {
-    await onUploadComplete(claimData.id, photos, documents);
+    const originalAlert = window.alert;
+    window.alert = () => { };
 
-    // Success: stay silent (no popups)
-    setPhotos([]);
-    setDocuments([]);
-
-    // Optionally close modal or show a non-blocking toast if you have one
-    // onClose?.();
-    // showToast('Files uploaded');
-  } catch (error) {
-    // Show your custom alert on error
-    console.error('Upload error:', error);
-    openAlert(`Failed to upload files.\n\n${error?.message || error}`, 'Upload Error');
-  } finally {
-    // Restore alert for the rest of the app
-    window.alert = originalAlert;
-    setUploading(false);
-  }
-};
+    try {
+      await onUploadComplete(claimData.id, photos, documents);
+      setPhotos([]);
+      setDocuments([]);
+    } catch (error) {
+      console.error('Upload error:', error);
+      openAlert(`Failed to upload files.\n\n${error?.message || error}`, 'Upload Error');
+    } finally {
+      window.alert = originalAlert;
+      setUploading(false);
+    }
+  };
 
   const formatCurrency = (amount) =>
     new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount || 0);
@@ -215,6 +258,7 @@ const handleSubmit = async () => {
           </div>
         </div>
 
+
         {/* Upload Boxes */}
         <div className="ufm block-gap">
           <h3 className="ufm section-title">Supporting Documents:</h3>
@@ -265,6 +309,8 @@ const handleSubmit = async () => {
           </div>
         </div>
 
+
+
         {/* Previews */}
         {(photos.length > 0 || documents.length > 0) && (
           <div className="ufm block-gap">
@@ -290,6 +336,9 @@ const handleSubmit = async () => {
                       <p className="ufm file-name" title={file.name}>
                         {file.name}
                       </p>
+                      <p style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>
+                        {formatBytes(file.size)} MB
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -307,7 +356,7 @@ const handleSubmit = async () => {
                         <p className="ufm doc-name" title={file.name}>
                           {file.name}
                         </p>
-                        <p className="ufm doc-size">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                        <p className="ufm doc-size">{formatBytes(file.size)} MB</p>
                       </div>
                       <button
                         className="ufm remove-btn"
@@ -325,6 +374,30 @@ const handleSubmit = async () => {
           </div>
         )}
 
+        {/* File size info message */}
+        <div style={{
+          color: '#6c757d',
+          fontSize: '14px',
+          marginBottom: '15px',
+          padding: '10px',
+          backgroundColor: '#f8f9fa',
+          borderRadius: '4px',
+          border: '1px solid #dee2e6',
+          marginTop: '15px'
+        }}>
+          Upload your selected files and click submit. Please note that the total size limit is 20 MB.
+          {(photos.length > 0 || documents.length > 0) && (
+            <div style={{
+              display: 'block',
+              marginTop: '5px',
+              fontWeight: getTotalFileSize() > MAX_TOTAL_SIZE ? 'bold' : 'normal',
+              color: getTotalFileSize() > MAX_TOTAL_SIZE ? '#dc3545' : '#28a745'
+            }}>
+              Current total: {formatBytes(getTotalFileSize())} MB / 20 MB
+            </div>
+          )}
+        </div>
+
         {/* Actions */}
         <div className="ufm action-bar">
           <button className="ufm btn btn-outline" onClick={onClose} disabled={uploading}>
@@ -339,6 +412,8 @@ const handleSubmit = async () => {
           </button>
         </div>
       </div>
+
+
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
@@ -358,7 +433,9 @@ const handleSubmit = async () => {
         </div>
       )}
 
-      {/* Custom Alert Modal (replaces window.alert) */}
+
+
+      {/* Custom Alert Modal */}
       <CustomAlertModal
         isOpen={alertModal.isOpen}
         onClose={closeAlert}

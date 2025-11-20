@@ -511,3 +511,20 @@ select:-webkit-autofill {
   .forgot-password-client { font-size: 0.8rem; }
   .login-button-client { font-size: 0.95rem; padding: 10px; }
 }
+
+
+.alert-warning {
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alert-warning strong {
+  font-weight: 600;
+}

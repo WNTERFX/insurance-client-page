@@ -1,35 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
-import { Home, Info, Phone, Mail, MapPin, Users, Handshake } from 'lucide-react';
 import "./styles/faqs-styles.css";
+import SharedHeader from "./SharedHeader"; // Import SharedHeader
 import FAQss from "./images/FAQs.png";
-
-// TopBar Logo
-import SilverstarLOGO from "./images/SilverStar.png";
 import fb from "./images/fb.png";
 
 export default function FAQs() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
   // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  // Function to handle navigation link clicks and scroll to top
-  const handleNavClick = () => {
-    setMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  // Function to check if a nav link is active
-  const isActiveLink = (path) => {
-    return location.pathname === path;
-  };
 
   // Toggle FAQ items
   const toggleFaq = (index) => {
@@ -69,83 +52,11 @@ export default function FAQs() {
 
   return (
     <div className="FAQs-container">
-      <header className="top-bar-container">
-        {/* Brand row: logo + burger (burger sits to the RIGHT of the logo) */}
-        <div className="brand">
-          <Link
-            to="/"
-            className="logo-container"
-            onClick={handleNavClick}
-            aria-label="Go to Home — Silverstar Insurance Agency"
-          >
-            <img src={SilverstarLOGO} alt="Silverstar Insurance — Home" className="logo" />
-
-          </Link>
-
-          {/* Burger right of the logo */}
-          <button
-            className={`hamburger ${menuOpen ? "is-open" : ""}`}
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle menu"
-            aria-expanded={menuOpen}
-            aria-controls="primary-navigation"
-          >
-            ☰
-          </button>
-        </div>
-
-        {/* Nav Links */}
-        <nav
-          id="primary-navigation"
-          className={`nav-links ${menuOpen ? "active" : ""}`}
-        >
-          <Link
-            to="/"
-            className={`nav-link ${isActiveLink('/insurance-client-page') ? 'active' : ''}`}
-            onClick={handleNavClick}
-          >
-            Home
-          </Link>
-          <Link
-            to="/insurance-client-page/Partners"
-            className={`nav-link ${isActiveLink('/insurance-client-page/Partners') ? 'active' : ''}`}
-            onClick={handleNavClick}
-          >
-            Partners
-          </Link>
-          <Link
-            to="/insurance-client-page/FAQs"
-            className={`nav-link ${isActiveLink('/insurance-client-page/FAQs') ? 'active' : ''}`}
-            onClick={handleNavClick}
-          >
-            FAQs
-          </Link>
-          <Link
-            to="/insurance-client-page/AboutUs"
-            className={`nav-link ${isActiveLink('/insurance-client-page/AboutUs') ? 'active' : ''}`}
-            onClick={handleNavClick}
-          >
-            About Us
-          </Link>
-          <Link
-            to="/insurance-client-page/Contact"
-            className={`nav-link ${isActiveLink('/insurance-client-page/Contact') ? 'active' : ''}`}
-            onClick={handleNavClick}
-          >
-            Contact
-          </Link>
-          <a
-            href="/insurance-client-page/login"
-            className="login-button"
-            onClick={handleNavClick}
-          >
-            Log in
-          </a>
-        </nav>
-      </header>
+      {/* Use SharedHeader with full navigation */}
+      <SharedHeader showFullNav={true} />
 
       {/* Hero Section */}
-      <section className="faqs-hero-section"  style={{ backgroundImage: `url(${FAQss})` }}>
+      <section className="faqs-hero-section" style={{ backgroundImage: `url(${FAQss})` }}>
         <div className="hero-overlay-faqs"></div>
         <div className="hero-content-faqs">
           <h1>FAQs</h1>
@@ -165,81 +76,61 @@ export default function FAQs() {
             >
               <h3>{item.question}</h3>
               <span>{openFaqIndex === index ? '-' : '+'}</span>
-              <p className="faq-answer">
-                {item.answer}
-              </p>
+              <p className="faq-answer">{item.answer}</p>
             </div>
           ))}
         </div>
       </section>
 
-            {/* Footer */}
-            <footer id="about" className="footer">
-                {/* Column 1: Company Info */}
-                <div className="footer-column">
-                    <h4>Silverstar Insurance Agency Inc.</h4>
-                    <p>
-                        At Silverstar, we deliver car insurance with quality, protection, and
-                        service you can trust.
-                    </p>
-                    <a
-                        href="https://www.facebook.com/profile.php/?id=61576375235366"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="footer-social-link"
-                    >
-                        <img src={fb} alt="Facebook Page" className="facebook-icon" />
-                    </a>
-                </div>
+      {/* Footer */}
+      <footer id="about" className="footer">
+        <div className="footer-column">
+          <h4>Silverstar Insurance Agency Inc.</h4>
+          <p>At Silverstar, we deliver car insurance with quality, protection, and service you can trust.</p>
+          <a
+            href="https://www.facebook.com/profile.php/?id=61576375235366"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footer-social-link"
+          >
+            <img src={fb} alt="Facebook Page" className="facebook-icon" />
+          </a>
+        </div>
 
-                {/* Column 2: Categories */}
-                <div className="footer-column">
-                    <h4>CATEGORIES</h4>
-                    <a href="/">Home</a>
-                    <a href="/insurance-client-page/Partners">Partners</a>
-                    <a href="/insurance-client-page/FAQs">FAQs</a>
-                    <a href="/insurance-client-page/AboutUs">About Us</a>
-                </div>
+        <div className="footer-column">
+          <h4>CATEGORIES</h4>
+          <a href="/">Home</a>
+          <a href="/insurance-client-page/Partners">Partners</a>
+          <a href="/insurance-client-page/FAQs">FAQs</a>
+          <a href="/insurance-client-page/AboutUs">About Us</a>
+        </div>
 
-                {/* Column 3: Reach Us */}
-                <div className="footer-column">
-                    <h4>REACH US</h4>
-                    <p>
-                        <strong>Address:</strong>Room 210, 2nd floor, 16 Shorthorn Street, Bahay Toro, Project 8, Quezon City Metro Manila
-                    </p>
-                    <p>
-                        <strong>Phone number:</strong>+632 7406-8176
-                    </p>
-                    <p>
-                        <strong>Email:</strong>aira.mktg2@gmail.com
-                    </p>
-                    <p>
-                        <strong>Office Hours:</strong>Monday - Saturday 8AM - 5PM
-                    </p>
-                </div>
+        <div className="footer-column">
+          <h4>REACH US</h4>
+          <p><strong>Address:</strong> Room 210, 2nd floor, 16 Shorthorn Street, Bahay Toro, Project 8, Quezon City Metro Manila</p>
+          <p><strong>Phone number:</strong> +632 7406-8176</p>
+          <p><strong>Email:</strong> aira.mktg2@gmail.com</p>
+          <p><strong>Office Hours:</strong> Monday - Saturday 8AM - 5PM</p>
+        </div>
 
-                {/* Column 4: About Us */}
-                <div className="footer-column">
-                    <h4>ABOUT US</h4>
-                    <p>
-                        Silverstar Insurance Agency Inc. is a trusted insurance provider
-                        established in 2013 and based in Project 8, Quezon City. The company
-                        offers reliable vehicle insurance services for cars, motorcycles, and
-                        cargo trucks, focusing on transparency, accuracy, and customer care to
-                        ensure every client's peace of mind.
-                    </p>
-                </div>
+        <div className="footer-column">
+          <h4>ABOUT US</h4>
+          <p>
+            Silverstar Insurance Agency Inc. is a trusted insurance provider established in 2013 and based in Project 8, Quezon City. 
+            The company offers reliable vehicle insurance services for cars, motorcycles, and cargo trucks, focusing on transparency, 
+            accuracy, and customer care to ensure every client's peace of mind.
+          </p>
+        </div>
 
-                {/* --- This creates the horizontal line and the bottom row --- */}
-                <div className="footer-bottom">
-                    <hr className="footer-divider" />
-                    <div className="footer-bottom-content">
-                        <p>© 2025 Silverstar Insurance Agency Inc.</p>
-                        <a href="/insurance-client-page/TermsAndConditions">Terms and Conditions</a>
-                        <a href="/insurance-client-page/PrivacyPolicy">Privacy Policy</a>
-                    </div>
-                </div>
-            </footer>
+        <div className="footer-bottom">
+          <hr className="footer-divider" />
+          <div className="footer-bottom-content">
+            <p>© 2025 Silverstar Insurance Agency Inc.</p>
+            <a href="/insurance-client-page/TermsAndConditions">Terms and Conditions</a>
+            <a href="/insurance-client-page/PrivacyPolicy">Privacy Policy</a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

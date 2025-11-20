@@ -1,4 +1,4 @@
-//client side
+//client side - Uses Edge Functions for claim creation, client-side for file uploads
 import { db } from "../dbServer";
 
 /**
@@ -53,7 +53,6 @@ export async function getCurrentModerator() {
 
 /**
  * Fetch all active policies for a client
- * If moderatorId is provided, only return policies where the client is assigned to that moderator
  */
 export async function fetchClientActivePolicies(clientUid, moderatorId = null) {
   if (!clientUid) return [];
@@ -86,7 +85,6 @@ export async function fetchClientActivePolicies(clientUid, moderatorId = null) {
       return [];
     }
 
-    // If moderatorId is provided, filter policies by checking client's agent_Id
     if (moderatorId && data && data.length > 0) {
       const { data: clientData, error: clientError } = await db
         .from("clients_Table")
@@ -99,7 +97,6 @@ export async function fetchClientActivePolicies(clientUid, moderatorId = null) {
         return [];
       }
 
-      // If client is not assigned to this moderator, return empty
       if (clientData.agent_Id !== moderatorId) {
         console.log("🔒 Client not assigned to this moderator");
         return [];
@@ -115,6 +112,7 @@ export async function fetchClientActivePolicies(clientUid, moderatorId = null) {
 
 /**
  * Upload files to Supabase Storage
+ * This runs CLIENT-SIDE after claim creation (secure via RLS)
  */
 async function uploadFilesToStorage(files, clientAuthId, claimId) {
   if (!files || files.length === 0) return [];
@@ -140,7 +138,6 @@ async function uploadFilesToStorage(files, clientAuthId, claimId) {
       const fileName = `${timestamp}_${randomStr}_${sanitizedFileName}`;
       const filePath = `${clientAuthId}/${claimId}/${fileName}`;
 
-      // UPDATED: Validate file types before upload
       const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
       const validDocTypes = [
         'application/pdf',
@@ -151,22 +148,18 @@ async function uploadFilesToStorage(files, clientAuthId, claimId) {
       const isValidImage = validImageTypes.includes(file.type);
       const isValidDoc = validDocTypes.includes(file.type);
 
-      // Skip text files and other invalid types
       if (!isValidImage && !isValidDoc) {
         console.warn(`Skipping invalid file type: ${file.name} (${file.type})`);
         failedFiles.push(file.name);
         continue;
       }
 
-      // Use correct content type
-      let contentType = file.type;
-      
       const { data, error } = await db.storage
         .from('claim-documents')
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: false,
-          contentType: contentType || 'application/octet-stream'
+          contentType: file.type || 'application/octet-stream'
         });
 
       if (error) {
@@ -208,11 +201,9 @@ async function uploadFilesToStorage(files, clientAuthId, claimId) {
   return uploadedPaths;
 }
 
-
 /**
  * Create a new claim record
- * Handles both client and moderator claim creation
- * FIXED: Now properly assigns agent_id for both client and moderator claims
+ * DIRECT DATABASE INSERTION (Simpler, no Edge Function needed)
  */
 export async function createClientClaim({
   policyId,
@@ -241,22 +232,18 @@ export async function createClientClaim({
     let assignedAgentId = null;
     
     if (moderator) {
-      // Moderator creating claim - get the client's auth_id from the policy
+      // Moderator creating claim
       console.log('✅ Moderator creating claim:', moderator.id);
       
       const { data: policyData, error: policyError } = await db
         .from("policy_Table")
-        .select(`
-          id,
-          client_id
-        `)
+        .select(`id, client_id`)
         .eq("id", parseInt(policyId))
         .single();
 
       if (policyError) throw new Error("Failed to fetch policy data: " + policyError.message);
       if (!policyData) throw new Error("Policy not found");
       
-      // Get client data to verify moderator access
       const { data: clientData, error: clientError } = await db
         .from("clients_Table")
         .select("uid, auth_id, agent_Id")
@@ -265,13 +252,12 @@ export async function createClientClaim({
 
       if (clientError) throw new Error("Failed to fetch client data: " + clientError.message);
       
-      // Verify moderator has access to this client
       if (clientData.agent_Id !== moderator.id) {
         throw new Error("You don't have permission to create claims for this client");
       }
       
       clientAuthId = clientData.auth_id;
-      assignedAgentId = clientData.agent_Id; // Use the client's assigned agent
+      assignedAgentId = clientData.agent_Id;
       
     } else {
       // Client creating their own claim
@@ -281,15 +267,13 @@ export async function createClientClaim({
       
       console.log('✅ Client creating claim:', client.uid);
       clientAuthId = client.auth_id;
-      
-      // FIXED: Get the client's assigned agent_Id
       assignedAgentId = client.agent_Id;
       console.log('📋 Client assigned agent:', assignedAgentId);
     }
 
     const now = new Date().toISOString();
     
-    // Build claim data with proper agent_id
+    // Build claim data
     const claimData = {
       policy_id: parseInt(policyId),
       type_of_incident: typeOfIncident,
@@ -300,7 +284,7 @@ export async function createClientClaim({
       status: 'Pending',
       is_approved: false,
       created_at: now,
-      agent_id: assignedAgentId  // FIXED: Always set the agent_id from client's agent_Id
+      agent_id: assignedAgentId
     };
 
     console.log('📝 Claim data to insert:', claimData);
@@ -353,19 +337,15 @@ export async function createClientClaim({
 
 /**
  * Fetch claims for the current user
- * - If client: fetch their own claims
- * - If moderator: fetch claims for their assigned clients only
  */
 export async function fetchClientClaims(clientUid = null) {
   try {
     const { data: { user } } = await db.auth.getUser();
     if (!user) throw new Error("No authenticated user");
 
-    // Check if user is a moderator
     const moderator = await getCurrentModerator();
     
     if (moderator) {
-      // Moderator: fetch all clients assigned to them first
       const { data: clients, error: clientsError } = await db
         .from("clients_Table")
         .select("uid")
@@ -383,7 +363,6 @@ export async function fetchClientClaims(clientUid = null) {
 
       const clientUids = clients.map(c => c.uid);
 
-      // Get all policies for these clients
       const { data: policies, error: policiesError } = await db
         .from("policy_Table")
         .select("id, client_id")
@@ -398,7 +377,6 @@ export async function fetchClientClaims(clientUid = null) {
 
       const policyIds = policies.map(p => p.id);
 
-      // Fetch claims for these policies with minimal nested joins
       const { data: claims, error: claimsError } = await db
         .from("claims_Table")
         .select(`
@@ -427,7 +405,6 @@ export async function fetchClientClaims(clientUid = null) {
         throw claimsError;
       }
 
-      // Manually enrich claims with policy and client data
       const enrichedClaims = await Promise.all(
         (claims || []).map(async (claim) => {
           const { data: policyData } = await db
@@ -474,10 +451,8 @@ export async function fetchClientClaims(clientUid = null) {
       return enrichedClaims;
 
     } else if (clientUid) {
-      // Client: only show their own claims
       console.log('🔒 Filtering claims for client:', clientUid);
       
-      // Get policy IDs for this client
       const { data: policies, error: policyError } = await db
         .from("policy_Table")
         .select("id")
@@ -513,7 +488,6 @@ export async function fetchClientClaims(clientUid = null) {
 
       if (claimsError) throw claimsError;
 
-      // Manually enrich claims with policy and client data
       const enrichedClaims = await Promise.all(
         (claims || []).map(async (claim) => {
           const { data: policyData } = await db
@@ -559,7 +533,6 @@ export async function fetchClientClaims(clientUid = null) {
       console.log(`✅ Fetched ${enrichedClaims?.length || 0} claims for client`);
       return enrichedClaims;
     } else {
-      // No client UID provided and not a moderator - return empty
       return [];
     }
     
@@ -602,6 +575,7 @@ export async function getClaimDocumentUrls(documents) {
 
 /**
  * Upload additional files to an existing claim
+ * This is CLIENT-SIDE (secure via RLS) - NO EDGE FUNCTION NEEDED
  */
 export async function uploadAdditionalFiles(claimId, files) {
   try {
@@ -647,7 +621,6 @@ export async function uploadAdditionalFiles(claimId, files) {
 
 /**
  * Fetch voided policies for client
- * If moderatorId is provided, only return policies for clients assigned to that moderator
  */
 export async function fetchClientVoidedPolicies(clientId, moderatorId = null) {
   try {
@@ -665,7 +638,6 @@ export async function fetchClientVoidedPolicies(clientId, moderatorId = null) {
       return [];
     }
 
-    // If moderatorId is provided, verify client is assigned to this moderator
     if (moderatorId && data && data.length > 0) {
       const { data: clientData, error: clientError } = await db
         .from("clients_Table")
@@ -678,7 +650,6 @@ export async function fetchClientVoidedPolicies(clientId, moderatorId = null) {
         return [];
       }
 
-      // If client is not assigned to this moderator, return empty
       if (clientData.agent_Id !== moderatorId) {
         console.log("🔒 Client not assigned to this moderator");
         return [];

@@ -10,12 +10,19 @@ export default function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
-        <div className="logo-container-client">
-          <img className="header-logo-client" src={require("./images/logo_.png")} alt="Silverstar Logo" />
-        </div>
+        <a 
+          href="/insurance-client-page/main-portal/Home" 
+          className="logo-container-client"
+          style={{ display: 'block', textDecoration: 'none', cursor: 'pointer' }}
+        >
+          <img 
+            className="header-logo-client" 
+            src={require("./images/logo_.png")} 
+            alt="Silverstar Logo" 
+          />
+        </a>
         <div className="company-info">
-          <h2 className="company-Name">Silverstar Insurance </h2>
-
+          <h2 className="company-Name">Silverstar Insurance</h2>
         </div>
       </div>
       <nav className="sidebar-nav">

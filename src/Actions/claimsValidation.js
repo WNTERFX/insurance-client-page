@@ -1,9 +1,8 @@
-//client side
-
+// client side - Updated to use Edge Functions
 import { db } from "../dbServer";
 
 /**
- * Get claimable amount for a policy
+ * Get claimable amount for a policy (kept for backward compatibility)
  */
 export async function getPolicyClaimableAmount(policyId) {
   try {
@@ -29,7 +28,7 @@ export async function getPolicyClaimableAmount(policyId) {
 }
 
 /**
- * Get all claims for a specific policy
+ * Get all claims for a specific policy (kept for backward compatibility)
  */
 export async function getPolicyClaims(policyId) {
   try {
@@ -51,9 +50,8 @@ export async function getPolicyClaims(policyId) {
   }
 }
 
-
 /**
- * Check if policy is voided
+ * Check if policy is voided (kept for backward compatibility)
  */
 export async function checkPolicyVoidStatus(policyId) {
   try {
@@ -83,92 +81,31 @@ export async function checkPolicyVoidStatus(policyId) {
 
 /**
  * Validate if a new claim can be created for a policy
+ * NOW USES EDGE FUNCTION for server-side validation
  */
 export async function validateNewClaim(policyId) {
   try {
-    console.log(`🔍 Validating new claim for policy ${policyId}`);
+    console.log(`🔍 Validating new claim for policy ${policyId} via Edge Function`);
 
-    // Rule 0: Check if policy is voided
-    const voidStatus = await checkPolicyVoidStatus(policyId);
-    if (voidStatus.isVoided) {
-      return {
-        canCreate: false,
-        reason: "This policy has been declared void, all claims under this policy are considered invalid",
-        claimableAmount: 0,
-        claimsCount: 0,
-        isVoided: true
-      };
+    // Get current session
+    const { data: { session } } = await db.auth.getSession();
+    
+    if (!session) {
+      throw new Error("No active session");
     }
 
-    // Rule 1: Get claimable amount
-    const { claimableAmount, currentValue } = await getPolicyClaimableAmount(policyId);
-    console.log(`💰 Claimable amount: ₱${claimableAmount}`);
-    console.log(`💰 Current Value: ₱${currentValue}`);
+    // Call Edge Function
+    const { data, error } = await db.functions.invoke('validate-claim', {
+      body: { policyId }
+    });
 
-    // Rule 2: Check if claimable amount is zero
-    if (claimableAmount <= 0) {
-      return {
-        canCreate: false,
-        reason: "This policy has no remaining claimable amount (₱0). No more claims can be filed.",
-        claimableAmount: 0,
-        claimsCount: 0
-      };
+    if (error) {
+      console.error("❌ Edge Function error:", error);
+      throw error;
     }
 
-    // Rule 3: Get all claims for this policy
-    const claims = await getPolicyClaims(policyId);
-    const claimsCount = claims.length;
-    console.log(`📋 Total claims filed: ${claimsCount}`);
-
-    // Rule 4: Maximum 2 claims per policy
-    if (claimsCount >= 2) {
-      return {
-        canCreate: false,
-        reason: "Maximum limit reached: Only 2 claims are allowed per policy. This policy already has 2 claims filed.",
-        claimableAmount,
-        claimsCount
-      };
-    }
-
-    // Rule 5: Check for Pending or Under Review claims
-    const pendingOrUnderReview = claims.find(
-      c => c.status === 'Pending' || c.status === 'Under Review'
-    );
-
-    if (pendingOrUnderReview) {
-      return {
-        canCreate: false,
-        reason: `A claim is currently ${pendingOrUnderReview.status}. Please wait until it is Approved or Rejected before filing a new claim.`,
-        claimableAmount,
-        claimsCount
-      };
-    }
-
-    // Rule 6: Check for Approved claims that are NOT completed
-    const approvedNotCompleted = claims.find(
-      c => c.status === 'Approved' && !c.completed_date
-    );
-
-    if (approvedNotCompleted) {
-      return {
-        canCreate: false,
-        reason: "A claim has been Approved but is not yet Completed. Please wait until it is marked as Completed before filing a new claim.",
-        claimableAmount,
-        claimsCount
-      };
-    }
-
-    // Rule 7: Rejected claims are OK - can create new claim immediately
-    // (No check needed - rejected claims don't block new claims)
-
-    // All validation passed
-    console.log(`✅ Validation passed: Can create new claim`);
-    return {
-      canCreate: true,
-      reason: "",
-      claimableAmount,
-      claimsCount
-    };
+    console.log("✅ Validation result:", data);
+    return data;
 
   } catch (err) {
     console.error("❌ validateNewClaim error:", err);
@@ -183,44 +120,73 @@ export async function validateNewClaim(policyId) {
 
 /**
  * Get enriched policies with claimable amounts and validation status
+ * NOW USES EDGE FUNCTION for server-side validation
  */
 export async function enrichPoliciesWithClaimData(policies) {
   if (!policies || policies.length === 0) return [];
 
   try {
-    const enrichedPolicies = await Promise.all(
-      policies.map(async (policy) => {
-        // Check voided status first
-        const isVoided = policy.policy_status === 'Voided';
-        
-        if (isVoided) {
-          return {
-            ...policy,
-            claimableAmount: 0,
-            canCreateClaim: false,
-            claimValidationReason: "This policy has been declared void, all claims under this policy are considered invalid",
-            existingClaimsCount: 0,
-            isVoided: true
-          };
-        }
+    console.log(`📋 Enriching ${policies.length} policies via Edge Function`);
 
-        // If not voided, proceed with normal validation
-        const validation = await validateNewClaim(policy.id);
-        
-        return {
-          ...policy,
-          claimableAmount: validation.claimableAmount,
-          canCreateClaim: validation.canCreate,
-          claimValidationReason: validation.reason,
-          existingClaimsCount: validation.claimsCount,
-          isVoided: false
-        };
-      })
-    );
+    // Get current session
+    const { data: { session } } = await db.auth.getSession();
+    
+    if (!session) {
+      throw new Error("No active session");
+    }
 
-    return enrichedPolicies;
+    // Call Edge Function
+    const { data, error } = await db.functions.invoke('enrich-policies-with-claim-data', {
+      body: { policies }
+    });
+
+    if (error) {
+      console.error("❌ Edge Function error:", error);
+      throw error;
+    }
+
+    console.log("✅ Enriched policies:", data.enrichedPolicies?.length);
+    return data.enrichedPolicies || policies;
+
   } catch (err) {
     console.error("❌ enrichPoliciesWithClaimData error:", err);
     return policies;
+  }
+}
+
+/**
+ * Validate total file size before upload
+ * NOW USES EDGE FUNCTION for server-side validation
+ */
+export async function validateFileSize(fileSizes) {
+  try {
+    console.log(`📊 Validating file sizes via Edge Function`);
+
+    // Get current session
+    const { data: { session } } = await db.auth.getSession();
+    
+    if (!session) {
+      throw new Error("No active session");
+    }
+
+    // Call Edge Function
+    const { data, error } = await db.functions.invoke('validate-file-size', {
+      body: { fileSizes }
+    });
+
+    if (error) {
+      console.error("❌ Edge Function error:", error);
+      throw error;
+    }
+
+    console.log("✅ File size validation result:", data);
+    return data;
+
+  } catch (err) {
+    console.error("❌ validateFileSize error:", err);
+    return {
+      isValid: false,
+      message: "Error validating file size. Please try again."
+    };
   }
 }

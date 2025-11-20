@@ -1,5 +1,5 @@
 // src/ClientForms/ClientClaimsCreationForm.jsx
-// Updated with estimate damage validation and document upload restrictions
+// Updated with file size validation (15MB total limit)
 
 import React, { useRef, useEffect, useState } from 'react';
 import { Camera, FileText, Trash2 } from 'lucide-react';
@@ -55,6 +55,21 @@ export default function ClientClaimsCreationForm({
     const [tooltipContent, setTooltipContent] = useState("");
     const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
+    // ===== File size tracking =====
+    const MAX_TOTAL_SIZE = 20 * 1024 * 1024; // 20MB in bytes
+
+    // Calculate total size of all uploaded files
+    const getTotalFileSize = () => {
+        const photoSize = photos.reduce((sum, file) => sum + file.size, 0);
+        const docSize = documents.reduce((sum, file) => sum + file.size, 0);
+        return photoSize + docSize;
+    };
+
+    // Format bytes to MB
+    const formatBytes = (bytes) => {
+        return (bytes / (1024 * 1024)).toFixed(2);
+    };
+
     // Prevent closing with Escape while modal is open
     useEffect(() => {
         function trapEsc(e) {
@@ -87,7 +102,6 @@ export default function ClientClaimsCreationForm({
         }
     }, [incidentDate, errors.incidentDate, setErrors]);
 
-    // ✅ only clear estimate damage error if value is >= ₱10,000
     useEffect(() => {
         if (estimatedDamage && errors.estimatedDamage) {
             const numValue = parseFloat(estimatedDamage);
@@ -157,26 +171,20 @@ export default function ClientClaimsCreationForm({
         setTooltipContent("");
     };
 
-    // ===== Enhanced validation for estimate damage =====
     const handleEstimateDamageChange = (e) => {
         const value = e.target.value;
 
-        // Allow empty string (for clearing the field)
         if (value === '') {
             setEstimatedDamage('');
             return;
         }
 
-        // Remove any non-numeric characters except decimal point
         const cleanedValue = value.replace(/[^0-9.]/g, '');
-
-        // Prevent multiple decimal points
         const parts = cleanedValue.split('.');
         if (parts.length > 2) {
-            return; // Don't update if there's more than one decimal point
+            return;
         }
 
-        // Update the value
         setEstimatedDamage(cleanedValue);
     };
 
@@ -184,7 +192,6 @@ export default function ClientClaimsCreationForm({
     function isValidNumber(val) {
         if (!val || val === '') return false;
         const n = parseFloat(val);
-        // ✅ require at least ₱10,000
         return Number.isFinite(n) && n >= 10000;
     }
 
@@ -267,7 +274,6 @@ export default function ClientClaimsCreationForm({
         }
     }
 
-    // Get error message for estimate damage
     const getEstimateDamageErrorMessage = () => {
         if (!estimatedDamage || estimatedDamage === '') {
             return 'Estimate Damage Amount is required';
@@ -466,7 +472,6 @@ export default function ClientClaimsCreationForm({
                                     {getEstimateDamageErrorMessage()}
                                 </small>
                             )}
-                            {/* Hint text, like in your screenshot */}
                             <small style={{ color: '#6c757d', display: 'block', marginTop: errors.estimatedDamage ? 2 : 5 }}>
                                 Minimum: ₱10,000
                             </small>
@@ -493,6 +498,8 @@ export default function ClientClaimsCreationForm({
 
                 <div ref={attachmentsSectionRef} className="form-section supporting-documents-section">
                     <h2 className="section-title-heading">Supporting Documents:</h2>
+                    
+
                     <div className="document-upload-grid">
                         {/* Photo Upload Box */}
                         <div className="upload-box" onClick={!loading ? handlePhotoBoxClick : undefined}>
@@ -537,6 +544,30 @@ export default function ClientClaimsCreationForm({
                         </div>
                     </div>
 
+                    {/* File size info message */}
+                    <p style={{ 
+                        color: '#6c757d', 
+                        fontSize: '14px', 
+                        marginBottom: '15px',
+                        padding: '10px',
+                        backgroundColor: '#f8f9fa',
+                        borderRadius: '4px',
+                        border: '1px solid #dee2e6'
+                    }}>
+                        Upload your selected files and click submit. Please note that the total size limit is 20 MB.
+                        {(photos.length > 0 || documents.length > 0) && (
+                            <span style={{ 
+                                display: 'block', 
+                                marginTop: '5px',
+                                fontWeight: getTotalFileSize() > MAX_TOTAL_SIZE ? 'bold' : 'normal',
+                                color: getTotalFileSize() > MAX_TOTAL_SIZE ? '#dc3545' : '#28a745'
+                            }}>
+                                Current total: {formatBytes(getTotalFileSize())} MB / 20 MB
+                            </span>
+                        )}
+                    </p>
+
+
                     {/* Uploaded Files Preview */}
                     {photos.length > 0 && (
                         <div className="uploaded-preview-section">
@@ -559,6 +590,9 @@ export default function ClientClaimsCreationForm({
                                             className="photo-preview-img"
                                         />
                                         <p className="photo-preview-name">{file.name}</p>
+                                        <p className="photo-preview-size" style={{ fontSize: '11px', color: '#666' }}>
+                                            {formatBytes(file.size)} MB
+                                        </p>
                                     </div>
                                 ))}
                             </div>
@@ -575,7 +609,7 @@ export default function ClientClaimsCreationForm({
                                         <div className="document-preview-info">
                                             <p className="document-preview-name">{file.name}</p>
                                             <p className="document-preview-size">
-                                                {(file.size / 1024 / 1024).toFixed(2)} MB
+                                                {formatBytes(file.size)} MB
                                             </p>
                                         </div>
                                         <button
