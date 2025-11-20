@@ -49,6 +49,11 @@ export default function Home() {
   const [processingPayment, setProcessingPayment] = useState(null);
   const [penalties, setPenalties] = useState({});
 
+  // Payment modal state
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [showCheckboxError, setShowCheckboxError] = useState(false);
+
   // All payments for calendar
   const [allPayments, setAllPayments] = useState([]);
 
@@ -224,6 +229,19 @@ export default function Home() {
   useEffect(() => { fetchAllPayments(); }, [fetchAllPayments]);
   useEffect(() => { fetchUpcomingPayments(); }, [fetchUpcomingPayments]);
   useEffect(() => { loadChartData(); }, [loadChartData]);
+
+  // Trap Escape key when modal is open
+  useEffect(() => {
+    function trapEsc(e) {
+      if (!showPaymentModal) return;
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }
+    document.addEventListener("keydown", trapEsc, true);
+    return () => document.removeEventListener("keydown", trapEsc, true);
+  }, [showPaymentModal]);
 
   // --- Calendar helpers ------------------------------------------------------
   const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
@@ -406,6 +424,27 @@ export default function Home() {
   const isFirstPaymentOverdue = firstPendingPayment ? isPaymentOverdue(firstPendingPayment.payment_date) : false;
   const firstPaymentDaysOverdue = firstPendingPayment ? getDaysOverdue(firstPendingPayment.payment_date) : 0;
   const hasPenaltyForFirstPayment = firstPaymentPenalty > 0;
+
+  const handleMakePaymentClick = () => {
+    setShowPaymentModal(true);
+    setAgreedToTerms(false);
+    setShowCheckboxError(false);
+  };
+
+  const handleCloseModal = () => {
+    setShowPaymentModal(false);
+    setAgreedToTerms(false);
+    setShowCheckboxError(false);
+  };
+
+  const handleConfirmPayment = async () => {
+    if (!agreedToTerms) {
+      setShowCheckboxError(true);
+      return;
+    }
+    setShowPaymentModal(false);
+    await handleMakePayment(currentDisplayedPolicy?.id);
+  };
 
   const handleMakePayment = async (policyId) => {
     setProcessingPayment(policyId);
@@ -638,7 +677,7 @@ export default function Home() {
                 {currentDisplayedPolicy.payments.length > 0 && (
                   <button
                     className={`make-payment-btn-home ${hasPenaltyForFirstPayment ? 'overdue-btn-home' : ''}`}
-                    onClick={() => handleMakePayment(currentDisplayedPolicy.id)}
+                    onClick={handleMakePaymentClick}
                     disabled={processingPayment === currentDisplayedPolicy.id}
                   >
                     {processingPayment === currentDisplayedPolicy.id ? (
@@ -889,6 +928,84 @@ export default function Home() {
           </div> */}
         </div>
       </div>
+
+      {/* Payment Confirmation Modal */}
+      {showPaymentModal && (
+        <div
+          className="payment-modal-overlay"
+          onClick={handleCloseModal}
+        >
+          <div
+            className="payment-modal-content"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="payment-modal-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="payment-modal-header">
+              <h2 id="payment-modal-title">Terms and Conditions</h2>
+              <button
+                className="payment-modal-close"
+                onClick={handleCloseModal}
+                aria-label="Close modal"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="payment-modal-body">
+              <div className="payment-terms-container">
+                <input
+                  type="checkbox"
+                  id="payment-terms"
+                  className={agreedToTerms ? "checkbox-checked" : ""}
+                  checked={agreedToTerms}
+                  onChange={(e) => {
+                    setAgreedToTerms(e.target.checked);
+                    setShowCheckboxError(false);
+                  }}
+                />
+                <label htmlFor="payment-terms" className="payment-terms-text">
+                  <p className={showCheckboxError ? "error-text" : ""}>
+                    By proceeding, I confirm that all payment details I have provided are accurate and correct. I understand and agree to the{" "}
+                    <a
+                      href="/insurance-client-page/TermsAndConditions"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Terms and Conditions
+                    </a>{" "}
+                    and the{" "}
+                    <a
+                      href="/insurance-client-page/PrivacyPolicy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Privacy Policy
+                    </a>{" "}
+                    of Silverstar Insurance Agency Inc. I acknowledge that all payments are final and non-refundable once processed.
+                  </p>
+
+                  <p className={showCheckboxError ? "error-text" : ""}>
+                    In accordance with the Data Privacy Act of 2012 and its Implementing Rules and Regulations effective September 9, 2016, I authorize Silverstar Insurance Agency Inc. to collect, store, and process my personal and payment information for the purpose of fulfilling my insurance transaction.
+                  </p>
+                </label>
+              </div>
+            </div>
+
+            <div className="payment-modal-footer">
+              <button
+                className="payment-process-btn"
+                onClick={handleConfirmPayment}
+              >
+                Agree
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
